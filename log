@@ -1,0 +1,205 @@
+ <div class="card">
+
+        <div class="admintab-wrap edu-tab1 mg-t-30">
+            <ul class="nav nav-tabs custom-menu-wrap custon-tab-menu-style1">
+
+
+                    <li class="active">
+                        <a data-toggle="tab" href="#basic_profile" id="basic_profile_link" aria-expanded="true">
+
+                            <span class="educate-icon educate-student icon-wrap"></span> Profile
+
+                        </a>
+                    </li>
+                <li class="">
+                    <a data-toggle="tab" href="#education" id="education_link" aria-expanded="false">
+
+                        <span class="educate-icon educate-department icon-wrap"></span> Education
+
+                    </a>
+                </li>
+
+
+            </ul>
+
+        </div>
+        <div class="tab-content">
+
+
+            <div id="basic_profile" class="tab-pane animated custon-tab-style1 active">
+                <div class="card-body">
+                    <div class="card-header text-center">
+                        <h3>Personal Information</h3>
+                    </div>
+
+                    <div class="row"  >
+
+                        <div class="col-md-1">
+                            <div class="top-margin">
+                                <label for="exampleInput1" class="bmd-label-floating">Prefix
+                                    <span class="text-danger">*</span></label>
+                                <select  class=" form-control mb-3" name="PREFIX_ID" id="PREFIX_ID">
+
+
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="top-margin">
+                                <label for="exampleInput1" class="bmd-label-floating">Full Name
+                                    <span class="text-danger">*</span></label>
+                                <input <?=$readonly?> type="text" id="FIRST_NAME" class="form-control" name="FIRST_NAME" value="<?=$user['FIRST_NAME']?>"  >
+                                <input type="text" id="USER_ID" class="" name="USER_ID" value="<?=$user['USER_ID']?>" hidden>
+
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="top-margin">
+                                <label for="exampleInput1" class="bmd-label-floating">Surname
+                                    <span class="text-danger">*</span></label>
+                                <input <?=$readonly?> type="text" id="LAST_NAME" class="form-control" name="LAST_NAME" value="<?=$user['LAST_NAME']?>"  >
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="top-margin">
+                                <label for="exampleInput1" class="bmd-label-floating"> Email
+                                    <span class="text-danger">*</span></label>
+                                <input type="text" id="EMAIL" class="form-control" name="EMAIL" value="<?=$user['EMAIL']?>"  >
+
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="top-margin">
+                                <label for="exampleInput1" class="bmd-label-floating">Date Of Birth
+                                    <span class="text-danger">* &nbsp;<small>dd/mm/yyyy</small></span></label>
+                                <div class="form-group data-custon-pick" id="data_2">
+                                    <div class="input-group date">
+                                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                        <input <?=$readonly?> type="text" id="DATE_OF_BIRTH"  name="DATE_OF_BIRTH" class="form-control" value="<?=getDateForView($user['DATE_OF_BIRTH'])?>">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="row"  >
+
+                        <?php
+                        if($user['IS_CNIC_PASS']==='P'){
+                            ?>
+                            <div class="col-md-2">
+                                <div class="top-margin">
+                                    <label for="exampleInput1" class="bmd-label-floating">Passport No
+                                        <span class="text-danger">*</span></label>
+                                    <input readonly type="text" id="PASSPORT_NO" class="form-control" name="PASSPORT_NO"
+                                           value="<?= $user['PASSPORT_NO'] ?>">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="top-margin">
+                                    <label for="exampleInput1" class="bmd-label-floating">Passport Expiry
+                                        <span class="text-danger">*</span></label>
+                                    <div class="form-group data-custon-pick" id="data_2">
+                                        <div class="input-group date">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <input data-toggle="tooltip" title="Passport Expiry Date"  type="text" id="PASSPORT_EXPIRY"  name="PASSPORT_EXPIRY" class="form-control" value="<?=getDateForView($user['PASSPORT_EXPIRY'])?>">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php
+                        }
+                        else {
+                            ?>
+                            <div class="col-md-2">
+                                <div class="top-margin">
+                                    <label for="exampleInput1" class="bmd-label-floating">CNIC / Form-B
+                                        <span class="text-danger">*</span></label>
+                                    <input  type="text" id="CNIC_NO" class="form-control" name="CNIC_NO" value="<?=$user['CNIC_NO']?>"  >
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="top-margin">
+                                    <label for="exampleInput1" class="bmd-label-floating">CNIC Expiry
+                                        <span class="text-danger"></span></label>
+                                    <div class="form-group data-custon-pick" id="data_2">
+                                        <div class="input-group date">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <input data-toggle="tooltip" title="CNIC Expiry Date"  type="text" id="CNIC_EXPIRY"  name="CNIC_EXPIRY" class="form-control" value="<?=getDateForView($user['CNIC_EXPIRY'])?>">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <?php
+                        }
+                        ?>
+                        <div class="col-md-2">
+                            <div class="top-margin">
+                                <label for="exampleInput1" class="bmd-label-floating">Father's Name
+                                    <span class="text-danger"></span></label>
+                                <input <?=$readonly?> type="text" id="FNAME" class="form-control" name="FNAME" value="<?=$user['FNAME']?>"  >
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="top-margin">
+                                <label for="exampleInput1" class="bmd-label-floating"> Mobile Code
+                                    <span class="text-danger">*</span></label>
+                                <select  class="js-example-basic-single form-control mb-3" name="MOBILE_CODE" id="MOBILE_CODE">
+                                    <?php
+
+                                    foreach ($countries as $country) {
+                                        $select = "";
+                                        if($country['PHONE_CODE']==$user['MOBILE_CODE']){
+                                            $select = "selected";
+                                        }
+                                        echo "<option value='{$country['PHONE_CODE']}' $select >{$country['COUNTRY_NAME']} &nbsp;&nbsp; {$country['PHONE_CODE']}</option>";
+                                    }
+                                    ?>
+                                </select>
+
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="top-margin">
+
+                                <label for="exampleInput1" class="bmd-label-floating"> Mobile No
+                                    <span class="text-danger">*</span></label>
+                                <input type="text" id="MOBILE_NO" class="form-control" name="MOBILE_NO" value="<?=$user['MOBILE_NO']?>"  >
+
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="top-margin">
+                                <label for="exampleInput1" class="bmd-label-floating">Place of Birth
+                                    <span class="text-danger"></span></label>
+                                <input type="text" id="PLACE_OF_BIRTH" class="form-control" name="PLACE_OF_BIRTH" value="<?=$user['PLACE_OF_BIRTH']?>"  >
+                            </div>
+                        </div>
+
+
+
+                    </div>
+
+
+
+                </div>
+
+
+            </div>
+            <div id="education" class="tab-pane animated custon-tab-style1">
+                education  Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.
+
+                when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries.
+
+                the leap into electronic typesetting, remaining essentially unchanged.
+            </div>
+
+
+
+
+
+        </div>
+    </div>

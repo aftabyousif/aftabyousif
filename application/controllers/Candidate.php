@@ -20,6 +20,8 @@ class Candidate extends CI_Controller
             redirect(base_url().$this->LoginController);
             exit();
         }
+        $this->load->model('User_model');
+        $this->load->model('Api_country_model');
     }
     function index(){
         $user = $this->session->userdata($this->SessionName);
@@ -39,9 +41,15 @@ class Candidate extends CI_Controller
     }
     function profile(){
         $user = $this->session->userdata($this->SessionName);
+
+        $countries =$this->Api_country_model->getAllCountry();
         if($user){
+
+            $user = $this->User_model->getUserById($user['USER_ID']);
+
             $data['user'] = $user;
             $data['profile_url'] = base_url().$this->profile;
+            $data['countries'] = $countries;
 
             $this->load->view('include/header',$data);
             $this->load->view('include/preloder');

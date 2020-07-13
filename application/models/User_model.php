@@ -28,6 +28,12 @@ class User_model extends CI_model
         return $user;
 
     }
+    function getUserById($user_id){
+        $this->db->where('USER_ID',$user_id);
+        $user = $this->db->get('users_reg')->row_array();
+        return $user;
+
+    }
     function getUserByPassport($passport){
         $this->db->where('PASSPORT_NO',$passport);
         $user = $this->db->get('users_reg')->row_array();
