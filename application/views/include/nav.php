@@ -55,7 +55,7 @@
                                 }
                             }
                         ?>
-                                               
+
                                                
                                             </ul>
                                         </div>
@@ -83,14 +83,18 @@
                                                 <li class="nav-item">
                                                     <a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="nav-link dropdown-toggle">
                                                                       <?php
-                                                                       if($user['PROFILE_IMAGE']){
+                                                                       if(isset($user['PROFILE_IMAGE'])){
                                                                             echo " <img src='{$user['PROFILE_IMAGE']}' alt=''  >";    
                                                                             }else{
                                                                                 echo " <img src='../../eportal_resource/images/avatar/default-avatar.png' alt=''  >";    
                                                                             }
-                                                                      ?>      
-        														
+                                                                      ?>
+
+														<?php
+														if(isset($user['FIRST_NAME'])){
+														?>
 															<span class="admin-name"><?=$user['FIRST_NAME'];?></span>
+														<?php } ?>
 															<i class="fa fa-angle-down edu-icon edu-down-arrow"></i>
 														</a>
                                                     <ul role="menu" class="dropdown-header-top author-log dropdown-menu animated zoomIn">
@@ -270,4 +274,3 @@
        
 </script>
 
-        

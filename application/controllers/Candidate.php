@@ -37,8 +37,8 @@ class Candidate extends CI_Controller
             $this->load->view('include/footer_area',$data);
             $this->load->view('include/footer',$data);
         }
-
     }
+
     function profile(){
         $user = $this->session->userdata($this->SessionName);
 

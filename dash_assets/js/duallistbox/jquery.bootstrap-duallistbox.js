@@ -38,6 +38,8 @@
 
     // The actual plugin constructor
     function BootstrapDualListbox(element, options) {
+		
+		
         this.element = $(element);
         // jQuery has an extend method which merges the contents of two or
         // more objects, storing the result in the first object. The first object
@@ -50,6 +52,7 @@
     }
 
     function triggerChangeEvent(dualListbox) {
+		
         dualListbox.element.trigger('change');
     }
 
@@ -62,6 +65,7 @@
             if (typeof($item.data('_selected')) === 'undefined') {
                 $item.data('_selected', false);
             }
+			
         });
     }
 
@@ -77,7 +81,7 @@
                     $item.removeAttr('data-sortindex');
                 }
             }
-        });
+		});
     }
 
     function formatString(s, args) {
@@ -385,7 +389,7 @@
                 '       <i></i>' +
                 '     </button>' +
                 '   </div>' +
-                '   <select multiple="multiple"></select>' +
+                '   <select id="replica" name="replica" multiple="multiple"></select>' +
                 ' </div>' +
                 '</div>')
                 .insertBefore(this.element);
