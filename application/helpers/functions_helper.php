@@ -5,6 +5,13 @@
  * Date: 7/11/2020
  * Time: 12:17 PM
  */
+function getcsrf($obj){
+    $reponse = array(
+        'csrfName' => $obj->security->get_csrf_token_name(),
+        'csrfHash' => $obj->security->get_csrf_hash()
+    );
+    return $reponse;
+}
 function passwordRule($password){
     $pattern = "/(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,50}/";
 
@@ -142,7 +149,7 @@ function decode($value){
 }
 function isValidData($data){
 
-    $data = addslashes(trim($data));
+    $data = htmlspecialchars(addslashes(trim($data)), ENT_QUOTES, 'UTF-8');;
     return $data;
 }
 function getDateForDatabase($orgDate){

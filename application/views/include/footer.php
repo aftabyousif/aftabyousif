@@ -122,13 +122,13 @@ document.getElementById('min-height').style="padding:30px;min-height:"+(window.i
                 .replace(/"/g, "-AND-quot;")
                 .replace(/'/g, "-AND-#039;");
         }
-        function changeImage(target,imageFile,veiwImage){
+        function changeImage(target,imageFile,veiwImage,kb=50){
 
 
             var imageFile1 = imageFile+"1";
             var v = document.getElementById(imageFile);
             document.getElementById(imageFile1).value = v.value;
-            if(checksize(target)){
+            if(checksize(target,kb)){
 
                 if(v.files && v.files[0]){
 
@@ -152,16 +152,22 @@ document.getElementById('min-height').style="padding:30px;min-height:"+(window.i
         }
 
 
-        function checksize(target){
+        function checksize(target,kb=50){
 
             if(target.files[0].type.indexOf("image") == -1) {
-                alert("File not supported");
+                alertMsg('ALERT',"File not supported");
                 return false;
             }
-            var  fileSize = 1024*550*1;
+            var  fileSize = 1024*kb;
             if(target.files[0].size >fileSize ) {
-                alert("Image size too big (max 500KB)");
+                if(kb>=1024){
+                    var msg = (kb/1024)+"MB";
+                }else{
+                    var msg = 1024+"KB";
+                }
 
+
+                alertMsg('ALERT',"Image size too big (max "+msg+")");
                 return false;
             }
             return true;

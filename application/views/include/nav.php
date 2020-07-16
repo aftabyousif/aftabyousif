@@ -84,9 +84,11 @@
                                                     <a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="nav-link dropdown-toggle">
                                                                       <?php
                                                                        if($user['PROFILE_IMAGE']){
-                                                                            echo " <img src='{$user['PROFILE_IMAGE']}' alt=''  >";    
+                                                                           $v =PROFILE_IMAGE_PATH;
+                                                                            echo " <img src='$v{$user['PROFILE_IMAGE']}' alt=''  >";
                                                                             }else{
-                                                                                echo " <img src='../../eportal_resource/images/avatar/default-avatar.png' alt=''  >";    
+                                                                                    $image_path_default =base_url()."dash_assets/img/avatar/default-avatar.png";
+                                                                                echo " <img src='$image_path_default' alt=''  >";
                                                                             }
                                                                       ?>      
         														
@@ -230,7 +232,7 @@
                                         <i class="educate-icon educate-checked modal-check-pro"></i>
                                         <h2 id="image_modal_title">Awesome!</h2>
                                         <p id="image_modal_msg">
-                                            <img src="../../eportal_resource/images/avatar/default-avatar.png" alt="">
+                                            <img src="<?=$image_path_default =base_url()."dash_assets/img/avatar/default-avatar.png";?>" alt="">
                                             </p>
                                     </div>
                                     <div class="modal-footer" id="add_btn">

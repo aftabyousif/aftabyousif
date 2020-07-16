@@ -25,7 +25,7 @@ $project_name ="Admission";
  
     <!-- Google Fonts
 		============================================ -->
-    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,700,900" rel="stylesheet">
+<!--    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,700,900" rel="stylesheet">-->
     <!-- Bootstrap CSS
 		============================================ -->
     <link rel="stylesheet" href="<?=base_url()?>dash_assets/css/bootstrap.min.css">

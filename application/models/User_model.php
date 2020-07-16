@@ -55,5 +55,24 @@ class User_model extends CI_model
         }
 
     }
+    function updateUserById($user_id,$formArray){
+
+            $this->db->trans_begin();
+            $this->db->where('USER_ID',$user_id);
+            $this->db->update('users_reg',$formArray);
+
+            if($this->db->affected_rows() ==1){
+                $this->db->trans_commit();
+                return 1;
+            }elseif($this->db->affected_rows() ==0){
+                $this->db->trans_commit();
+                return 0;
+            }else{
+                $this->db->trans_rollback();
+                return -1;
+            }
+
+    }
+
 
 }
