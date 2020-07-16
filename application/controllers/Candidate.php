@@ -274,14 +274,14 @@ class Candidate extends CI_Controller
 
         if($reponse['RESPONSE'] == "ERROR"){
             $this->output
-            ->set_status_header(500)
-            ->set_content_type('application/json', 'utf-8')
-            ->set_output(json_encode($reponse));
+                ->set_status_header(500)
+                ->set_content_type('application/json', 'utf-8')
+                ->set_output(json_encode($reponse));
         }else{
             $this->output
-            ->set_status_header(200)
-            ->set_content_type('application/json', 'utf-8')
-            ->set_output(json_encode($reponse));
+                ->set_status_header(200)
+                ->set_content_type('application/json', 'utf-8')
+                ->set_output(json_encode($reponse));
         }
 
     }
@@ -302,8 +302,8 @@ class Candidate extends CI_Controller
                     <th>End Date</th>
                     <th colspan='2'>ACTION</th>
                 </tr>";
-                foreach($qulificationList as $degree) {
-                    $output.= "<tr>
+        foreach($qulificationList as $degree) {
+            $output.= "<tr>
                         <td>{$degree['DEGREE_TITLE']}</td>
                         <td>{$degree['DISCIPLINE_NAME']}</td>
                         <td>{$degree['ORGANIZATION']}</td>
@@ -317,11 +317,11 @@ class Candidate extends CI_Controller
                     </tr>";
 
 
-                }
+        }
 
 
         $output .="</table></div>";
-                echo $output;
+        echo $output;
     }
 
     function apiGetAddQualificationForm(){
@@ -401,141 +401,141 @@ class Candidate extends CI_Controller
         $folder = EXTRA_IMAGE_CHECK_PATH."$USER_ID";
         //echo $folder;
         if(!is_dir($folder)){
-           // $folder;
+            // $folder;
             mkdir(EXTRA_IMAGE_CHECK_PATH."/$USER_ID");
         }
         $reponse['RESPONSE'] = "ERROR";
         $reponse['MESSAGE'] = "<div class='text-danger'>This is starting message there is no error..!</div>";
 
-            $ROLL_NO = $grade = "";
-            $IS_DECLARE = 'N';
-            $RESULT_DATE = $START_DATE = $END_DATE = '1900-01-01';
-            $cgpa = $out_of = $DEGREE_ID = $DISCIPLINE_ID = $INSTITUTE_ID = $ORGANIZATION_ID = $TOTAL_MARKS = $OBTAINED_MARKS = 0;
-            $error = "";
+        $ROLL_NO = $grade = "";
+        $IS_DECLARE = 'N';
+        $RESULT_DATE = $START_DATE = $END_DATE = '1900-01-01';
+        $cgpa = $out_of = $DEGREE_ID = $DISCIPLINE_ID = $INSTITUTE_ID = $ORGANIZATION_ID = $TOTAL_MARKS = $OBTAINED_MARKS = 0;
+        $error = "";
 
-            if (isset($_POST['DEGREE_ID']) && isValidData($_POST['DEGREE_ID'])) {
-                $DEGREE_ID = (int)isValidData($_POST['DEGREE_ID']);
-            } else {
-                $error .= "<div class='text-danger'>Qualification / Degree / Certificate must be select</div>";
-            }
+        if (isset($_POST['DEGREE_ID']) && isValidData($_POST['DEGREE_ID'])) {
+            $DEGREE_ID = (int)isValidData($_POST['DEGREE_ID']);
+        } else {
+            $error .= "<div class='text-danger'>Qualification / Degree / Certificate must be select</div>";
+        }
 
-            if (isset($_POST['check_grade'])) {
-                if ($_POST['check_grade'] == 'grade') {
-                    $GRADING_AS = "G";
-                    if (isset($_POST['grade']) && isValidData($_POST['grade'])) {
-                        $grade = isValidData($_POST['grade']);
-                    } else {
-                        $error .= "<div class='text-danger'>Grade must be select</div>";
-                    }
-                } else if ($_POST['check_grade'] == 'cgpa') {
-                    $GRADING_AS = "C";
-                    if (isset($_POST['cgpa']) && isValidData($_POST['cgpa'])) {
-                        $cgpa = isValidData($_POST['cgpa']);
-                    } else {
-                        $error .= "<div class='text-danger'>CGPA Must Enter</div>";
-                    }
-                    if (isset($_POST['out_of']) && isValidData($_POST['out_of'])) {
-                        $out_of = isValidData($_POST['out_of']);
-                    } else {
-                        $error .= "<div class='text-danger'>Out Of must select</div>";
-                    }
-
-                    if (!is_numeric($cgpa)) {
-                        $error .= "<div class='text-danger'> Must Enter Valid CGPA / Percentage</div>";
-                    } else {
-                        $cgpa = number_format((float)$cgpa, 2, '.', '');
-                        if ($cgpa > $out_of) {
-                            $error .= "<div class='text-danger'> Must Enter Valid CGPA / Percentage</div>";
-                        }
-                    }
-
-
-                }
-            }
-            if (!isset($_POST['result_not_declare'])) {
-                $IS_DECLARE = 'Y';
-                if (isset($_POST['RESULT_DATE']) && isValidTimeDate($_POST['RESULT_DATE'], 'd/m/Y')) {
-                    $RESULT_DATE = getDateForDatabase($_POST['RESULT_DATE']);
+        if (isset($_POST['check_grade'])) {
+            if ($_POST['check_grade'] == 'grade') {
+                $GRADING_AS = "G";
+                if (isset($_POST['grade']) && isValidData($_POST['grade'])) {
+                    $grade = isValidData($_POST['grade']);
                 } else {
-                    $error .= "<div class='text-danger'>Result Declare Date must be Filled</div>";
+                    $error .= "<div class='text-danger'>Grade must be select</div>";
                 }
+            } else if ($_POST['check_grade'] == 'cgpa') {
+                $GRADING_AS = "C";
+                if (isset($_POST['cgpa']) && isValidData($_POST['cgpa'])) {
+                    $cgpa = isValidData($_POST['cgpa']);
+                } else {
+                    $error .= "<div class='text-danger'>CGPA Must Enter</div>";
+                }
+                if (isset($_POST['out_of']) && isValidData($_POST['out_of'])) {
+                    $out_of = isValidData($_POST['out_of']);
+                } else {
+                    $error .= "<div class='text-danger'>Out Of must select</div>";
+                }
+
+                if (!is_numeric($cgpa)) {
+                    $error .= "<div class='text-danger'> Must Enter Valid CGPA / Percentage</div>";
+                } else {
+                    $cgpa = number_format((float)$cgpa, 2, '.', '');
+                    if ($cgpa > $out_of) {
+                        $error .= "<div class='text-danger'> Must Enter Valid CGPA / Percentage</div>";
+                    }
+                }
+
 
             }
-
-
-            if (isset($_POST['INSTITUTE_ID']) && isValidData($_POST['INSTITUTE_ID'])) {
-                $INSTITUTE_ID = isValidData($_POST['INSTITUTE_ID']);
-                if ($INSTITUTE_ID <= 0) {
-                    $error .= "<div class='text-danger'>Institute / Department / School / College must be select</div>";
-                }
+        }
+        if (!isset($_POST['result_not_declare'])) {
+            $IS_DECLARE = 'Y';
+            if (isset($_POST['RESULT_DATE']) && isValidTimeDate($_POST['RESULT_DATE'], 'd/m/Y')) {
+                $RESULT_DATE = getDateForDatabase($_POST['RESULT_DATE']);
             } else {
+                $error .= "<div class='text-danger'>Result Declare Date must be Filled</div>";
+            }
+
+        }
+
+
+        if (isset($_POST['INSTITUTE_ID']) && isValidData($_POST['INSTITUTE_ID'])) {
+            $INSTITUTE_ID = isValidData($_POST['INSTITUTE_ID']);
+            if ($INSTITUTE_ID <= 0) {
                 $error .= "<div class='text-danger'>Institute / Department / School / College must be select</div>";
             }
-            if (isset($_POST['ORGANIZATION_ID']) && isValidData($_POST['ORGANIZATION_ID'])) {
-                $ORGANIZATION_ID = isValidData($_POST['ORGANIZATION_ID']);
-            } else {
-                $error .= "<div class='text-danger'>Organization / University / Board must be select</div>";
-            }
-            if (isset($_POST['DISCIPLINE_ID']) && isValidData($_POST['DISCIPLINE_ID'])) {
-                $DISCIPLINE_ID = isValidData($_POST['DISCIPLINE_ID']);
-                if ($DISCIPLINE_ID <= 0) {
-                    $error .= "<div class='text-danger'>Discipline / Subject / Group must be select</div>";
-                }
-            } else {
+        } else {
+            $error .= "<div class='text-danger'>Institute / Department / School / College must be select</div>";
+        }
+        if (isset($_POST['ORGANIZATION_ID']) && isValidData($_POST['ORGANIZATION_ID'])) {
+            $ORGANIZATION_ID = isValidData($_POST['ORGANIZATION_ID']);
+        } else {
+            $error .= "<div class='text-danger'>Organization / University / Board must be select</div>";
+        }
+        if (isset($_POST['DISCIPLINE_ID']) && isValidData($_POST['DISCIPLINE_ID'])) {
+            $DISCIPLINE_ID = isValidData($_POST['DISCIPLINE_ID']);
+            if ($DISCIPLINE_ID <= 0) {
                 $error .= "<div class='text-danger'>Discipline / Subject / Group must be select</div>";
             }
-            if (isset($_POST['ROLL_NO']) && isValidData($_POST['ROLL_NO'])) {
-                $ROLL_NO = isValidData($_POST['ROLL_NO']);
-            } else {
-                $error .= "<div class='text-danger'>Roll Number must be Filled</div>";
-            }
-            if (isset($_POST['TOTAL_MARKS']) && isValidData($_POST['TOTAL_MARKS'])) {
-                $TOTAL_MARKS = isValidData($_POST['TOTAL_MARKS']);
-            } else {
-                if ($DEGREE_ID != 8)
-                    $error .= "<div class='text-danger'>Total Marks must be Filled</div>";
-            }
-            if (isset($_POST['OBTAINED_MARKS']) && isValidData($_POST['OBTAINED_MARKS'])) {
-                $OBTAINED_MARKS = isValidData($_POST['OBTAINED_MARKS']);
-            } else {
-                if ($DEGREE_ID != 8)
-                    $error .= "<div class='text-danger'>Obtained Marks must be Filled</div>";
-            }
+        } else {
+            $error .= "<div class='text-danger'>Discipline / Subject / Group must be select</div>";
+        }
+        if (isset($_POST['ROLL_NO']) && isValidData($_POST['ROLL_NO'])) {
+            $ROLL_NO = isValidData($_POST['ROLL_NO']);
+        } else {
+            $error .= "<div class='text-danger'>Roll Number must be Filled</div>";
+        }
+        if (isset($_POST['TOTAL_MARKS']) && isValidData($_POST['TOTAL_MARKS'])) {
+            $TOTAL_MARKS = isValidData($_POST['TOTAL_MARKS']);
+        } else {
+            if ($DEGREE_ID != 8)
+                $error .= "<div class='text-danger'>Total Marks must be Filled</div>";
+        }
+        if (isset($_POST['OBTAINED_MARKS']) && isValidData($_POST['OBTAINED_MARKS'])) {
+            $OBTAINED_MARKS = isValidData($_POST['OBTAINED_MARKS']);
+        } else {
+            if ($DEGREE_ID != 8)
+                $error .= "<div class='text-danger'>Obtained Marks must be Filled</div>";
+        }
 
 
-            if (isset($_POST['START_DATE']) && isValidTimeDate($_POST['START_DATE'], 'd/m/Y')) {
-                $START_DATE = getDateForDatabase($_POST['START_DATE']);
-            } else {
-                $error .= "<div class='text-danger'>Start Date must be Filled</div>";
-            }
-            if (isset($_POST['END_DATE']) && isValidTimeDate($_POST['END_DATE'], 'd/m/Y')) {
-                $END_DATE = getDateForDatabase($_POST['END_DATE']);
-            } else {
-                $error .= "<div class='text-danger'>End Date must be Filled</div>";
-            }
-            if ($END_DATE <= $START_DATE) {
-                $error .= "<div class='text-danger'>Invalid Date </div>";
-            }
+        if (isset($_POST['START_DATE']) && isValidTimeDate($_POST['START_DATE'], 'd/m/Y')) {
+            $START_DATE = getDateForDatabase($_POST['START_DATE']);
+        } else {
+            $error .= "<div class='text-danger'>Start Date must be Filled</div>";
+        }
+        if (isset($_POST['END_DATE']) && isValidTimeDate($_POST['END_DATE'], 'd/m/Y')) {
+            $END_DATE = getDateForDatabase($_POST['END_DATE']);
+        } else {
+            $error .= "<div class='text-danger'>End Date must be Filled</div>";
+        }
+        if ($END_DATE <= $START_DATE) {
+            $error .= "<div class='text-danger'>Invalid Date </div>";
+        }
 
 
 
-            if ($DEGREE_ID != 8 && $TOTAL_MARKS <= 0) {
-                $error .= "<div class='text-danger'>Invalid Total Marks </div>";
-            }
-            if ($DEGREE_ID != 8 && $OBTAINED_MARKS <= 0) {
-                $error .= "<div class='text-danger'>Invalid Obtained Marks </div>";
-            }
-            if ($DEGREE_ID == 8 && $TOTAL_MARKS < 0) {
-                $error .= "<div class='text-danger'>Invalid Total Marks </div>";
-            }
-            if ($DEGREE_ID == 8 && $OBTAINED_MARKS < 0) {
-                $error .= "<div class='text-danger'>Invalid Obtained Marks </div>";
-            }
+        if ($DEGREE_ID != 8 && $TOTAL_MARKS <= 0) {
+            $error .= "<div class='text-danger'>Invalid Total Marks </div>";
+        }
+        if ($DEGREE_ID != 8 && $OBTAINED_MARKS <= 0) {
+            $error .= "<div class='text-danger'>Invalid Obtained Marks </div>";
+        }
+        if ($DEGREE_ID == 8 && $TOTAL_MARKS < 0) {
+            $error .= "<div class='text-danger'>Invalid Total Marks </div>";
+        }
+        if ($DEGREE_ID == 8 && $OBTAINED_MARKS < 0) {
+            $error .= "<div class='text-danger'>Invalid Obtained Marks </div>";
+        }
 
 
-            if ($TOTAL_MARKS < $OBTAINED_MARKS) {
-                $error .= "<div class='text-danger'>Obtained Marks must be less then or Equal to Total Marks </div>";
-            }
+        if ($TOTAL_MARKS < $OBTAINED_MARKS) {
+            $error .= "<div class='text-danger'>Obtained Marks must be less then or Equal to Total Marks </div>";
+        }
 
 
         $degree_name =  $this->Api_qualification_model->getDegreeProgramById($DEGREE_ID);
@@ -598,27 +598,27 @@ class Candidate extends CI_Controller
 
 
 
-                $form_array = array(
-                    "USER_ID"           =>  $USER_ID,
-                    "DISCIPLINE_ID"     =>$DISCIPLINE_ID,
-                    "ORGANIZATION_ID"   =>  $ORGANIZATION_ID,
-                    "INSTITUTE_ID"      =>  $INSTITUTE_ID,
-                    "START_DATE"        =>  $START_DATE,
-                    "END_DATE"          =>  $END_DATE,
-                    "RESULT_DATE"       =>  $RESULT_DATE,
-                    "TOTAL_MARKS"       =>  $TOTAL_MARKS,
-                    "OBTAINED_MARKS"    =>  $OBTAINED_MARKS,
-                    "CGPA"              =>  $cgpa,
-                    "GRADING_AS"        =>  $GRADING_AS,
-                    "GRADE"             =>  $grade,
-                    "ACTIVE"            =>  1,
-                    "IS_RESULT_DECLARE" =>  $IS_DECLARE,
-                    "ROLL_NO"           =>  $ROLL_NO,
-                    "OUT_OF"            =>  $out_of,
-                    "MARKSHEET_IMAGE"   =>  $marksheet_image,
-                    "PASSCERTIFICATE_IMAGE"=>  $passcertificate_image,
-                );
-                $res = $this->Api_qualification_model->addQulification($form_array);
+            $form_array = array(
+                "USER_ID"           =>  $USER_ID,
+                "DISCIPLINE_ID"     =>$DISCIPLINE_ID,
+                "ORGANIZATION_ID"   =>  $ORGANIZATION_ID,
+                "INSTITUTE_ID"      =>  $INSTITUTE_ID,
+                "START_DATE"        =>  $START_DATE,
+                "END_DATE"          =>  $END_DATE,
+                "RESULT_DATE"       =>  $RESULT_DATE,
+                "TOTAL_MARKS"       =>  $TOTAL_MARKS,
+                "OBTAINED_MARKS"    =>  $OBTAINED_MARKS,
+                "CGPA"              =>  $cgpa,
+                "GRADING_AS"        =>  $GRADING_AS,
+                "GRADE"             =>  $grade,
+                "ACTIVE"            =>  1,
+                "IS_RESULT_DECLARE" =>  $IS_DECLARE,
+                "ROLL_NO"           =>  $ROLL_NO,
+                "OUT_OF"            =>  $out_of,
+                "MARKSHEET_IMAGE"   =>  $marksheet_image,
+                "PASSCERTIFICATE_IMAGE"=>  $passcertificate_image,
+            );
+            $res = $this->Api_qualification_model->addQulification($form_array);
 
 
 
@@ -714,7 +714,7 @@ class Candidate extends CI_Controller
 
             }
 
-             return array("STATUS"=>true,"IMAGE_NAME"=>$image_data['file_name']);
+            return array("STATUS"=>true,"IMAGE_NAME"=>$image_data['file_name']);
 
         }
     }
