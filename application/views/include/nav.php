@@ -83,16 +83,16 @@
                                             <li class="nav-item">
                                                 <a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="nav-link dropdown-toggle">
                                                     <?php
-                                                    if($user['PROFILE_IMAGE']){
+                                                    if(isset($user['PROFILE_IMAGE'])){
                                                         $v =PROFILE_IMAGE_PATH;
                                                         echo " <img src='$v{$user['PROFILE_IMAGE']}' alt=''  >";
-                                                    }else{
-                                                        $image_path_default =base_url()."dash_assets/img/avatar/default-avatar.png";
+                                                    }else {
+                                                        $image_path_default = base_url() . "dash_assets/img/avatar/default-avatar.png";
                                                         echo " <img src='$image_path_default' alt=''  >";
                                                     }
                                                     ?>
 
-                                                    <span class="admin-name"><?=$user['FIRST_NAME'];?></span>
+                                                    <span class="admin-name"><?=isset($user['FIRST_NAME'])?$user['FIRST_NAME']:false;?></span>
                                                     <i class="fa fa-angle-down edu-icon edu-down-arrow"></i>
                                                 </a>
                                                 <ul role="menu" class="dropdown-header-top author-log dropdown-menu animated zoomIn">
