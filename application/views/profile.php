@@ -87,6 +87,63 @@ $readonly ="";
     function getQualification(){
         callAjax("<?=base_url()?>Candidate/apiGetQualificationList","qulification_table_view");
     }
+    function editQulification(id){
+
+        callAjax("<?=base_url()?>Candidate/apiGetEditQualificationForm?qualification_id="+id,'qulification_form_view');
+        $('.js-example-basic-single').select2();
+        $('.select2').attr('style','width:100%');
+        $('.disab').hide();
+    }
+    var name;
+    var
+    function deleteQulification(id){
+        if(confirm("Are You Sure?\nDo You want to delete your qualification..!")){
+            $('.preloader').fadeIn(700);
+            var data = new FormData();
+            data.append("action", 'delete_qualification');
+            data.append("QUAL_ID", id);
+            <?php
+                $res = getcsrf($this);
+            ;
+            $res['csrfHash'];
+            ?>
+            data.append("<?=$res['csrfName']?>", <?=$res['csrfName']?>);
+            jQuery.ajax({
+                url: "<?=base_url()?>Candidate/apiDeleteQualification",
+                type: "POST",
+                enctype: 'multipart/form-data',
+                processData: false,
+                contentType: false,
+                data: data,
+                success: function (data, status) {
+
+                    $('.preloader').fadeOut(700);
+                    $('#qul_form_msg').html("");
+                    alertMsg("Success",data.MESSAGE);
+                    getQualification();
+
+                },
+                beforeSend:function (data, status) {
+
+
+                    $('#qul_form_msg').html("Loading...!");
+
+
+
+                },
+                error:function (data, status) {
+                    var value = data.responseJSON;
+
+                    alertMsg("Error",value.MESSAGE);
+                    $('#qul_form_msg').html(value.MESSAGE);
+                    $('.preloader').fadeOut(700);
+                    getQualification();
+
+
+                },
+            });
+        }
+    }
     getQualification();
 </script>
 

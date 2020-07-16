@@ -331,9 +331,24 @@ class Candidate extends CI_Controller
         $organization = $this->Api_qualification_model->getAllOrganization();
         $data['degree_program'] = $degree;
         $data['organizations'] = $organization;
-        $this->load->view('qulification_form.php',$data);
+        $this->load->view('qulification_form',$data);
     }
-
+    function apiDeleteQualification(){
+        $reponse['RESPONSE'] = "ERROR";
+        $reponse['MESSAGE'] = "YES";
+        if($reponse['RESPONSE'] == "ERROR"){
+            $this->output
+                ->set_status_header(500)
+                ->set_content_type('application/json', 'utf-8')
+                ->set_output(json_encode($reponse));
+        }
+        else{
+            $this->output
+                ->set_status_header(200)
+                ->set_content_type('application/json', 'utf-8')
+                ->set_output(json_encode($reponse));
+        }
+    }
     function apiGetInstituteByOrgId(){
         $user = $this->session->userdata($this->SessionName);
 
