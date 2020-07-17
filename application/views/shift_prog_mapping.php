@@ -191,6 +191,7 @@
 					i++;
 				if (value['REMARKS'] == null)
 					var remarks = '';
+				else remarks = value['REMARKS'];
 
 					let tr="<tr>";
 					tr+= "<td>"+i+"</td>";

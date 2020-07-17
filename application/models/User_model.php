@@ -40,6 +40,21 @@ class User_model extends CI_model
         return $user;
 
     }
+	function changePasswordByCNIC($cnic,$password){
+		$formArray = array('PASSWORD'=>$password);
+		$this->db->trans_begin();
+//		$this->db->where('PASSWORD',$curr_password);
+		$this->db->where('CNIC_NO',$cnic);
+		$this->db->update('users_reg',$formArray);
+		if($this->db->affected_rows() ==1){
+			$this->db->trans_commit();
+			return true;
+		}else{
+			$this->db->trans_rollback();
+			return false;
+		}
+	}
+
     function changePassword($user_id,$curr_password,$password){
         $formArray = array('PASSWORD'=>$password);
         $this->db->trans_begin();

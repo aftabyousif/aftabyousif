@@ -35,6 +35,23 @@ class Administration extends CI_Model
 		}else return false;
 	}//method
 
+	function update($where,$record,$prev_record,$table){
+
+		$this->legacy_db = $this->load->database('admission_db',true);
+		$this->legacy_db->trans_begin();
+
+		$this->legacy_db->where($where);
+		$this->legacy_db->update($table,$record);
+		if($this->legacy_db->affected_rows() ==1){
+			$this->log_model->create_log(0,$this->legacy_db->insert_id(),$prev_record,$record,"($where) FROM update METHOD",$table,12,0);
+			$this->legacy_db->trans_commit();
+			return true;
+		}else{
+			$this->legacy_db->trans_rollback();
+			return false;
+		}
+	}//function
+
 	function insert_batch($data,$table)
 	{
 		$this->legacy_db = $this->load->database('admission_db',true);
@@ -78,6 +95,41 @@ class Administration extends CI_Model
 		if ($query)
 		{
 			$this->log_model->create_log(0,$this->legacy_db->insert_id(),array('PROG_LIST_ID'=>$prog_id,'SHIFT_ID'=>$shift_id),'','storing prog_list_id and shift_id','shift_program_mapping',13,0);
+			return true;
+		}
+		else return false;
+	}
+
+	function category_type ()
+	{
+		$this->legacy_db = $this->load->database('admission_db',true);
+//		print_r($adm_con);
+		$this->legacy_db->select('*');
+		return $this->legacy_db->get('category_type')->result_array();
+	}
+
+	function MappedCategory ($category_type_id,$category_id)
+	{
+		$this->legacy_db = $this->load->database('admission_db',true);
+//		print_r($adm_con);
+		$this->legacy_db->select('ct.`CATEGORY_TYPE_ID`,ct.`CATEGORY_NAME` AS CATEGORY_TYPE_NAME,ct.`CODE` AS CATEGORY_TYPE_CODE ,`DISPLAY`,c.`CATEGORY_ID`,c.`CATEGORY_NAME`,c.`P_CODE`,c.`CODE` AS CATEGORY_CODE,c.`REMARKS` AS CATEGORY_REMARKS');
+		$this->legacy_db->from('`category_type` ct');
+		$this->legacy_db->join('`category` c',"(ct.CATEGORY_TYPE_ID=c.CATEGORY_TYPE_ID)",'INNER');
+//		$this->legacy_db->join('shift s','s.SHIFT_ID=pm.SHIFT_ID ','INNER');
+		if ($category_type_id>0)$this->legacy_db->where("ct.CATEGORY_TYPE_ID=$category_type_id");
+		if ($category_id>0)$this->legacy_db->where("c.CATEGORY_ID",$category_id);
+//		return($this->legacy_db->last_query());
+		return($this->legacy_db->get()->result_array());
+	}
+	function DeleteMappedCategory($category_id)
+	{
+		$prev_record = $this->MappedCategory(0,$category_id);
+		$this->legacy_db = $this->load->database('admission_db',true);
+		$this->legacy_db->where("CATEGORY_ID",$category_id);
+		$query = $this->legacy_db->delete('category');
+		if ($query)
+		{
+			$this->log_model->create_log($category_id,$this->legacy_db->insert_id(),$prev_record,'','storing category id','category',13,0);
 			return true;
 		}
 		else return false;

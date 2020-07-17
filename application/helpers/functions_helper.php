@@ -5,6 +5,7 @@
  * Date: 7/11/2020
  * Time: 12:17 PM
  */
+
 function getcsrf($obj){
     $reponse = array(
         'csrfName' => $obj->security->get_csrf_token_name(),

@@ -129,10 +129,6 @@
                         <div class="mobile-menu">
                             <nav id="dropdown">
                                 <ul class="mobile-menu-nav">
-
-
-
-
                                     <?php
                                     $side_bar_values = array();
                                     foreach($side_bar_values as $side_bar_value){

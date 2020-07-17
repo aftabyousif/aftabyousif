@@ -5,6 +5,7 @@
  * Date: 7/10/2020
  * Time: 9:42 PM
  */
+
 defined('BASEPATH') OR exit('No direct script access allowed');
 class Login extends CI_Controller {
     /**
@@ -49,11 +50,15 @@ class Login extends CI_Controller {
             &&isset($_POST['check_cnic'])){
 
 
-            $cnic =isValidData($this->input->post('cnic',TRUE));
+            $cnic 	= isValidData($this->input->post('cnic',TRUE));
             $password = isValidData($this->input->post('password',TRUE));
             $passport = isValidData($this->input->post('passport',TRUE));
             $check_cnic = isValidData($this->input->post('check_cnic',TRUE));
 
+//            echo $password;
+//			echo cryptPassowrd('Yasir123**');
+//			exit();
+//			$this->User_model->changePasswordByCNIC('4120209109363',cryptPassowrd('Yasir123*'));
             $hashpassword = cryptPassowrd($password);
 
             if($check_cnic==='cnic'&&$cnic&&$password){
@@ -61,8 +66,13 @@ class Login extends CI_Controller {
                 $user = $this->User_model->getUserByCnic($cnic);
 
                 if($user) {
+//                	print_r($hashpassword);
+//                	echo "<br>";
+//                	print_r($user['PASSWORD']);
+//                	exit();
 
                     if(strcmp($hashpassword,$user['PASSWORD'])===0){
+//                    if($hashpassword === $user['PASSWORD']){
 
                         $session_data=$this->getSessionData($user);
                         $this->session->set_userdata($this->SessionName, $session_data);
