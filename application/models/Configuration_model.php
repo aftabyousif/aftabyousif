@@ -13,7 +13,6 @@ class Configuration_model extends CI_model
         $this->db->where('ACTIVE',1);
         $PREFIXS = $this->db->get('configurations')->row_array();
         return $PREFIXS;
-
     }
 
 }
