@@ -163,7 +163,7 @@ document.getElementById('min-height').style="padding:30px;min-height:"+(window.i
                 if(kb>=1024){
                     var msg = (kb/1024)+"MB";
                 }else{
-                    var msg = 1024+"KB";
+                    var msg = kb+"KB";
                 }
 
 

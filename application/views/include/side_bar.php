@@ -28,6 +28,7 @@
                             'value' => 'Logout',
                             'link' => base_url()."logout",
                             'class' =>'educate-icon educate-pages icon-wrap'));
+
                         foreach($side_bar_values as $side_bar_value) {
                             if ($side_bar_value['is_tab_base'] == 'N') {
                                 if ($side_bar_value['is_submenu'] == 0) {

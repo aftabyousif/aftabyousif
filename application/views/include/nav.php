@@ -1,3 +1,18 @@
+<?php
+
+$side_bar_values = array();
+array_push($side_bar_values,array('is_submenu' => 0,
+    'is_tab_base'=>'N',
+    'value' => 'Profile',
+    'link' => $profile_url,
+    'class' =>'educate-icon educate-professor icon-wrap'));
+array_push($side_bar_values,array('is_submenu' => 0,
+    'is_tab_base'=>'N',
+    'value' => 'Logout',
+    'link' => base_url()."logout",
+    'class' =>'educate-icon educate-pages icon-wrap'));
+?>
+
 <div class="all-content-wrapper">
     <div class="container-fluid">
         <div class="row">
@@ -83,16 +98,16 @@
                                             <li class="nav-item">
                                                 <a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="nav-link dropdown-toggle">
                                                     <?php
-                                                    if($user['PROFILE_IMAGE']){
+                                                    if(isset($user['PROFILE_IMAGE'])){
                                                         $v =PROFILE_IMAGE_PATH;
                                                         echo " <img src='$v{$user['PROFILE_IMAGE']}' alt=''  >";
-                                                    }else{
-                                                        $image_path_default =base_url()."dash_assets/img/avatar/default-avatar.png";
+                                                    }else {
+                                                        $image_path_default = base_url() . "dash_assets/img/avatar/default-avatar.png";
                                                         echo " <img src='$image_path_default' alt=''  >";
                                                     }
                                                     ?>
 
-                                                    <span class="admin-name"><?=$user['FIRST_NAME'];?></span>
+                                                    <span class="admin-name"><?=isset($user['FIRST_NAME'])?$user['FIRST_NAME']:false;?></span>
                                                     <i class="fa fa-angle-down edu-icon edu-down-arrow"></i>
                                                 </a>
                                                 <ul role="menu" class="dropdown-header-top author-log dropdown-menu animated zoomIn">
@@ -134,7 +149,7 @@
 
 
                                     <?php
-                                    $side_bar_values = array();
+
                                     foreach($side_bar_values as $side_bar_value){
                                         if($side_bar_value['is_submenu']==0){
                                             ?>
@@ -271,4 +286,3 @@
         }
 
     </script>
-

@@ -149,7 +149,8 @@ function decode($value){
 }
 function isValidData($data){
 
-    $data = htmlspecialchars(addslashes(trim($data)), ENT_QUOTES, 'UTF-8');;
+    //$data = htmlspecialchars(addslashes(trim($data)), ENT_QUOTES, 'UTF-8');;
+    $data = addslashes(trim($data));
     return $data;
 }
 function getDateForDatabase($orgDate){

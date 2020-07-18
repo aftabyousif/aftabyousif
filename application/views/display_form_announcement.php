@@ -70,7 +70,7 @@
 											$hidden = array('ADMISSION_SESSION_ID' => $ADMISSION_SESSION_ID, 'CAMPUS_ID' => $CAMPUS_ID);
 											?>
 
-											<?=form_open('form/review','',$hidden)?>
+											<?=form_open(base_url().'form/review','',$hidden)?>
 									<tbody>
 									<tr style="font-size: 11pt;color: black">
 										<td><?=$sno?></td>
