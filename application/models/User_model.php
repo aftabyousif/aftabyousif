@@ -28,12 +28,42 @@ class User_model extends CI_model
         return $user;
 
     }
-    function getUserById($user_id){
+    
+	function getUserById($user_id){
         $this->db->where('USER_ID',$user_id);
         $user = $this->db->get('users_reg')->row_array();
         return $user;
 
     }
+	
+	// JOIN QUERY TO GET USER ROLE FROM ROLE AND ROLE_RELATION TABLE
+	// SELECT r.`ROLE_NAME`,r.`ACTIVE`, rr.`USER_ID`, r.`KEYWORD` from role r, role_relation rr where rr.USER_ID=93774 AND r.ROLE_ID=rr.ROLE_ID
+	function getUserRoleByUserId($user_id){
+		$this->db->select('r.`ROLE_NAME`,r.`ACTIVE`, rr.`USER_ID`, r.`KEYWORD`');
+		$this->db->from('role_relation rr');
+		$this->db->join('role AS r', 'rr.ROLE_ID = r.ROLE_ID');
+		$this->db->where('rr.USER_ID',$user_id);
+		$this->db->where('r.KEYWORD','UG_A');
+        $this->db->where('r.ACTIVE','1');
+		$user = $this->db->get()->row_array();
+        return $user; 
+
+    }
+	function getQulificatinByUserId($user_id){
+        $this->db->select('q.*,p.DEGREE_TITLE,d.DISCIPLINE_NAME,i.INSTITUTE_NAME INSTITUTE,o.INSTITUTE_NAME ORGANIZATION');
+        $this->db->from('qualifications q');
+        $this->db->join('institute AS i', 'q.INSTITUTE_ID = i.INSTITUTE_ID');
+        $this->db->join('institute AS o', 'q.ORGANIZATION_ID = o.INSTITUTE_ID');
+        $this->db->join('discipline AS d', 'q.DISCIPLINE_ID = d.DISCIPLINE_ID');
+        $this->db->join('degree_program AS p', 'd.DEGREE_ID = p.DEGREE_ID');
+        $this->db->where('q.USER_ID',$user_id);
+        $this->db->where('q.ACTIVE',1);
+        $this->db->order_by('p.DEGREE_ID', 'DESC');
+        $qulification_list = $this->db->get()->result_array();
+        return $qulification_list;
+
+    }
+	
     function getUserByPassport($passport){
         $this->db->where('PASSPORT_NO',$passport);
         $user = $this->db->get('users_reg')->row_array();
