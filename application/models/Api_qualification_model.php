@@ -12,6 +12,7 @@ class Api_qualification_model extends CI_Model
     {
         return $this->db->get('degree_program')->result_array();
     }
+
     function getDegreeProgramById($degree_id)
     {
         $degree_id = isValidData($degree_id);
@@ -31,6 +32,7 @@ class Api_qualification_model extends CI_Model
         $this->db->order_by('INSTITUTE_NAME');
         return $this->db->get('institute')->result_array();
     }
+
     function getInstituteByOrgId($org_id)
     {
 
@@ -39,6 +41,7 @@ class Api_qualification_model extends CI_Model
         $this->db->order_by('INSTITUTE_NAME');
         return $this->db->get('institute')->result_array();
     }
+
     function getAllOrganization()
     {
 
@@ -48,10 +51,12 @@ class Api_qualification_model extends CI_Model
         return $this->db->get('institute')->result_array();
     }
 
+
     function getAllDiscipline()
     {
         return $this->db->get('discipline')->result_array();
     }
+
     function getDisciplineByDegreeId($degree_id)
     {
         $degree_id = isValidData($degree_id);
@@ -63,6 +68,7 @@ class Api_qualification_model extends CI_Model
         $this->db->order_by('DISCIPLINE_NAME');
         return $this->db->get('discipline')->result_array();
     }
+
     function getDisciplineById($discipline_id)
     {
         $discipline_id = isValidData($discipline_id);
@@ -74,9 +80,9 @@ class Api_qualification_model extends CI_Model
         return $this->db->get('discipline')->row_array();
     }
 
-    function getQulificatinByUserId($user_id){
+    function getQualificatinByUserId($user_id){
 
-        $this->db->select('q.*,p.DEGREE_TITLE,d.DISCIPLINE_NAME,i.INSTITUTE_NAME INSTITUTE,o.INSTITUTE_NAME ORGANIZATION');
+        $this->db->select('q.*,d.DEGREE_ID,p.DEGREE_TITLE,d.DISCIPLINE_NAME,i.INSTITUTE_NAME INSTITUTE,o.INSTITUTE_NAME ORGANIZATION');
         $this->db->from('qualifications q');
         $this->db->join('institute AS i', 'q.INSTITUTE_ID = i.INSTITUTE_ID');
         $this->db->join('institute AS o', 'q.ORGANIZATION_ID = o.INSTITUTE_ID');
@@ -89,9 +95,19 @@ class Api_qualification_model extends CI_Model
         return $qulification_list;
 
     }
-    function getQulificatinByUserIdAndDegreeId($user_id,$degree_id){
 
-        $this->db->select('q.*,p.DEGREE_TITLE,d.DISCIPLINE_NAME,i.INSTITUTE_NAME INSTITUTE,o.INSTITUTE_NAME ORGANIZATION');
+    function getQualificationByUserIdAndQulificationId($USER_ID,$qul_id){
+        $qualificationList = $this->getQualificatinByUserId($USER_ID);
+        foreach ($qualificationList as $qualification){
+            if($qualification['QUALIFICATION_ID']==$qul_id){
+                return $qualification;
+            }
+        }
+        return false;
+    }
+    function getQualificatinByUserIdAndDegreeId($user_id,$degree_id){
+
+        $this->db->select('q.*,d.DEGREE_ID,p.DEGREE_TITLE,d.DISCIPLINE_NAME,i.INSTITUTE_NAME INSTITUTE,o.INSTITUTE_NAME ORGANIZATION');
         $this->db->from('qualifications q');
         $this->db->join('institute AS i', 'q.INSTITUTE_ID = i.INSTITUTE_ID');
         $this->db->join('institute AS o', 'q.ORGANIZATION_ID = o.INSTITUTE_ID');
@@ -105,7 +121,9 @@ class Api_qualification_model extends CI_Model
         return $qulification_list;
 
     }
-    function addQulification($form_array){
+
+
+    function addQualification($form_array){
         $this->db->trans_begin();
         $this->db->insert('qualifications', $form_array);
         if($this->db->affected_rows() != 1){
@@ -115,5 +133,50 @@ class Api_qualification_model extends CI_Model
             $this->db->trans_commit();
             return true;
             }
+    }
+
+    function updateQualification($qual_id,$form_array){
+        $this->db->trans_begin();
+        $this->db->where('QUALIFICATION_ID',$qual_id);
+        $this->db->update('qualifications',$form_array);
+
+        if($this->db->affected_rows() ==1){
+            $this->db->trans_commit();
+            return 1;
+        }elseif($this->db->affected_rows() ==0){
+            $this->db->trans_commit();
+            return 0;
+        }else{
+            $this->db->trans_rollback();
+            return -1;
+        }
+    }
+
+    function deleteQualification($user_id,$qualification_id){
+        $this->db->trans_begin();
+        $formArray = array('ACTIVE'=>0);
+        $this->db->where('QUALIFICATION_ID',$qualification_id);
+        $this->db->where('USER_ID',$user_id);
+        $this->db->where('ACTIVE',1);
+        $this->db->update('qualifications',$formArray);
+        if($this->db->affected_rows() != 1){
+            $this->db->trans_rollback();
+            return false;
+        }else {
+            $this->db->trans_commit();
+            return true;
+        }
+    }
+
+    function addInstitute($form_array){
+        $this->db->trans_begin();
+        $this->db->insert('institute', $form_array);
+        if($this->db->affected_rows() != 1){
+            $this->db->trans_rollback();
+            return false;
+        }else {
+            $this->db->trans_commit();
+            return true;
+        }
     }
 }

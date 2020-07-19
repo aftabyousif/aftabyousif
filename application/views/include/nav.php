@@ -1,3 +1,18 @@
+<?php
+
+$side_bar_values = array();
+array_push($side_bar_values,array('is_submenu' => 0,
+    'is_tab_base'=>'N',
+    'value' => 'Profile',
+    'link' => $profile_url,
+    'class' =>'educate-icon educate-professor icon-wrap'));
+array_push($side_bar_values,array('is_submenu' => 0,
+    'is_tab_base'=>'N',
+    'value' => 'Logout',
+    'link' => base_url()."logout",
+    'class' =>'educate-icon educate-pages icon-wrap'));
+?>
+
 <div class="all-content-wrapper">
     <div class="container-fluid">
         <div class="row">
@@ -130,7 +145,7 @@
                             <nav id="dropdown">
                                 <ul class="mobile-menu-nav">
                                     <?php
-                                    $side_bar_values = array();
+
                                     foreach($side_bar_values as $side_bar_value){
                                         if($side_bar_value['is_submenu']==0){
                                             ?>
@@ -267,4 +282,3 @@
         }
 
     </script>
-

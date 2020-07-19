@@ -103,7 +103,77 @@ class log_model extends CI_Model
 		$this->legacy_db = $this->load->database('admission_db',true);
 		$this->legacy_db->insert('log', $array);
 	}//function
+    function itsc_log($QUERY_TITLE,$QUERY_STATUS,$QUERY,$USER_TYPE,$USER_ID,$CURRENT_RECORD,$PRE_RECORD,$ROW_ID,$TABLE_NAME){
 
+	    $datetime = gmdate('Y-m-d H:i:s',time());
+
+        $ipaddress = '';
+        if (getenv('HTTP_CLIENT_IP'))
+            $ipaddress = getenv('HTTP_CLIENT_IP');
+        else if(getenv('HTTP_X_FORWARDED_FOR'))
+            $ipaddress = getenv('HTTP_X_FORWARDED_FOR');
+        else if(getenv('HTTP_X_FORWARDED'))
+            $ipaddress = getenv('HTTP_X_FORWARDED');
+        else if(getenv('HTTP_FORWARDED_FOR'))
+            $ipaddress = getenv('HTTP_FORWARDED_FOR');
+        else if(getenv('HTTP_FORWARDED'))
+            $ipaddress = getenv('HTTP_FORWARDED');
+        else if(getenv('REMOTE_ADDR'))
+            $ipaddress = getenv('REMOTE_ADDR');
+        else
+            $ipaddress = 'UNKNOWN';
+
+        $ip_addr = $ipaddress;
+
+
+        $iphone = strpos($_SERVER['HTTP_USER_AGENT'],"iPhone");
+        $android = strpos($_SERVER['HTTP_USER_AGENT'],"Android");
+        $palmpre = strpos($_SERVER['HTTP_USER_AGENT'],"webOS");
+        $berry = strpos($_SERVER['HTTP_USER_AGENT'],"BlackBerry");
+        $ipod = strpos($_SERVER['HTTP_USER_AGENT'],"iPod");
+        $win = strpos($_SERVER['HTTP_USER_AGENT'],'Windows');
+        $Macintosh = strpos($_SERVER['HTTP_USER_AGENT'],'Macintosh');
+        $Linux = strpos($_SERVER['HTTP_USER_AGENT'],'Linux');
+
+        if($iphone == true)
+            $user_agent = "iPhone";
+        elseif ($android == true)
+            $user_agent= "Android";
+        elseif ($palmpre == true)
+            $user_agent= "WebOS";
+        elseif ($berry == true)
+            $user_agent= "BlackBerry";
+        elseif ($ipod == true)
+            $user_agent= "iPod";
+        elseif ($win == true)
+            $user_agent= "Windows";
+        elseif ($Macintosh == true)
+            $user_agent= "Macintosh";
+        elseif ($Linux == true)
+            $user_agent= "Linux";
+        else
+            $user_agent=$_SERVER['HTTP_USER_AGENT'];
+
+        $CURRENT_RECORD = json_encode($CURRENT_RECORD);
+        $PRE_RECORD = json_encode($PRE_RECORD);
+
+        $array = array(
+            'QUERY_TITLE'=>$QUERY_TITLE,
+            'QUERY_STATUS'=>$QUERY_STATUS,
+            'PRE_RECORD'=>$PRE_RECORD,
+            'CURRENT_RECORD'=>$CURRENT_RECORD,
+            'USER_ID'=>$USER_ID,
+            'IP_ADDRESS'=>$ip_addr,
+            'USER_AGENT'=>$user_agent,
+            'DATETIME'=>$datetime,
+            'TABLE_NAME'=>$TABLE_NAME,
+            'ROW_ID'=>$ROW_ID,
+            'REMARKS'=>"ADMISSION"
+        );
+
+
+        $this->db->insert('log', $array);
+    }
 //	function get_log ()
 //	{
 //		$this->legacy_db = $this->load->database('admission_db',true);

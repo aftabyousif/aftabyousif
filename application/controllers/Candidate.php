@@ -13,7 +13,7 @@ class Candidate extends CI_Controller
     private $LoginController = 'login';
     private $SessionName = 'USER_LOGIN_FOR_ADMISSION';
     private $user ;
-    private $file_size = 2048;
+    private $file_size = 500;
 
     public function __construct()
     {
@@ -287,9 +287,522 @@ class Candidate extends CI_Controller
 
     }
 
+    function uploadDocuments(){
+
+        if ($this->input->server('REQUEST_METHOD') == 'POST'){
+            $reponse = getcsrf($this);
+            $USER_ID = $this->user['USER_ID'];
+            $user = $this->User_model->getUserById($USER_ID);
+
+            $folder = EXTRA_IMAGE_CHECK_PATH."$USER_ID";
+            if(!is_dir($folder)){
+                mkdir(EXTRA_IMAGE_CHECK_PATH."/$USER_ID");
+            }
+
+            $CNIC_FRONT_IMAGE = "";
+
+            if($user['CNIC_FRONT_IMAGE']){
+                $CNIC_FRONT_IMAGE = EXTRA_IMAGE_CHECK_PATH.$user['CNIC_FRONT_IMAGE'] ;
+            }
+
+            if(!(!empty($CNIC_FRONT_IMAGE)&&file_exists($CNIC_FRONT_IMAGE)&&(filesize($CNIC_FRONT_IMAGE)>0))){
+
+                $CNIC_FRONT_IMAGE="";
+                $user['CNIC_FRONT_IMAGE']="";
+            }else{
+                $CNIC_FRONT_IMAGE = $user['CNIC_FRONT_IMAGE'] ;
+            }
+
+            $CNIC_BACK_IMAGE = "";
+
+            if($user['CNIC_BACK_IMAGE']){
+                $CNIC_BACK_IMAGE = EXTRA_IMAGE_CHECK_PATH.$user['CNIC_BACK_IMAGE'] ;
+            }
+
+            if(!(!empty($CNIC_BACK_IMAGE)&&file_exists($CNIC_BACK_IMAGE)&&(filesize($CNIC_BACK_IMAGE)>0))){
+
+                $CNIC_BACK_IMAGE="";
+                $user['CNIC_BACK_IMAGE']="";
+            }else{
+                $CNIC_BACK_IMAGE = $user['CNIC_BACK_IMAGE'] ;
+            }
+
+            $PASSPORT_FRONT_IMAGE = "";
+
+            if($user['PASSPORT_FRONT_IMAGE']){
+                $PASSPORT_FRONT_IMAGE = EXTRA_IMAGE_CHECK_PATH.$user['PASSPORT_FRONT_IMAGE'] ;
+            }
+
+            if(!(!empty($PASSPORT_FRONT_IMAGE)&&file_exists($PASSPORT_FRONT_IMAGE)&&(filesize($PASSPORT_FRONT_IMAGE)>0))){
+
+                $PASSPORT_FRONT_IMAGE="";
+                $user['PASSPORT_FRONT_IMAGE']="";
+            }else{
+                $PASSPORT_FRONT_IMAGE = $user['PASSPORT_FRONT_IMAGE'] ;
+            }
+
+            $PASSPORT_BACK_IMAGE = "";
+
+            if($user['PASSPORT_BACK_IMAGE']){
+                $PASSPORT_BACK_IMAGE = EXTRA_IMAGE_CHECK_PATH.$user['PASSPORT_BACK_IMAGE'] ;
+            }
+
+            if(!(!empty($PASSPORT_BACK_IMAGE)&&file_exists($PASSPORT_BACK_IMAGE)&&(filesize($PASSPORT_BACK_IMAGE)>0))){
+
+                $PASSPORT_BACK_IMAGE="";
+                $user['PASSPORT_BACK_IMAGE']="";
+            }else{
+                $PASSPORT_BACK_IMAGE = $user['PASSPORT_BACK_IMAGE'] ;
+            }
+
+            $DOMICILE_IMAGE = "";
+
+            if($user['DOMICILE_IMAGE']){
+                $DOMICILE_IMAGE = EXTRA_IMAGE_CHECK_PATH.$user['DOMICILE_IMAGE'] ;
+            }
+
+            if(!(!empty($DOMICILE_IMAGE)&&file_exists($DOMICILE_IMAGE)&&(filesize($DOMICILE_IMAGE)>0))){
+
+                $DOMICILE_IMAGE="";
+                $user['DOMICILE_IMAGE']="";
+            }else{
+                $DOMICILE_IMAGE = $user['DOMICILE_IMAGE'] ;
+            }
+
+            $DOMICILE_FORM_C_IMAGE = "";
+
+            if($user['DOMICILE_FORM_C_IMAGE']){
+                $DOMICILE_FORM_C_IMAGE = EXTRA_IMAGE_CHECK_PATH.$user['DOMICILE_FORM_C_IMAGE'] ;
+            }
+
+            if(!(!empty($DOMICILE_FORM_C_IMAGE)&&file_exists($DOMICILE_FORM_C_IMAGE)&&(filesize($DOMICILE_FORM_C_IMAGE)>0))){
+
+                $DOMICILE_FORM_C_IMAGE="";
+                $user['DOMICILE_FORM_C_IMAGE']="";
+            }else{
+                $DOMICILE_FORM_C_IMAGE =$user['DOMICILE_FORM_C_IMAGE'] ;
+            }
+
+            //start method work
+            $is_upload_any_doc = false;
+            $config_a = array();
+            $config_a['maintain_ratio'] = true;
+            $config_a['width']         = 360;
+            $config_a['height']       = 500;
+            $config_a['resize']       = false;
+
+            $error="";
+             if($user['IS_CNIC_PASS']==='P') {
+
+                 //checking passport validation
+                 if(isset($_FILES['passport_front_image'])){
+                     if (isValidData($_FILES['passport_front_image']['name'])) {
+
+                         $file_path = EXTRA_IMAGE_CHECK_PATH."$USER_ID/";
+                         $image_name = "passport_front_image_$USER_ID";
+                         $res =  $this->upload_image('passport_front_image',$image_name,$this->file_size,$file_path,$config_a);
+                         if($res['STATUS']===true){
+                             $PASSPORT_FRONT_IMAGE = "$USER_ID/".$res['IMAGE_NAME'];
+                             $is_upload_any_doc = true;
+                         }else{
+                             $error .= "<div class='text-danger'>Error {$res['MESSAGE']}</div>";
+                         }
+                     }else{
+                            if($PASSPORT_FRONT_IMAGE=="")
+                             $error.="<div class='text-danger'>Must Passport Front Image and image size must be less then 500kb </div>";
+                     }
+                 }
+                 else{
+                     if($PASSPORT_FRONT_IMAGE=="")
+                         $error.="<div class='text-danger'>Must Passport Front Image and image size must be less then 500kb </div>";
+                 }
+
+                 if(isset($_FILES['passport_back_image'])){
+                     if (isValidData($_FILES['passport_back_image']['name'])) {
+
+                         $file_path = EXTRA_IMAGE_CHECK_PATH."$USER_ID/";
+                         $image_name = "passport_back_image_$USER_ID";
+                         $res =  $this->upload_image('passport_back_image',$image_name,$this->file_size,$file_path,$config_a);
+                         if($res['STATUS']===true){
+                             $PASSPORT_BACK_IMAGE = "$USER_ID/".$res['IMAGE_NAME'];
+                             $is_upload_any_doc = true;
+                         }else{
+                             $error .= "<div class='text-danger'>Error {$res['MESSAGE']}</div>";
+                         }
+                     }else{
+                         if($PASSPORT_BACK_IMAGE=="")
+                         $error.="<div class='text-danger'>Must Passport Back Image and image size must be less then 500kb </div>";
+                     }
+
+                 }
+                 else{
+                     if($PASSPORT_BACK_IMAGE=="")
+                     $error.="<div class='text-danger'>Must Passport Back Image and image size must be less then 500kb Id Not found something went worng </div>";
+                 }
+
+
+             }else{
+
+              //checking cnic validation
+                 if(isset($_FILES['cnic_front_image'])){
+                     if (isValidData($_FILES['cnic_front_image']['name'])) {
+
+                         $file_path = EXTRA_IMAGE_CHECK_PATH."$USER_ID/";
+                         $image_name = "cnic_front_image_$USER_ID";
+                         $res =  $this->upload_image('cnic_front_image',$image_name,$this->file_size,$file_path,$config_a);
+                         if($res['STATUS']===true){
+                             $CNIC_FRONT_IMAGE = "$USER_ID/".$res['IMAGE_NAME'];
+                             $is_upload_any_doc = true;
+
+                         }else{
+                             $error .= "<div class='text-danger'>Error {$res['MESSAGE']}</div>";
+                         }
+                     }else{
+                         if($CNIC_FRONT_IMAGE=="")
+                         $error.="<div class='text-danger'>Must Cnic Front Image and image size must be less then 500kb </div>";
+                     }
+                 }
+                 else{
+
+                     if($CNIC_FRONT_IMAGE=="")
+                     $error.="<div class='text-danger'>Must Cnic Front Image and image size must be less then 500kb </div>";
+                 }
+
+                 if(isset($_FILES['cnic_back_image'])){
+                     if (isValidData($_FILES['cnic_back_image']['name'])) {
+
+                         $file_path = EXTRA_IMAGE_CHECK_PATH."$USER_ID/";
+                         $image_name = "cnic_back_image_$USER_ID";
+                         $res =  $this->upload_image('cnic_back_image',$image_name,$this->file_size,$file_path,$config_a);
+                         if($res['STATUS']===true){
+                             $CNIC_BACK_IMAGE = "$USER_ID/".$res['IMAGE_NAME'];
+                             $is_upload_any_doc = true;
+                         }else{
+                             $error .= "<div class='text-danger'>Error {$res['MESSAGE']}</div>";
+                         }
+                     }else{
+                         if($CNIC_BACK_IMAGE=="")
+                         $error.="<div class='text-danger'>Must Cnic Back Image and image size must be less then 500kb </div>";
+                     }
+
+                 }
+                 else{
+                     if($CNIC_BACK_IMAGE=="")
+                     $error.="<div class='text-danger'>Must Cnic Back Image and image size must be less then 500kb Id Not found something went worng </div>";
+                 }
+
+             }
+
+
+             //checking domicile validation
+            if(isset($_FILES['domicile_image'])){
+                if (isValidData($_FILES['domicile_image']['name'])) {
+
+                    $file_path = EXTRA_IMAGE_CHECK_PATH."$USER_ID/";
+                    $image_name = "domicile_image_$USER_ID";
+                    $res =  $this->upload_image('domicile_image',$image_name,$this->file_size,$file_path,$config_a);
+                    if($res['STATUS']===true){
+                        $DOMICILE_IMAGE = "$USER_ID/".$res['IMAGE_NAME'];
+                        $is_upload_any_doc = true;
+
+                    }else{
+                        $error .= "<div class='text-danger'>Error {$res['MESSAGE']}</div>";
+                    }
+                }else{
+                    if($DOMICILE_IMAGE=="")
+                        $error.="<div class='text-danger'>Must Upload Domicile Image and image size must be less then 500kb </div>";
+                }
+            }
+            else{
+
+                if($DOMICILE_IMAGE=="")
+                    $error.="<div class='text-danger'>Must Upload Domicile Image and image size must be less then 500kb </div>";
+            }
+
+            if(isset($_FILES['domicile_formc_image'])){
+                if (isValidData($_FILES['domicile_formc_image']['name'])) {
+
+                    $file_path = EXTRA_IMAGE_CHECK_PATH."$USER_ID/";
+                    $image_name = "domicile_formc_image_$USER_ID";
+                    $res =  $this->upload_image('domicile_formc_image',$image_name,$this->file_size,$file_path,$config_a);
+                    if($res['STATUS']===true){
+                        $DOMICILE_FORM_C_IMAGE = "$USER_ID/".$res['IMAGE_NAME'];
+                        $is_upload_any_doc = true;
+                    }else{
+                        $error .= "<div class='text-danger'>Error {$res['MESSAGE']}</div>";
+                    }
+                }else{
+                    if($DOMICILE_FORM_C_IMAGE=="")
+                        $error.="<div class='text-danger'>Must Upload Domicile  Form-C Image and image size must be less then 500kb </div>";
+                }
+
+            }
+            else{
+                if($DOMICILE_FORM_C_IMAGE=="")
+                    $error.="<div class='text-danger'>Must Upload Domicile Form-C Image and image size must be less then 500kb Id Not found something went worng </div>";
+            }
+
+
+            if($error==""){
+                $form_array = array(
+                    "DOMICILE_FORM_C_IMAGE"=>$DOMICILE_FORM_C_IMAGE,
+                    "DOMICILE_IMAGE"=>$DOMICILE_IMAGE,
+                    "CNIC_FRONT_IMAGE"=>$CNIC_FRONT_IMAGE,
+                    "CNIC_BACK_IMAGE"=>$CNIC_BACK_IMAGE,
+                    "PASSPORT_FRONT_IMAGE"=>$PASSPORT_FRONT_IMAGE,
+                    "PASSPORT_BACK_IMAGE"=>$PASSPORT_BACK_IMAGE,
+
+                );
+                $res = $this->User_model->updateUserById($USER_ID,$form_array);
+                if($res===1){
+                    $reponse['RESPONSE'] = "SUCCESS";
+                    $reponse['MESSAGE'] = "<div class='text-success'>Document Upload Successfully...!<div>";
+                }else if($res===0){
+                    $reponse['RESPONSE'] = "SUCCESS";
+                    if($is_upload_any_doc == true){
+                        $reponse['MESSAGE'] = "<div class='text-success'>Document Upload Successfully...!<div>";
+                    }else{
+                        $reponse['MESSAGE'] = "<div class='text-success'>No changes has been made..!<div>";
+                    }
+
+                }else{
+                    $reponse['RESPONSE'] = "ERROR";
+                    $reponse['MESSAGE'] = "<div class='text-danger'>Something went worng..!</div>";
+                }
+
+            }else{
+                $reponse['RESPONSE'] = "ERROR";
+                $reponse['MESSAGE'] = $error;
+
+            }
+
+
+
+
+        }else{
+            $reponse['RESPONSE'] = "ERROR";
+            $reponse['MESSAGE'] = "Invalid Request Method";
+        }
+
+
+
+        if ($reponse['RESPONSE'] == "ERROR") {
+            $this->output
+                ->set_status_header(500)
+                ->set_content_type('application/json', 'utf-8')
+                ->set_output(json_encode($reponse));
+        } else {
+            $this->output
+                ->set_status_header(200)
+                ->set_content_type('application/json', 'utf-8')
+                ->set_output(json_encode($reponse));
+        }
+    }
+
+    function apiGetExperianceList(){
+        $user = $this->session->userdata($this->SessionName);
+        $experiancesList = $this->User_model->getExperiancesByUserId($user['USER_ID']);
+        $output= "<div style='overflow-x:auto'>
+            <table class='table table-bordered' >
+                <tr>
+                   <th>EMPLOYMENT TYPE</th>
+                   <th>ORGANIZATION NAME</th>
+                   <th>ADDRESS</th>
+                   <th>CONTACT NO</th>
+                   <th>JOB DESCRIPTION</th>
+                   <th>JOB CONTINUE</th>
+                    <th>SALARY</th>
+                   <th>START DATE</th>
+                   <th>END DATE</th>
+                   <th colspan='2'>ACTION</th>
+                </tr>";
+        foreach($experiancesList as $degree) {
+            if($degree['IS_JOB_CONTINUE']=='N'){
+                $degree['IS_JOB_CONTINUE'] = "NO";
+            }else{
+                $degree['IS_JOB_CONTINUE'] = "YES";
+            }
+            $output.= "<tr>
+                        <td>{$degree['EMP_TYPE']}</td>
+                        <td>{$degree['ORGANIZATION_NAME']}</td>
+                        <td>{$degree['ADDRESS']}</td>
+                        <td>{$degree['CONTACT_NO']}</td>
+                        <td>{$degree['JOB_DESCRIPTION']}</td>
+                        <td>{$degree['IS_JOB_CONTINUE']}</td>
+                        <td>{$degree['SALARY']}</td>
+                       <td>".getDateCustomeView($degree['START_DATE'],'d,M,Y')."</td>
+                        <td>".getDateCustomeView($degree['END_DATE'],'d,M,Y')."</td>
+                        <td><button onclick=\"deleteExperiance('{$degree['EXPERIANCE_ID']}')\" class='btn btn-danger'><i class='fa fa-trash'></i> Delete</button></td>
+                    </tr>";
+
+
+        }
+
+
+        $output .="</table>  </div>";
+        echo $output;
+    }
+
+    function apiGetAddExperianceForm(){
+        $user = $this->session->userdata($this->SessionName);
+
+        $this->load->view('profile_section/add_experiance_form');
+    }
+
+    function addExperiance(){
+
+        $reponse = getcsrf($this);
+        $USER_ID = $this->user['USER_ID'];
+        if ($this->input->server('REQUEST_METHOD') == 'POST'){
+
+
+
+            $error="";
+            $DESCRIPTION =$ADDRESS = $ORGANIZATION_NAME = $EMP_TYPE=$CONTACT_NO="";
+            $SALARY=0;
+            $START_DATE = $END_DATE = '1900-01-01';
+            $IS_JOB_CONTINUE = 'N';
+            if(isset($_POST['is_job_continue'])){
+                $IS_JOB_CONTINUE = 'Y';
+            }
+            if(isset($_POST['EMP_TYPE'])&&isValidData($_POST['EMP_TYPE'])){
+                $EMP_TYPE =isValidData($_POST['EMP_TYPE']);
+            }else{
+                $error .= "<div class='text-danger'>Employeement type must be Choice<div>";
+            }
+            if(isset($_POST['ORGANIZATION_NAME'])&&isValidData($_POST['ORGANIZATION_NAME'])){
+                $ORGANIZATION_NAME =isValidData($_POST['ORGANIZATION_NAME']);
+            }else{
+                $error .= "<div class='text-danger'>Organization name must be provided<div>";
+            }
+            if(isset($_POST['ADDRESS'])&&isValidData($_POST['ADDRESS'])){
+                $ADDRESS =isValidData($_POST['ADDRESS']);
+            }else{
+                $error .= "<div class='text-danger'>Address must be provided<div>";
+            }
+            if(isset($_POST['DESCRIPTION'])&&isValidData($_POST['DESCRIPTION'])){
+                $DESCRIPTION =isValidData($_POST['DESCRIPTION']);
+            }else{
+                $error .= "<div class='text-danger'>Job Description must be provided<div>";
+            }
+            if(isset($_POST['CONTACT_NO'])&&isValidData($_POST['CONTACT_NO'])){
+                $CONTACT_NO =isValidData($_POST['CONTACT_NO']);
+            }
+            if(isset($_POST['SALARY'])&&isValidData($_POST['SALARY'])){
+                $SALARY =isValidData($_POST['SALARY']);
+            }
+
+            if (isset($_POST['JOB_START_DATE']) && isValidTimeDate($_POST['JOB_START_DATE'], 'd/m/Y')) {
+                $START_DATE = getDateForDatabase($_POST['JOB_START_DATE']);
+            }
+            else {
+                $error .= "<div class='text-danger'>Job Start Date must be Filled</div>";
+            }
+
+            if (isset($_POST['JOB_END_DATE']) && isValidTimeDate($_POST['JOB_END_DATE'], 'd/m/Y')) {
+                $END_DATE = getDateForDatabase($_POST['JOB_END_DATE']);
+            }
+            else {
+                if($IS_JOB_CONTINUE=='N'){
+                    $error .= "<div class='text-danger'>Job End Date must be Filled</div>";
+                }
+            }
+            if ($END_DATE <= $START_DATE) {
+                $error .= "<div class='text-danger'>Invalid Date Start Date must be less then End Date</div>";
+            }
+
+
+            if($error=="") {
+                $form_array = array('USER_ID' => $USER_ID,
+                    'EMP_TYPE' => $EMP_TYPE,
+                    'ORGANIZATION_NAME' => $ORGANIZATION_NAME,
+                    'ADDRESS' => $ADDRESS,
+                    'CONTACT_NO' => $CONTACT_NO,
+                    'START_DATE' => $START_DATE,
+                    'END_DATE' => $END_DATE,
+                    'JOB_DESCRIPTION' => $DESCRIPTION,
+                    'IS_JOB_CONTINUE' => $IS_JOB_CONTINUE,
+                    'SALARY' => $SALARY,
+                    'ACTIVE' => 1);
+
+                $res = $this->User_model->addExperiances($form_array);
+
+
+
+                if($res===true){
+                    $reponse['RESPONSE'] = "SUCCESS";
+                    $reponse['MESSAGE'] = "<div class='text-success'>Successfully Save ..!<div>";
+                }else{
+                    $reponse['RESPONSE'] = "ERROR";
+                    $reponse['MESSAGE'] = "<div class='text-danger'>Something went worng..!</div>";
+                }
+
+            }else{
+                $reponse['RESPONSE'] = "ERROR";
+                $reponse['MESSAGE'] = $error;
+            }
+
+
+
+
+        }else{
+            $reponse['RESPONSE'] = "ERROR";
+            $reponse['MESSAGE'] = "Invalid Request Method";
+        }
+
+        if ($reponse['RESPONSE'] == "ERROR") {
+            $this->output
+                ->set_status_header(500)
+                ->set_content_type('application/json', 'utf-8')
+                ->set_output(json_encode($reponse));
+        } else {
+            $this->output
+                ->set_status_header(200)
+                ->set_content_type('application/json', 'utf-8')
+                ->set_output(json_encode($reponse));
+        }
+    }
+
+    function apiDeleteExperiance(){
+        $reponse = getcsrf($this);
+        $USER_ID = $this->user['USER_ID'];
+
+
+
+        $experiance_id = $this->input->post('experiance_id');
+
+        if(is_numeric($experiance_id)) {
+
+            $res = $this->User_model->deleteExperiance($USER_ID,$experiance_id);
+
+            if($res ===true){
+                $reponse['RESPONSE'] = "SUCCESS";
+                $reponse['MESSAGE'] = "<div class='text-success'>Successfully Deleted Experiance...!</div>";
+            }else{
+                $reponse['RESPONSE'] = "ERROR";
+                $reponse['MESSAGE'] = "<div class='text-success'>Somethis went wrong may be your not authorize to delete your Experiance...!</div>";
+            }
+
+        }else{
+            $reponse['RESPONSE'] = "ERROR";
+            $reponse['MESSAGE'] = "<div class='text-success'>Invalid Experiance ID...!</div>";
+        }
+        if ($reponse['RESPONSE'] == "ERROR") {
+            $this->output
+                ->set_status_header(500)
+                ->set_content_type('application/json', 'utf-8')
+                ->set_output(json_encode($reponse));
+        } else {
+            $this->output
+                ->set_status_header(200)
+                ->set_content_type('application/json', 'utf-8')
+                ->set_output(json_encode($reponse));
+        }
+    }
+
     function apiGetQualificationList(){
         $user = $this->session->userdata($this->SessionName);
-        $qulificationList = $this->Api_qualification_model->getQulificatinByUserId($user['USER_ID']);
+        $qulificationList = $this->Api_qualification_model->getQualificatinByUserId($user['USER_ID']);
         $output= "<div style='overflow-x:auto'>
             <table class='table table-bordered' >
                 <tr>
@@ -299,6 +812,8 @@ class Candidate extends CI_Controller
                     <th>Institute / Department / School / College</th>
                     <th>Total Marks</th>
                     <th>Obtained Marks</th>
+                    <th>Marksheet</th>
+                    <th>Pass certificate</th>
                     <th>Start Date</th>
                     <th>End Date</th>
                     <th colspan='2'>ACTION</th>
@@ -311,17 +826,30 @@ class Candidate extends CI_Controller
                         <td>{$degree['INSTITUTE']}</td>
                         <td>{$degree['TOTAL_MARKS']}</td>
                         <td>{$degree['OBTAINED_MARKS']}</td>
+                        <td><img class='img-table-certificate' src='".EXTRA_IMAGE_PATH.$degree['MARKSHEET_IMAGE']."' alt='MARKSHEET_IMAGE'></td>
+                        <td><img class='img-table-certificate' src='".EXTRA_IMAGE_PATH.$degree['PASSCERTIFICATE_IMAGE']."' alt='PASSCERTIFICATE_IMAGE'></td>
                         <td>".getDateCustomeView($degree['START_DATE'],'d,M,Y')."</td>
                         <td>".getDateCustomeView($degree['END_DATE'],'d,M,Y')."</td>
-                        <td><button class='btn btn-info' onclick=\"editQulification('{$degree['QUALIFICATION_ID']}') \">Edit</button></td>
-                        <td><button onclick=\"deleteQulification('{$degree['QUALIFICATION_ID']}')\" class='btn btn-danger'>Delete</button></td>
+                        <td><button class='btn btn-info' onclick=\"editQualification('{$degree['QUALIFICATION_ID']}') \"><i class='fa fa-pencil-square-o'></i> Edit</button></td>
+                        <td><button onclick=\"deleteQualification('{$degree['QUALIFICATION_ID']}')\" class='btn btn-danger'><i class='fa fa-trash'></i> Delete</button></td>
                     </tr>";
 
 
         }
 
 
-        $output .="</table></div>";
+        $output .="</table> 
+                    
+                    </div>
+                    <style>
+                    .img-table-certificate{
+                    border: #40402e;
+                    border-style: double;
+                    border-radius: 10%;
+                    }
+                    </style>
+                    
+                    ";
         echo $output;
     }
 
@@ -330,69 +858,38 @@ class Candidate extends CI_Controller
 
         $degree = $this->Api_qualification_model->getAllDegreeProgram();
         $organization = $this->Api_qualification_model->getAllOrganization();
+
         $data['degree_program'] = $degree;
         $data['organizations'] = $organization;
-        $this->load->view('qulification_form',$data);
+        $this->load->view('profile_section/qualification_form',$data);
     }
-    function apiDeleteQualification(){
-        $reponse['RESPONSE'] = "ERROR";
-        $reponse['MESSAGE'] = "YES";
-        if($reponse['RESPONSE'] == "ERROR"){
-            $this->output
-                ->set_status_header(500)
-                ->set_content_type('application/json', 'utf-8')
-                ->set_output(json_encode($reponse));
-        }
-        else{
-            $this->output
-                ->set_status_header(200)
-                ->set_content_type('application/json', 'utf-8')
-                ->set_output(json_encode($reponse));
-        }
-    }
-    function apiGetInstituteByOrgId(){
-        $user = $this->session->userdata($this->SessionName);
 
+    function apiGetEditQualificationForm(){
+        $qul_id = $this->input->get('qualification_id');
+        if($qul_id){
+            $user = $this->session->userdata($this->SessionName);
 
-        $ORG_ID = $this->input->get('ORG_ID');
+            $data['qualification'] =$qualification= $this->Api_qualification_model->getQualificationByUserIdAndQulificationId($user['USER_ID'],$qul_id);
+            if(isset($data['qualification'])&&$data['qualification']) {
 
+                $degree = $this->Api_qualification_model->getAllDegreeProgram();
 
-        if($ORG_ID){
-            $institutes = $this->Api_qualification_model->getInstituteByOrgId($ORG_ID);
-            echo "<option value='0'>--Choose--</option>";
-            foreach ($institutes as $institute) {
+                $organization = $this->Api_qualification_model->getAllOrganization();
+                $institute = $this->Api_qualification_model->getInstituteByOrgId($qualification['ORGANIZATION_ID']);
+                $discipline = $this->Api_qualification_model->getDisciplineByDegreeId($qualification['DEGREE_ID']);
 
-                echo "<option value='{$institute['INSTITUTE_ID']}'  >{$institute['INSTITUTE_NAME']}</option>";
+                $data['degree_program'] = $degree;
+                $data['organizations'] = $organization;
+                $data['institutes'] = $institute;
+                $data['disciplines'] = $discipline;
+
+                $this->load->view('profile_section/edit_qualification_form', $data);
+            }else{
+                echo "<div class='text-danger'>Something went wrong</div>";
             }
-            echo "<option value='-1'>--Other--</option>";
         }else{
-            echo "<option value='0'>--Choose--</option>";
+            echo "<div class='text-danger'>Something went wrong</div>";
         }
-
-
-    }
-
-    function apiGetDisciplineById(){
-        $user = $this->session->userdata($this->SessionName);
-
-
-        $DEGREE_ID = $this->input->get('DEGREE_ID');
-
-
-        if($DEGREE_ID){
-            $disciplines = $this->Api_qualification_model->getDisciplineByDegreeId($DEGREE_ID);
-            echo "<option value='0'>--Choose--</option>";
-
-
-            foreach ($disciplines as $discipline) {
-
-                echo "<option value='{$discipline['DISCIPLINE_ID']}'  >{$discipline['DISCIPLINE_NAME']}</option>";
-            }
-
-        }else{
-            echo "<option value='0'>--Choose--</option>";
-        }
-
 
     }
 
@@ -405,9 +902,6 @@ class Candidate extends CI_Controller
             // $folder;
             mkdir(EXTRA_IMAGE_CHECK_PATH."/$USER_ID");
         }
-        $reponse['RESPONSE'] = "ERROR";
-        $reponse['MESSAGE'] = "<div class='text-danger'>This is starting message there is no error..!</div>";
-
         $ROLL_NO = $grade = "";
         $IS_DECLARE = 'N';
         $RESULT_DATE = $START_DATE = $END_DATE = '1900-01-01';
@@ -515,7 +1009,7 @@ class Candidate extends CI_Controller
             $error .= "<div class='text-danger'>End Date must be Filled</div>";
         }
         if ($END_DATE <= $START_DATE) {
-            $error .= "<div class='text-danger'>Invalid Date </div>";
+            $error .= "<div class='text-danger'>Invalid Date Start Date must be less then End Date</div>";
         }
 
 
@@ -563,12 +1057,12 @@ class Candidate extends CI_Controller
                 }
             }else{
                 if($DEGREE_ID!=8)
-                    $error.="<div class='text-danger'>Must Upload Marksheet and image size must be less then 1mb </div>";
+                    $error.="<div class='text-danger'>Must Upload Marksheet and image size must be less then 500kb </div>";
             }
         }
         else{
             if($DEGREE_ID!=8)
-                $error.="<div class='text-danger'>Must Upload Marksheet and image size must be less then 200kb Id Not found something went worng </div>";
+                $error.="<div class='text-danger'>Must Upload Marksheet and image size must be less then 500kb Id Not found something went worng </div>";
         }
 
         if(isset($_FILES['passcertificate_image'])){
@@ -584,13 +1078,17 @@ class Candidate extends CI_Controller
                 }
             }else{
                 if($DEGREE_ID!=8)
-                    $error.="<div class='text-danger'>Must Upload Pass Certificate and image size must be less then 1mb </div>";
+                    $error.="<div class='text-danger'>Must Upload Pass Certificate and image size must be less then 500kb </div>";
             }
 
-        }else{
-            $error.="<div class='text-danger'>Must Upload Pass Certificate and image size must be less then 200kb Id Not found something went worng </div>";
         }
-        $if_exist = $this->Api_qualification_model->getQulificatinByUserIdAndDegreeId($USER_ID,$DEGREE_ID);
+        else{
+            $error.="<div class='text-danger'>Must Upload Pass Certificate and image size must be less then 500kb Id Not found something went worng </div>";
+        }
+
+
+        $if_exist = $this->Api_qualification_model->getQualificatinByUserIdAndDegreeId($USER_ID,$DEGREE_ID);
+
         if(count($if_exist)) {
             $error.="<div class='text-danger'>Same Qualification is Already Exist Please Update OR Delete...!</div>";
         }
@@ -619,11 +1117,310 @@ class Candidate extends CI_Controller
                 "MARKSHEET_IMAGE"   =>  $marksheet_image,
                 "PASSCERTIFICATE_IMAGE"=>  $passcertificate_image,
             );
-            $res = $this->Api_qualification_model->addQulification($form_array);
+            $res = $this->Api_qualification_model->addQualification($form_array);
 
 
 
             if($res===true){
+                $reponse['RESPONSE'] = "SUCCESS";
+                $reponse['MESSAGE'] = "<div class='text-success'>Successfully Save ..!<div>";
+            }else{
+                $reponse['RESPONSE'] = "ERROR";
+                $reponse['MESSAGE'] = "<div class='text-danger'>Something went worng..!</div>";
+            }
+
+        }
+        else{
+            $reponse['RESPONSE'] = "ERROR";
+            $reponse['MESSAGE'] = $error;
+        }
+
+        if($reponse['RESPONSE'] == "ERROR"){
+            $this->output
+                ->set_status_header(500)
+                ->set_content_type('application/json', 'utf-8')
+                ->set_output(json_encode($reponse));
+        }
+        else{
+            $this->output
+                ->set_status_header(200)
+                ->set_content_type('application/json', 'utf-8')
+                ->set_output(json_encode($reponse));
+        }
+    }
+
+    function updateQualification(){
+        $reponse = getcsrf($this);
+        $USER_ID = $this->user['USER_ID'];
+        $error = "";
+        $QUAL_ID = 0;
+        if(isset($_POST['QUAL_ID'])&& isValidData($_POST['QUAL_ID'])&&is_numeric($_POST['QUAL_ID'])){
+            $QUAL_ID = (int)isValidData($_POST['QUAL_ID']);
+        }else{
+            $error .= "<div class='text-danger'>Invalid Qualification Id</div>";
+        }
+
+        $qualification = $this->Api_qualification_model->getQualificationByUserIdAndQulificationId($USER_ID,$QUAL_ID);
+
+        if(!$qualification){
+            $error .= "<div class='text-danger'>Qualification Not Found</div>";
+        }
+        else {
+
+            $folder = EXTRA_IMAGE_CHECK_PATH . "$USER_ID";
+
+            if (!is_dir($folder)) {
+
+                mkdir(EXTRA_IMAGE_CHECK_PATH . "/$USER_ID");
+            }
+
+            $ROLL_NO = $grade = "";
+            $IS_DECLARE = 'N';
+            $RESULT_DATE = $START_DATE = $END_DATE = '1900-01-01';
+            $cgpa = $out_of = $DEGREE_ID = $DISCIPLINE_ID = $INSTITUTE_ID = $ORGANIZATION_ID = $TOTAL_MARKS = $OBTAINED_MARKS = 0;
+
+
+            if (isset($_POST['DEGREE_ID']) && isValidData($_POST['DEGREE_ID'])) {
+                $DEGREE_ID = (int)isValidData($_POST['DEGREE_ID']);
+            } else {
+                $error .= "<div class='text-danger'>Qualification / Degree / Certificate must be select</div>";
+            }
+
+            if (isset($_POST['check_grade'])) {
+                if ($_POST['check_grade'] == 'grade') {
+                    $GRADING_AS = "G";
+                    if (isset($_POST['grade']) && isValidData($_POST['grade'])) {
+                        $grade = isValidData($_POST['grade']);
+                    } else {
+                        $error .= "<div class='text-danger'>Grade must be select</div>";
+                    }
+                } else if ($_POST['check_grade'] == 'cgpa') {
+                    $GRADING_AS = "C";
+                    if (isset($_POST['cgpa']) && isValidData($_POST['cgpa'])) {
+                        $cgpa = isValidData($_POST['cgpa']);
+                    } else {
+                        $error .= "<div class='text-danger'>CGPA Must Enter</div>";
+                    }
+                    if (isset($_POST['out_of']) && isValidData($_POST['out_of'])) {
+                        $out_of = isValidData($_POST['out_of']);
+                    } else {
+                        $error .= "<div class='text-danger'>Out Of must select</div>";
+                    }
+
+                    if (!is_numeric($cgpa)) {
+                        $error .= "<div class='text-danger'> Must Enter Valid CGPA / Percentage</div>";
+                    } else {
+                        $cgpa = number_format((float)$cgpa, 2, '.', '');
+                        if ($cgpa > $out_of) {
+                            $error .= "<div class='text-danger'> Must Enter Valid CGPA / Percentage</div>";
+                        }
+                    }
+
+
+                }
+            }
+            if (!isset($_POST['result_not_declare'])) {
+                $IS_DECLARE = 'Y';
+                if (isset($_POST['RESULT_DATE']) && isValidTimeDate($_POST['RESULT_DATE'], 'd/m/Y')) {
+                    $RESULT_DATE = getDateForDatabase($_POST['RESULT_DATE']);
+                } else {
+                    $error .= "<div class='text-danger'>Result Declare Date must be Filled</div>";
+                }
+
+            }
+
+
+            if (isset($_POST['INSTITUTE_ID']) && isValidData($_POST['INSTITUTE_ID'])) {
+                $INSTITUTE_ID = isValidData($_POST['INSTITUTE_ID']);
+                if ($INSTITUTE_ID <= 0) {
+                    $error .= "<div class='text-danger'>Institute / Department / School / College must be select</div>";
+                }
+            } else {
+                $error .= "<div class='text-danger'>Institute / Department / School / College must be select</div>";
+            }
+            if (isset($_POST['ORGANIZATION_ID']) && isValidData($_POST['ORGANIZATION_ID'])) {
+                $ORGANIZATION_ID = isValidData($_POST['ORGANIZATION_ID']);
+            } else {
+                $error .= "<div class='text-danger'>Organization / University / Board must be select</div>";
+            }
+            if (isset($_POST['DISCIPLINE_ID']) && isValidData($_POST['DISCIPLINE_ID'])) {
+                $DISCIPLINE_ID = isValidData($_POST['DISCIPLINE_ID']);
+                if ($DISCIPLINE_ID <= 0) {
+                    $error .= "<div class='text-danger'>Discipline / Subject / Group must be select</div>";
+                }
+            } else {
+                $error .= "<div class='text-danger'>Discipline / Subject / Group must be select</div>";
+            }
+            if (isset($_POST['ROLL_NO']) && isValidData($_POST['ROLL_NO'])) {
+                $ROLL_NO = isValidData($_POST['ROLL_NO']);
+            } else {
+                $error .= "<div class='text-danger'>Roll Number must be Filled</div>";
+            }
+            if (isset($_POST['TOTAL_MARKS']) && isValidData($_POST['TOTAL_MARKS'])) {
+                $TOTAL_MARKS = isValidData($_POST['TOTAL_MARKS']);
+            } else {
+                if ($DEGREE_ID != 8)
+                    $error .= "<div class='text-danger'>Total Marks must be Filled</div>";
+            }
+            if (isset($_POST['OBTAINED_MARKS']) && isValidData($_POST['OBTAINED_MARKS'])) {
+                $OBTAINED_MARKS = isValidData($_POST['OBTAINED_MARKS']);
+            } else {
+                if ($DEGREE_ID != 8)
+                    $error .= "<div class='text-danger'>Obtained Marks must be Filled</div>";
+            }
+
+
+            if (isset($_POST['START_DATE']) && isValidTimeDate($_POST['START_DATE'], 'd/m/Y')) {
+                $START_DATE = getDateForDatabase($_POST['START_DATE']);
+            } else {
+                $error .= "<div class='text-danger'>Start Date must be Filled</div>";
+            }
+            if (isset($_POST['END_DATE']) && isValidTimeDate($_POST['END_DATE'], 'd/m/Y')) {
+                $END_DATE = getDateForDatabase($_POST['END_DATE']);
+            } else {
+                $error .= "<div class='text-danger'>End Date must be Filled</div>";
+            }
+            if ($END_DATE <= $START_DATE) {
+                $error .= "<div class='text-danger'>Invalid Date </div>";
+            }
+
+
+            if ($DEGREE_ID != 8 && $TOTAL_MARKS <= 0) {
+                $error .= "<div class='text-danger'>Invalid Total Marks </div>";
+            }
+            if ($DEGREE_ID != 8 && $OBTAINED_MARKS <= 0) {
+                $error .= "<div class='text-danger'>Invalid Obtained Marks </div>";
+            }
+            if ($DEGREE_ID == 8 && $TOTAL_MARKS < 0) {
+                $error .= "<div class='text-danger'>Invalid Total Marks </div>";
+            }
+            if ($DEGREE_ID == 8 && $OBTAINED_MARKS < 0) {
+                $error .= "<div class='text-danger'>Invalid Obtained Marks </div>";
+            }
+
+
+            if ($TOTAL_MARKS < $OBTAINED_MARKS) {
+                $error .= "<div class='text-danger'>Obtained Marks must be less then or Equal to Total Marks </div>";
+            }
+
+
+            $degree_name = $this->Api_qualification_model->getDegreeProgramById($DEGREE_ID);
+            $degree_name = str_replace(' ', '_', $degree_name['DEGREE_TITLE']);
+            $degree_name = str_replace('/', '_', $degree_name);
+            $config_a = array();
+            $config_a['maintain_ratio'] = true;
+            $config_a['width'] = 360;
+            $config_a['height'] = 500;
+
+            $config_a['resize'] = false;
+
+            $marksheet_image = $qualification['MARKSHEET_IMAGE'];
+
+            if ($marksheet_image)
+                $marksheet_image = EXTRA_IMAGE_CHECK_PATH . $marksheet_image;
+            $marks_check = true;
+            if (!(!empty($marksheet_image) && file_exists($marksheet_image) && (filesize($marksheet_image) > 0))) {
+
+                $marksheet_image = "";
+                $qualification['MARKSHEET_IMAGE'] = "";
+                $marks_check = false;
+            }else{
+                $marksheet_image = $qualification['MARKSHEET_IMAGE'];
+            }
+
+            $passcertificate_image = $qualification['PASSCERTIFICATE_IMAGE'];
+
+            if ($passcertificate_image)
+                $passcertificate_image = EXTRA_IMAGE_CHECK_PATH . $passcertificate_image;
+
+            $pass_check = true;
+            if (!(!empty($passcertificate_image) && file_exists($passcertificate_image) && (filesize($passcertificate_image) > 0))) {
+
+                $passcertificate_image = "";
+                $qualification['PASSCERTIFICATE_IMAGE'] = "";
+                $pass_check = false;
+            }else{
+                $passcertificate_image = $qualification['PASSCERTIFICATE_IMAGE'];
+            }
+
+            if (isset($_FILES['marksheet_image'])) {
+                if (isValidData($_FILES['marksheet_image']['name'])) {
+
+                    $file_path = EXTRA_IMAGE_CHECK_PATH . "$USER_ID/";
+                    $image_name = $degree_name . "_marksheet_image_$USER_ID";
+                    $res = $this->upload_image('marksheet_image', $image_name, $this->file_size, $file_path, $config_a);
+                    if ($res['STATUS'] === true) {
+                        $marksheet_image = "$USER_ID/" . $res['IMAGE_NAME'];
+
+                    } else {
+                        $error .= "<div class='text-danger'>Error {$res['MESSAGE']}</div>";
+                    }
+                } else {
+                    if ($DEGREE_ID != 8 && !$marks_check) {
+                        $error .= "<div class='text-danger'>Must Upload Marksheet and image size must be less then 500kb </div>";
+                    }
+
+                }
+            } else {
+                if ($DEGREE_ID != 8 && !$marks_check)
+                    $error .= "<div class='text-danger'>Must Upload Marksheet and image size must be less then 500kb Id Not found something went worng </div>";
+            }
+
+            if (isset($_FILES['passcertificate_image'])) {
+                if (isValidData($_FILES['passcertificate_image']['name'])) {
+
+                    $file_path = EXTRA_IMAGE_CHECK_PATH . "$USER_ID/";
+                    $image_name = $degree_name . "_passcertificate_image_$USER_ID";
+                    $res = $this->upload_image('passcertificate_image', $image_name, $this->file_size, $file_path, $config_a);
+                    if ($res['STATUS'] === true) {
+                        $passcertificate_image = "$USER_ID/" . $res['IMAGE_NAME'];
+                    } else {
+                        $error .= "<div class='text-danger'>Error {$res['MESSAGE']}</div>";
+                    }
+                } else {
+                    if ($DEGREE_ID != 8 && !$pass_check)
+                        $error .= "<div class='text-danger'>Must Upload Pass Certificate and image size must be less then 500kb </div>";
+                }
+
+            } else {
+                if ($DEGREE_ID != 8 && !$pass_check)
+                    $error .= "<div class='text-danger'>Must Upload Pass Certificate and image size must be less then 500kb Id Not found something went worng </div>";
+            }
+
+            $if_exist = $this->Api_qualification_model->getQualificatinByUserIdAndDegreeId($USER_ID, $DEGREE_ID);
+            if (!(count($if_exist) == 1 && $DEGREE_ID == $qualification['DEGREE_ID'])) {
+                $error .= "<div class='text-danger'>Same Qualification is Already Exist OR You Can't change Degree at this stage. Please Update OR Delete...!</div>";
+            }
+        }
+        if($error==""){
+
+
+
+            $form_array = array(
+                "USER_ID"           =>  $USER_ID,
+                "DISCIPLINE_ID"     =>$DISCIPLINE_ID,
+                "ORGANIZATION_ID"   =>  $ORGANIZATION_ID,
+                "INSTITUTE_ID"      =>  $INSTITUTE_ID,
+                "START_DATE"        =>  $START_DATE,
+                "END_DATE"          =>  $END_DATE,
+                "RESULT_DATE"       =>  $RESULT_DATE,
+                "TOTAL_MARKS"       =>  $TOTAL_MARKS,
+                "OBTAINED_MARKS"    =>  $OBTAINED_MARKS,
+                "CGPA"              =>  $cgpa,
+                "GRADING_AS"        =>  $GRADING_AS,
+                "GRADE"             =>  $grade,
+                "ACTIVE"            =>  1,
+                "IS_RESULT_DECLARE" =>  $IS_DECLARE,
+                "ROLL_NO"           =>  $ROLL_NO,
+                "OUT_OF"            =>  $out_of,
+                "MARKSHEET_IMAGE"   =>  $marksheet_image,
+                "PASSCERTIFICATE_IMAGE"=>  $passcertificate_image,
+            );
+
+            $res = $this->Api_qualification_model->updateQualification($QUAL_ID,$form_array);
+
+
+            if($res===1){
                 $reponse['RESPONSE'] = "SUCCESS";
                 $reponse['MESSAGE'] = "<div class='text-success'>Successfully Save ..!<div>";
             }else if($res===0){
@@ -653,6 +1450,204 @@ class Candidate extends CI_Controller
                 ->set_output(json_encode($reponse));
         }
     }
+
+    function apiDeleteQualification(){
+        $reponse = getcsrf($this);
+        $USER_ID = $this->user['USER_ID'];
+
+
+
+        $qul_id = $this->input->post('qualification_id');
+
+        if(is_numeric($qul_id)) {
+            $res = $this->Api_qualification_model->deleteQualification($USER_ID,$qul_id);
+            if($res ===true){
+                $reponse['RESPONSE'] = "SUCCESS";
+                $reponse['MESSAGE'] = "<div class='text-success'>Successfully Deleted Qualification...!</div>";
+            }else{
+                $reponse['RESPONSE'] = "ERROR";
+                $reponse['MESSAGE'] = "<div class='text-success'>Somethis went wrong may be your not authorize to delete your qualification...!</div>";
+            }
+        }else{
+            $reponse['RESPONSE'] = "ERROR";
+            $reponse['MESSAGE'] = "<div class='text-success'>Invalid Qualification ID...!</div>";
+        }
+        if ($reponse['RESPONSE'] == "ERROR") {
+            $this->output
+                ->set_status_header(500)
+                ->set_content_type('application/json', 'utf-8')
+                ->set_output(json_encode($reponse));
+        } else {
+            $this->output
+                ->set_status_header(200)
+                ->set_content_type('application/json', 'utf-8')
+                ->set_output(json_encode($reponse));
+        }
+    }
+
+    function apiGetInstituteByOrgId(){
+        $user = $this->session->userdata($this->SessionName);
+
+
+        $ORG_ID = $this->input->get('ORG_ID');
+
+
+        if($ORG_ID){
+            $institutes = $this->Api_qualification_model->getInstituteByOrgId($ORG_ID);
+            echo "<option value='0'>--Choose--</option>";
+            foreach ($institutes as $institute) {
+
+                echo "<option value='{$institute['INSTITUTE_ID']}'  >{$institute['INSTITUTE_NAME']}</option>";
+            }
+            echo "<option value='-1'>--Other--</option>";
+        }else{
+            echo "<option value='0'>--Choose--</option>";
+        }
+
+
+    }
+
+    function apiGetOrganization(){
+        $user = $this->session->userdata($this->SessionName);
+
+            $organization = $this->Api_qualification_model->getAllOrganization();
+            echo "<option value='0'>--Choose--</option>";
+            foreach ($organization as $institute) {
+
+                echo "<option value='{$institute['INSTITUTE_ID']}'  >{$institute['INSTITUTE_NAME']}</option>";
+            }
+            echo "<option value='-1'>--Other--</option>";
+
+
+    }
+
+    function apiGetDisciplineById(){
+        $user = $this->session->userdata($this->SessionName);
+
+
+        $DEGREE_ID = $this->input->get('DEGREE_ID');
+
+
+        if($DEGREE_ID){
+            $disciplines = $this->Api_qualification_model->getDisciplineByDegreeId($DEGREE_ID);
+            echo "<option value='0'>--Choose--</option>";
+
+
+            foreach ($disciplines as $discipline) {
+
+                echo "<option value='{$discipline['DISCIPLINE_ID']}'  >{$discipline['DISCIPLINE_NAME']}</option>";
+            }
+
+        }else{
+            echo "<option value='0'>--Choose--</option>";
+        }
+
+
+    }
+
+    function addOrganizationForQualification(){
+
+        $reponse = getcsrf($this);
+        $USER_ID = $this->user['USER_ID'];
+        $org_name = strtoupper(isValidData($this->input->post('org_name')));
+        if(!empty($org_name)){
+            $DATE =date('Y-m-d H:i:s');
+            $type_id = 1;
+            $PARENT_ID = 0;
+            $active = 0;
+            $IS_INST = 'Y';
+            $remarks = 'ADDED_BY_NORMAL_USER';
+            $form_array = array('INSTITUTE_NAME'=>$org_name ,
+            'INSTITUTE_TYPE_ID'=>$type_id,
+            'PARENT_ID'=>$PARENT_ID,
+            'REMARKS'=>$remarks ,
+            'USER_ID'=> $USER_ID,
+            'DATE_TIME'=> $DATE,
+            'ACTIVE'=> $active,
+            'IS_INST'=> $IS_INST);
+            $res = $this->Api_qualification_model->addInstitute($form_array);
+            if($res===true){
+                $reponse['RESPONSE'] = "SUCCESS";
+                $reponse['MESSAGE'] = "<div class='text-success'>Organization Add Success Fully...!</div>";
+            }else{
+                $reponse['RESPONSE'] = "ERROR";
+                $reponse['MESSAGE'] = "<div class='text-success'>Something Went Worng...!</div>";
+            }
+
+        }else{
+            $reponse['RESPONSE'] = "ERROR";
+            $reponse['MESSAGE'] = "<div class='text-danger'>Organization Name Must be Provide...!</div>";
+        }
+        if ($reponse['RESPONSE'] == "ERROR") {
+            $this->output
+                ->set_status_header(500)
+                ->set_content_type('application/json', 'utf-8')
+                ->set_output(json_encode($reponse));
+        } else {
+            $this->output
+                ->set_status_header(200)
+                ->set_content_type('application/json', 'utf-8')
+                ->set_output(json_encode($reponse));
+        }
+
+    }
+
+    function addInstituteForQualification(){
+        $reponse = getcsrf($this);
+        $USER_ID = $this->user['USER_ID'];
+
+        $institute = strtoupper(isValidData($this->input->post('institute')));
+        $PARENT_ID = isValidData($this->input->post('org_id'));
+
+
+        if($institute&&$PARENT_ID){
+
+            $DATE =date('Y-m-d H:i:s');
+            $type_id = 2;
+            $active = 0;
+            $IS_INST = 'N';
+            $remarks = 'ADDED_BY_NORMAL_USER';
+
+            $form_array = array('INSTITUTE_NAME'=>$institute ,
+                'INSTITUTE_TYPE_ID'=>$type_id,
+                'PARENT_ID'=>$PARENT_ID,
+                'REMARKS'=>$remarks ,
+                'USER_ID'=> $USER_ID,
+                'DATE_TIME'=> $DATE,
+                'ACTIVE'=> $active,
+                'IS_INST'=> $IS_INST);
+
+            $res = $this->Api_qualification_model->addInstitute($form_array);
+
+            if($res===true){
+                $reponse['RESPONSE'] = "SUCCESS";
+                $reponse['MESSAGE'] = "<div class='text-success'>Institute / Department / School / College ...!</div>";
+            }else{
+                $reponse['RESPONSE'] = "ERROR";
+                $reponse['MESSAGE'] = "<div class='text-success'>Something Went Worng...!</div>";
+            }
+
+        }else{
+            $reponse['RESPONSE'] = "ERROR";
+            $reponse['MESSAGE'] = "<div class='text-danger'>Organization must be select and Institute Must be Provided...!</div>";
+        }
+
+        if ($reponse['RESPONSE'] == "ERROR") {
+            $this->output
+                ->set_status_header(500)
+                ->set_content_type('application/json', 'utf-8')
+                ->set_output(json_encode($reponse));
+        } else {
+            $this->output
+                ->set_status_header(200)
+                ->set_content_type('application/json', 'utf-8')
+                ->set_output(json_encode($reponse));
+        }
+
+    }
+
+
+
     private function upload_image($index_name,$image_name,$max_size = 50,$path = '../eportal_resource/images/applicants_profile_image/',$con_array=array())
     {
 
@@ -720,5 +1715,30 @@ class Candidate extends CI_Controller
         }
     }
 
+    private function templateMethod(){
+
+        $reponse = getcsrf($this);
+        $USER_ID = $this->user['USER_ID'];
+        if ($this->input->server('REQUEST_METHOD') == 'POST'){
+
+            $reponse['RESPONSE'] = "SUCCESS";
+            $reponse['MESSAGE'] = "OK";
+        }else{
+            $reponse['RESPONSE'] = "ERROR";
+            $reponse['MESSAGE'] = "Invalid Request Method";
+        }
+
+        if ($reponse['RESPONSE'] == "ERROR") {
+            $this->output
+                ->set_status_header(500)
+                ->set_content_type('application/json', 'utf-8')
+                ->set_output(json_encode($reponse));
+        } else {
+            $this->output
+                ->set_status_header(200)
+                ->set_content_type('application/json', 'utf-8')
+                ->set_output(json_encode($reponse));
+        }
+    }
 
 }

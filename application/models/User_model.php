@@ -119,5 +119,45 @@ class User_model extends CI_model
 
     }
 
+    function getExperiancesByUserId($user_id){
+
+        $this->db->where('USER_ID',$user_id);
+        $this->db->where('ACTIVE',1);
+        $this->db->from('experiances');
+        $experiances_list = $this->db->get()->result_array();
+        return $experiances_list;
+    }
+
+    function addExperiances($form_array){
+        $this->db->trans_begin();
+        $this->db->insert('experiances', $form_array);
+        if($this->db->affected_rows() != 1){
+            $this->db->trans_rollback();
+            return false;
+        }else {
+            $this->db->trans_commit();
+            return true;
+        }
+    }
+
+    function deleteExperiance($USER_ID,$experiance_id){
+        $this->db->trans_begin();
+
+        $formArray = array('ACTIVE'=>0);
+
+        $this->db->where('EXPERIANCE_ID',$experiance_id);
+        $this->db->where('USER_ID',$USER_ID);
+        $this->db->where('ACTIVE',1);
+        $this->db->update('experiances',$formArray);
+
+        if($this->db->affected_rows() != 1){
+            $this->db->trans_rollback();
+            return false;
+        }else {
+            $this->db->trans_commit();
+            return true;
+        }
+    }
+
 
 }

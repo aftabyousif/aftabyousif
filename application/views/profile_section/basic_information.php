@@ -292,6 +292,9 @@
                             </select>
                         </div>
                     </div>
+
+                </div>
+                <div class="row">
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group res-mg-t-15">
                             <label for="exampleInput1" class="bmd-label-floating">Profile Image
@@ -317,8 +320,10 @@
                 </div>
                 <div class="row">
                     <div class="col-lg-4">
+                    </div>
+                    <div class="col-lg-4">
                         <div class="payment-adress">
-                            <button type="submit" class="btn btn-primary waves-effect waves-light">Save</button>
+                            <button type="submit" class="btn btn-primary btn-lg waves-effect waves-light">Save</button>
                         </div>
                     </div>
                 </div>
