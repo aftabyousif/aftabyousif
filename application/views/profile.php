@@ -56,6 +56,7 @@ $readonly ="";
         </div>
 </div>
 <script>
+
     function callAjax(url,set_id,msg_id="alert_msg_for_ajax_call"){
         jQuery.ajax({
             url:url ,
@@ -95,7 +96,7 @@ $readonly ="";
         $('.disab').hide();
     }
     var name;
-    var
+    // var
     function deleteQulification(id){
         if(confirm("Are You Sure?\nDo You want to delete your qualification..!")){
             $('.preloader').fadeIn(700);

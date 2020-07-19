@@ -1,7 +1,5 @@
 <?php
 $project_name ="Admission";
-
-
 ?>
 <!doctype html>
 <html class="no-js" lang="en">

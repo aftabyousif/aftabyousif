@@ -92,6 +92,8 @@
 <!-- main JS
     ============================================ -->
 <script src="<?=base_url()?>dash_assets/js/main.js"></script>
+
+<script src="<?=base_url()?>assets/js/input-validation.js"></script>
     <script>
 document.getElementById('min-height').style="padding:30px;min-height:"+(window.innerHeight-120)+"px;";
 

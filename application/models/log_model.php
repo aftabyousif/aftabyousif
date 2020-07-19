@@ -1,8 +1,9 @@
 <?php
 
-
 class log_model extends CI_Model
 {
+	protected $SessionName = 'ADMIN_LOGIN_FOR_ADMISSION';
+
 	/*
 	 * operation codes
 	 * 11 FOR INSERT
@@ -77,6 +78,12 @@ class log_model extends CI_Model
 
 		$PREV_RECORD = json_encode($PREV_RECORD);
 		$NEW_RECORD = json_encode($NEW_RECORD);
+
+		if ($USER_ID == 0 || $USER_ID == null || $USER_ID == "" || empty($USER_ID))
+		{
+			$user_data =$this->session->userdata($this->SessionName);
+			$USER_ID = $user_data['USER_ID'];
+		}
 
 		$array = array(
 			'PREV_ID'=>$PREV_ID,

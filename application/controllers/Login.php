@@ -11,7 +11,7 @@ class Login extends CI_Controller {
     /**
      * Login constructor.
      */
-    private $HomeController = 'Candidate';
+    private $HomeController = 'candidate';
     private $SelfController = 'login';
     private $SessionName = 'USER_LOGIN_FOR_ADMISSION';
 
@@ -58,8 +58,10 @@ class Login extends CI_Controller {
 //            echo $password;
 //			echo cryptPassowrd('Yasir123**');
 //			exit();
-//			$this->User_model->changePasswordByCNIC('4120209109363',cryptPassowrd('Yasir123*'));
-            $hashpassword = cryptPassowrd($password);
+//			$this->User_model->changePasswordByCNIC('4120209109363',cryptPassowrd('Yasir123*&'));
+//			exit();
+
+            $hashpasssword = cryptPassowrd($password);
 
             if($check_cnic==='cnic'&&$cnic&&$password){
 
@@ -71,7 +73,7 @@ class Login extends CI_Controller {
 //                	print_r($user['PASSWORD']);
 //                	exit();
 
-                    if(strcmp($hashpassword,$user['PASSWORD'])===0){
+                    if(strcmp($hashpasssword,$user['PASSWORD'])===0){
 //                    if($hashpassword === $user['PASSWORD']){
 
                         $session_data=$this->getSessionData($user);

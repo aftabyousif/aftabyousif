@@ -8,12 +8,13 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 class Candidate extends CI_Controller
 {
-    private $SelfController = 'Candidate';
-    private $profile = 'Candidate/profile';
+    private $SelfController = 'candidate';
+    private $profile = 'candidate/profile';
     private $LoginController = 'login';
     private $SessionName = 'USER_LOGIN_FOR_ADMISSION';
     private $user ;
     private $file_size = 2048;
+
     public function __construct()
     {
         parent::__construct();
@@ -32,6 +33,7 @@ class Candidate extends CI_Controller
     }
 
     function index(){
+
         $user = $this->session->userdata($this->SessionName);
         if($user){
             $data['user'] = $user;
@@ -45,7 +47,6 @@ class Candidate extends CI_Controller
             $this->load->view('include/footer_area',$data);
             $this->load->view('include/footer',$data);
         }
-
     }
 
     function profile(){

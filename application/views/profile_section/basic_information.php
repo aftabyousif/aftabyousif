@@ -27,7 +27,7 @@
                         <div class="form-group">
                             <label for="exampleInput1" class="bmd-label-floating">Full Name
                                 <span class="text-danger">*</span></label>
-                            <input <?=$readonly?> type="text" id="FIRST_NAME" class="form-control" placeholder="Full Name" name="FIRST_NAME" value="<?=$user['FIRST_NAME']?>"  >
+                            <input <?=$readonly?> type="text" id="FIRST_NAME" class="form-control allow-string" placeholder="Full Name" name="FIRST_NAME" value="<?=$user['FIRST_NAME']?>">
                             <input type="text" id="USER_ID" class="" name="USER_ID" value="<?=$user['USER_ID']?>" hidden>
 
                         </div>
@@ -36,7 +36,7 @@
                         <div class="form-group">
                             <label for="exampleInput1" class="bmd-label-floating">Father's Name
                                 <span class="text-danger">*</span></label>
-                            <input <?=$readonly?> type="text" id="FNAME" class="form-control" name="FNAME" value="<?=$user['FNAME']?>"  >
+                            <input <?=$readonly?> type="text" id="FNAME" class="form-control allow-string" name="FNAME" value="<?=$user['FNAME']?>"  >
                         </div>
                     </div>
                 </div>
@@ -45,7 +45,7 @@
                         <div class="form-group">
                             <label for="exampleInput1" class="bmd-label-floating"> Email
                                 <span class="text-danger">*</span></label>
-                            <input readonly type="text" id="EMAIL" class="form-control" name="EMAIL" value="<?=$user['EMAIL']?>"  >
+                            <input readonly type="email" id="EMAIL" class="form-control" name="EMAIL" value="<?=$user['EMAIL']?>"  >
 
                         </div>
                     </div>
@@ -53,7 +53,7 @@
                         <div class="form-group">
                             <label for="exampleInput1" class="bmd-label-floating">Surname
                                 <span class="text-danger">*</span></label>
-                            <input <?=$readonly?> type="text" id="LAST_NAME" class="form-control" name="LAST_NAME" value="<?=$user['LAST_NAME']?>"  >
+                            <input <?=$readonly?> type="text" id="LAST_NAME" class="form-control allow-string" name="LAST_NAME" value="<?=$user['LAST_NAME']?>"  >
 
                         </div>
                     </div>
@@ -65,7 +65,7 @@
                             <div class="form-group data-custon-pick" id="data_2">
                                 <div class="input-group date">
                                     <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                    <input <?=$readonly?> type="text" id="DATE_OF_BIRTH"  name="DATE_OF_BIRTH" class="form-control" value="<?=getDateForView($user['DATE_OF_BIRTH'])?>">
+                                    <input <?=$readonly?> type="text" id="DATE_OF_BIRTH"  name="DATE_OF_BIRTH" class="form-control" value="<?=getDateForView($user['DATE_OF_BIRTH'])?>" readonly>
                                 </div>
                             </div>
                         </div>
@@ -130,7 +130,7 @@
                         <div class="form-group">
                             <label for="exampleInput1" class="bmd-label-floating">Zip / Postal Code
                                 <span class="text-danger"></span></label>
-                            <input type="text" id="ZIP_CODE" class="form-control" name="ZIP_CODE" value="<?=$user['ZIP_CODE']?>"  >
+                            <input type="text" id="ZIP_CODE" class="form-control allow-number" name="ZIP_CODE" value="<?=$user['ZIP_CODE']?>"  >
                         </div>
                     </div>
                 </div>
@@ -156,14 +156,14 @@
                         <div class="form-group">
                             <label for="exampleInput1" class="bmd-label-floating"> Mobile No
                                 <span class="text-danger">*</span></label>
-                            <input type="text" id="MOBILE_NO" class="form-control" name="MOBILE_NO" value="<?=$user['MOBILE_NO']?>"  >`
+                            <input type="text" id="MOBILE_NO" class="form-control allow-mobile-number" name="MOBILE_NO" value="<?=$user['MOBILE_NO']?>"  >`
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group">
                             <label for="exampleInput1" class="bmd-label-floating">Place of Birth
                                 <span class="text-danger"></span></label>
-                            <input type="text" id="PLACE_OF_BIRTH" class="form-control" name="PLACE_OF_BIRTH" value="<?=$user['PLACE_OF_BIRTH']?>"  ></div>
+                            <input type="text" id="PLACE_OF_BIRTH" class="form-control allow-string" name="PLACE_OF_BIRTH" value="<?=$user['PLACE_OF_BIRTH']?>"  ></div>
                     </div>
                 </div>
                 <div class="row">
@@ -234,7 +234,7 @@
                         <div class="form-group res-mg-t-15">
                             <label for="exampleInput1" class="bmd-label-floating">Home Address <small>Postal Address</small>
                                 <span class="text-danger">*</span></label>
-                            <textarea name="HOME_ADDRESS" id="HOME_ADDRESS"  style="height:70px" rows="3"><?=$user['HOME_ADDRESS']?></textarea>
+                            <textarea name="HOME_ADDRESS" id="HOME_ADDRESS" class="allow-address"  style="height:70px" rows="3"><?=$user['HOME_ADDRESS']?></textarea>
 
                         </div>
                     </div>
@@ -242,7 +242,7 @@
                         <div class="form-group res-mg-t-15">
                             <label for="exampleInput1" class="bmd-label-floating">Parmanent Address
                                 <span class="text-danger"></span></label>
-                            <textarea name="PERMANENT_ADDRESS" id="PERMANENT_ADDRESS"  style="height:70px" row="3"><?=$user['PERMANENT_ADDRESS']?></textarea>
+                            <textarea name="PERMANENT_ADDRESS" id="PERMANENT_ADDRESS" class="allow-address"  style="height:70px" row="3"><?=$user['PERMANENT_ADDRESS']?></textarea>
 
                         </div>
                     </div>
@@ -315,10 +315,6 @@
                         </div>
                     </div>
                 </div>
-
-
-
-
                 <div class="row">
                     <div class="col-lg-4">
                         <div class="payment-adress">

@@ -12,24 +12,19 @@ class AdminLogin extends CI_Controller {
      */
     private $SelfController = 'AdminLogin';
     private $HomeController = 'mapping/shift_program_mapping';
-    private $SessionName = 'ADMIN_LOGIN_FOR_ADMISSION';
+    protected $SessionName = 'ADMIN_LOGIN_FOR_ADMISSION';
 
     public function __construct()
     {
         parent::__construct();
-
-        if($this->session->has_userdata($this->SessionName)){
-            redirect(base_url().$this->HomeController);
-            exit();
-        }
     }
 
     /**
      * Login constructor.
      */
 
-
     function index(){
+
         $this->load->helper("form");
         $this->load->view('include/login_header');
         $this->load->view('include/preloder');
@@ -40,6 +35,7 @@ class AdminLogin extends CI_Controller {
 
 
     function adminLoginHandler(){
+
         $this->load->model('User_model');
 
         if(isset($_POST['login'])
@@ -62,7 +58,7 @@ class AdminLogin extends CI_Controller {
 
                         if($user_role_object!=null || !(empty($user_role_object))){
                             //set session and redirect to another page
-                            $session_data=$this->getSessionData($user_role_object);
+                            $session_data=$this->getSessionData($user_role_object,$user);
                             $this->session->set_userdata($this->SessionName, $session_data);
                             redirect(base_url().$this->HomeController);
                         }else{
@@ -82,7 +78,6 @@ class AdminLogin extends CI_Controller {
                     $this->session->set_flashdata('ALERT_MSG', $error);
                     redirect(base_url().$this->SelfController);
                     //invalid Cnic
-
                 }
             }
             else{
@@ -90,8 +85,6 @@ class AdminLogin extends CI_Controller {
                 $this->session->set_flashdata('ALERT_MSG', $error);
                 redirect(base_url().$this->SelfController);
             }
-
-
         }else{
             $error =array('TYPE'=>'ERROR','MSG'=>'Invalid Form Request ');
             $this->session->set_flashdata('ALERT_MSG', $error);
@@ -99,8 +92,17 @@ class AdminLogin extends CI_Controller {
         }
     }
 
-    private function getSessionData($user){
-        $session_data =array('USER_ID'=>$user['USER_ID'],'ROLE_NAME'=>$user['ROLE_NAME'],'KEYWORD'=>$user['KEYWORD'],'ACTIVE'=>$user['ACTIVE']);
-        return$session_data;
+    private function getSessionData($user,$user_profile)
+	{
+        $session_data =array('USER_ID'=>$user['USER_ID'],'ROLE_NAME'=>$user['ROLE_NAME'],'KEYWORD'=>$user['KEYWORD'],'ACTIVE'=>$user['ACTIVE'],'FIRST_NAME'=>$user_profile['FIRST_NAME'],'LAST_NAME'=>$user_profile['LAST_NAME'],'EMAIL'=>$user_profile['EMAIL'],'CNIC_NO'=>$user_profile['CNIC_NO'],'PROFILE_IMAGE'=>$user_profile['PROFILE_IMAGE'],'PASSPORT_NO'=>$user_profile['PASSPORT_NO'],'PROFILE'=>$user_profile);
+        return $session_data;
     }
-}
+
+    protected function verify_login()
+	{
+		if((!$this->session->has_userdata($this->SessionName))){
+			redirect(base_url().$this->SelfController);
+			exit();
+		}
+	}
+}//class

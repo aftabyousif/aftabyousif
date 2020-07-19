@@ -8,8 +8,11 @@
 
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Mapping extends CI_Controller
+require_once  APPPATH.'controllers/AdminLogin.php';
+class Mapping extends AdminLogin
 {
+//	private $SessionName = 'ADMIN_LOGIN_FOR_ADMISSION';
+
 	public function __construct()
 	{
 		parent::__construct();
@@ -17,12 +20,16 @@ class Mapping extends CI_Controller
 		$this->load->model('Administration');
 		$this->load->model('log_model');
 //		$this->load->library('javascript');
+		$this->verify_login();
 	}
 
 	 public function shift_program_mapping ()
 	{
-		$data['user'] = '';
-		$data['user'] = '';
+
+		$user = $this->session->userdata($this->SessionName);
+
+		$data['user'] = $user;
+//		$data['user'] =
 		$data['profile_url'] = '';
 
 		$programs = $this->Administration->programs();
