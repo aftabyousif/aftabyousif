@@ -19,6 +19,7 @@ class log_model extends CI_Model
 	 * 23 FOR PASSWORD CHANGE OUTSIDE PORTAL
 	 * 24 FOR PASSWORD CHANGE INSIDE PORTAL
 	 * 25 FOR USER RIGHT CHANGED
+	 * 26 FOR LOGOUT
 	 * */
 
 	function create_log($PREV_ID,$NEW_ID,$PREV_RECORD,$NEW_RECORD,$DETAIL,$TABLE_NAME,$OPERATION_CODE,$USER_ID)
@@ -134,7 +135,9 @@ class log_model extends CI_Model
         $win = strpos($_SERVER['HTTP_USER_AGENT'],'Windows');
         $Macintosh = strpos($_SERVER['HTTP_USER_AGENT'],'Macintosh');
         $Linux = strpos($_SERVER['HTTP_USER_AGENT'],'Linux');
-
+        $MAC = exec('getmac');
+        // Storing 'getmac' value in $MAC
+        $MAC = strtok($MAC, ' ');
         if($iphone == true)
             $user_agent = "iPhone";
         elseif ($android == true)
@@ -160,12 +163,15 @@ class log_model extends CI_Model
         $array = array(
             'QUERY_TITLE'=>$QUERY_TITLE,
             'QUERY_STATUS'=>$QUERY_STATUS,
+            'QUERY'=>$QUERY,
             'PRE_RECORD'=>$PRE_RECORD,
             'CURRENT_RECORD'=>$CURRENT_RECORD,
             'USER_ID'=>$USER_ID,
-            'IP_ADDRESS'=>$ip_addr,
+            'USER_TYPE'=>$USER_TYPE,
+            'CLIENT_IP'=>$ip_addr,
+            'CLIENT_MAC'=>$MAC,
             'USER_AGENT'=>$user_agent,
-            'DATETIME'=>$datetime,
+            'DATE_TIME'=>$datetime,
             'TABLE_NAME'=>$TABLE_NAME,
             'ROW_ID'=>$ROW_ID,
             'REMARKS'=>"ADMISSION"

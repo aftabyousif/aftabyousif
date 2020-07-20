@@ -49,7 +49,8 @@ class User_model extends CI_model
         return $user; 
 
     }
-	function getQulificatinByUserId($user_id){
+
+    function getQulificatinByUserId($user_id){
         $this->db->select('q.*,p.DEGREE_TITLE,d.DISCIPLINE_NAME,i.INSTITUTE_NAME INSTITUTE,o.INSTITUTE_NAME ORGANIZATION');
         $this->db->from('qualifications q');
         $this->db->join('institute AS i', 'q.INSTITUTE_ID = i.INSTITUTE_ID');
@@ -70,6 +71,7 @@ class User_model extends CI_model
         return $user;
 
     }
+
 	function changePasswordByCNIC($cnic,$password){
 		$formArray = array('PASSWORD'=>$password);
 		$this->db->trans_begin();
@@ -86,34 +88,84 @@ class User_model extends CI_model
 	}
 
     function changePassword($user_id,$curr_password,$password){
+        //load loging model
+        $this->load->model('log_model');
+        $this->db->where('USER_ID',$user_id);
+        $PRE_RECORD =  $this->db->get('users_reg')->row_array();
+
+
         $formArray = array('PASSWORD'=>$password);
         $this->db->trans_begin();
         $this->db->where('PASSWORD',$curr_password);
         $this->db->where('USER_ID',$user_id);
         $this->db->update('users_reg',$formArray);
+
+        //this code is use for loging
+        $QUERY = $this->db->last_query();
+
         if($this->db->affected_rows() ==1){
             $this->db->trans_commit();
+            //this code is use for loging
+            $this->db->where('USER_ID',$user_id);
+            $CURRENT_RECORD =  $this->db->get('users_reg')->row_array();
+            $this->log_model->create_log($user_id,$user_id,$PRE_RECORD,$CURRENT_RECORD,"CHANGE_PASSWORD_SUCCESS",'users_reg',24,$user_id);
+            $this->log_model->itsc_log("CHANGE_PASSWORD","SUCCESS",$QUERY,'CANDIDATE',$user_id,$CURRENT_RECORD,$PRE_RECORD,$user_id,'users_reg');
+
             return true;
         }else{
             $this->db->trans_rollback();
+            //this code is use for loging
+            $this->db->where('USER_ID',$user_id);
+            $CURRENT_RECORD =  $this->db->get('users_reg')->row_array();
+            $this->log_model->create_log($user_id,$user_id,$PRE_RECORD,$CURRENT_RECORD,"CHANGE_PASSWORD_FAILED",'users_reg',24,$user_id);
+            $this->log_model->itsc_log("CHANGE_PASSWORD","FAILED",$QUERY,'CANDIDATE',$user_id,$CURRENT_RECORD,$PRE_RECORD,$user_id,'users_reg');
+
             return false;
         }
 
     }
+
     function updateUserById($user_id,$formArray){
+        //load loging model
+        $this->load->model('log_model');
+        $this->db->where('USER_ID',$user_id);
+        $PRE_RECORD =  $this->db->get('users_reg')->row_array();
 
             $this->db->trans_begin();
             $this->db->where('USER_ID',$user_id);
             $this->db->update('users_reg',$formArray);
 
+         //this code is use for loging
+        $QUERY = $this->db->last_query();
+
             if($this->db->affected_rows() ==1){
                 $this->db->trans_commit();
+                //this code is use for loging
+                $this->db->where('USER_ID',$user_id);
+                $CURRENT_RECORD =  $this->db->get('users_reg')->row_array();
+                $this->log_model->create_log($user_id,$user_id,$PRE_RECORD,$CURRENT_RECORD,"UPDATE_USER_INFORMATION",'users_reg',12,$user_id);
+                $this->log_model->itsc_log("UPDATE_USER_INFORMATION","SUCCESS",$QUERY,'CANDIDATE',$user_id,$CURRENT_RECORD,$PRE_RECORD,$user_id,'users_reg');
+
                 return 1;
             }elseif($this->db->affected_rows() ==0){
                 $this->db->trans_commit();
+
+                //this code is use for loging
+                $this->db->where('USER_ID',$user_id);
+                $CURRENT_RECORD =  $this->db->get('users_reg')->row_array();
+                $this->log_model->create_log($user_id,$user_id,$PRE_RECORD,$CURRENT_RECORD,"UPDATE_USER_INFORMATION",'users_reg',12,$user_id);
+                $this->log_model->itsc_log("UPDATE_USER_INFORMATION","SUCCESS",$QUERY,'CANDIDATE',$user_id,$CURRENT_RECORD,$PRE_RECORD,$user_id,'users_reg');
+
                 return 0;
             }else{
                 $this->db->trans_rollback();
+
+                //this code is use for loging
+                $this->db->where('USER_ID',$user_id);
+                $CURRENT_RECORD =  $this->db->get('users_reg')->row_array();
+                $this->log_model->create_log($user_id,$user_id,$PRE_RECORD,$CURRENT_RECORD,"UPDATE_USER_INFORMATION",'users_reg',12,$user_id);
+                $this->log_model->itsc_log("UPDATE_USER_INFORMATION","FAILED",$QUERY,'CANDIDATE',$user_id,$CURRENT_RECORD,$PRE_RECORD,$user_id,'users_reg');
+
                 return -1;
             }
 
@@ -129,18 +181,48 @@ class User_model extends CI_model
     }
 
     function addExperiances($form_array){
+        //load loging model
+        $this->load->model('log_model');
+
         $this->db->trans_begin();
         $this->db->insert('experiances', $form_array);
+
+        //this code is use for loging
+        $QUERY = $this->db->last_query();
+        $id = $this->db->insert_id();
+
+
         if($this->db->affected_rows() != 1){
             $this->db->trans_rollback();
+
+            //this code is use for loging
+            $this->log_model->create_log(0,$id,"","","ADD_EXPERIANCE",'experiances',11,$form_array['USER_ID']);
+            $this->log_model->itsc_log("ADD_EXPERIANCE","FAILED",$QUERY,'CANDIDATE',$form_array['USER_ID'],"","",$id,'experiances');
+
+
+
             return false;
         }else {
             $this->db->trans_commit();
+
+            //this code is use for loging
+
+            $this->db->where('EXPERIANCE_ID',$id);
+            $CURRENT_RECORD =  $this->db->get('experiances')->row_array();
+            $this->log_model->create_log(0,$id,"","","ADD_EXPERIANCE",'experiances',11,$form_array['USER_ID']);
+            $this->log_model->itsc_log("ADD_EXPERIANCE","SUCCESS",$QUERY,'CANDIDATE',$form_array['USER_ID'],$CURRENT_RECORD,"",$id,'experiances');
+
             return true;
         }
     }
 
     function deleteExperiance($USER_ID,$experiance_id){
+        //load loging model
+        $this->load->model('log_model');
+        $this->db->where('EXPERIANCE_ID',$experiance_id);
+        $PRE_RECORD =  $this->db->get('experiances')->row_array();
+
+
         $this->db->trans_begin();
 
         $formArray = array('ACTIVE'=>0);
@@ -149,12 +231,30 @@ class User_model extends CI_model
         $this->db->where('USER_ID',$USER_ID);
         $this->db->where('ACTIVE',1);
         $this->db->update('experiances',$formArray);
+        //this code is use for loging
+        $QUERY = $this->db->last_query();
+
 
         if($this->db->affected_rows() != 1){
             $this->db->trans_rollback();
+
+            //this code is use for loging
+            $this->db->where('EXPERIANCE_ID',$experiance_id);
+            $CURRENT_RECORD =  $this->db->get('experiances')->row_array();
+            $this->log_model->create_log($experiance_id,$experiance_id,$PRE_RECORD,$CURRENT_RECORD,"DELETE_EXPERIANCE",'experiances',13,$CURRENT_RECORD['USER_ID']);
+            $this->log_model->itsc_log("DELETE_EXPERIANCE","FAILED",$QUERY,'CANDIDATE',$USER_ID,$CURRENT_RECORD,$PRE_RECORD,$experiance_id,'experiances');
+
+
             return false;
         }else {
             $this->db->trans_commit();
+
+            //this code is use for loging
+            $this->db->where('EXPERIANCE_ID',$experiance_id);
+            $CURRENT_RECORD =  $this->db->get('experiances')->row_array();
+            $this->log_model->create_log($experiance_id,$experiance_id,$PRE_RECORD,$CURRENT_RECORD,"DELETE_EXPERIANCE",'experiances',13,$CURRENT_RECORD['USER_ID']);
+            $this->log_model->itsc_log("DELETE_EXPERIANCE","SUCCESS",$QUERY,'CANDIDATE',$USER_ID,$CURRENT_RECORD,$PRE_RECORD,$experiance_id,'experiances');
+
             return true;
         }
     }

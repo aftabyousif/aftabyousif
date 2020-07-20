@@ -42,6 +42,7 @@ class Login extends CI_Controller {
 
     function loginHandler(){
         $this->load->model('User_model');
+        $this->load->model('log_model');
 
         if(isset($_POST['login'])
             &&isset($_POST['password'])
@@ -78,17 +79,23 @@ class Login extends CI_Controller {
 
                         $session_data=$this->getSessionData($user);
                         $this->session->set_userdata($this->SessionName, $session_data);
+                        $this->log_model->create_log($user['USER_ID'],$user['USER_ID'],$user,$user,"LOGIN_SUCCESS",'users_reg',21,$user['USER_ID']);
+                        $this->log_model->itsc_log("LOGIN","SUCCESS","LOGIN CNIC=$cnic AND PASSWORD=$hashpassword","CANDIDATE",$user['USER_ID'],$user,$user,$user['USER_ID'],'users_reg');
                         redirect(base_url().$this->HomeController);
                         //set session
                     }else{
                         $error =array('TYPE'=>'ERROR','MSG'=>'Invalid Password');
                         $this->session->set_flashdata('ALERT_MSG', $error);
+                        $this->log_model->create_log($user['USER_ID'],$user['USER_ID'],$user,$user,"LOGIN_FAILED",'users_reg',22,$user['USER_ID']);
+                        $this->log_model->itsc_log("LOGIN","FAILED","LOGIN CNIC=$cnic AND PASSWORD=$hashpassword","CANDIDATE",$user['USER_ID'],$user,$user,$user['USER_ID'],'users_reg');
                         redirect(base_url().$this->SelfController);
                         //invalid password
                     }
                 }else{
                     $error =array('TYPE'=>'ERROR','MSG'=>'Invalid Cnic No');
                     $this->session->set_flashdata('ALERT_MSG', $error);
+                    $this->log_model->create_log(0,0,'','',"LOGIN_FAILED",'users_reg',22,0);
+                    $this->log_model->itsc_log("LOGIN","FAILED","LOGIN CNIC=$cnic AND PASSWORD=$hashpassword","CANDIDATE",0,'','',0,'users_reg');
                     redirect(base_url().$this->SelfController);
                     //invalid Cnic
 
@@ -106,12 +113,18 @@ class Login extends CI_Controller {
 
                         $session_data=$this->getSessionData($user);
                         $this->session->set_userdata($this->SessionName, $session_data);
+                        $this->log_model->create_log($user['USER_ID'],$user['USER_ID'],$user,$user,"LOGIN_SUCCESS",'users_reg',21,$user['USER_ID']);
+                        $this->log_model->itsc_log("LOGIN","SUCCESS","LOGIN passport=$passport AND PASSWORD=$hashpassword","CANDIDATE",$user['USER_ID'],$user,$user,$user['USER_ID'],'users_reg');
+
                         redirect(base_url().$this->HomeController);
 
                     }else{
 
                         $error =array('TYPE'=>'ERROR','MSG'=>'Invalid Password');
                         $this->session->set_flashdata('ALERT_MSG', $error);
+                        $this->log_model->create_log($user['USER_ID'],$user['USER_ID'],$user,$user,"LOGIN_FAILED",'users_reg',22,$user['USER_ID']);
+                        $this->log_model->itsc_log("LOGIN","FAILED","LOGIN passport=$passport AND PASSWORD=$hashpassword","CANDIDATE",$user['USER_ID'],$user,$user,$user['USER_ID'],'users_reg');
+
                         redirect(base_url().$this->SelfController);
                         //invalid password
 
@@ -120,6 +133,9 @@ class Login extends CI_Controller {
 
                     $error =array('TYPE'=>'ERROR','MSG'=>'Invalid Passport No');
                     $this->session->set_flashdata('ALERT_MSG', $error);
+                    $this->log_model->create_log(0,0,'','',"LOGIN_FAILED",'users_reg',22,0);
+                    $this->log_model->itsc_log("LOGIN","FAILED","LOGIN passport=$passport AND PASSWORD=$hashpassword","CANDIDATE",0,'','',0,'users_reg');
+
                     redirect(base_url().$this->SelfController);
                     //invalid Passport
 
