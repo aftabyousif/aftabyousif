@@ -6,9 +6,11 @@
  * Time: 5:43 PM
  */
 ?>
+<script src="<?=base_url()?>assets/js/input-validation.js"></script>
+
 <?=form_open('', 'id="experiance_form" onsubmit="event.preventDefault();"');?>
 <div id="exp_form_msg"></div>
-<h3>Add Experiance</h3>
+<h3>Add Experience</h3>
 
 <div class="row">
     <div class="col-md-6">
@@ -30,7 +32,7 @@
         <div class="top-margin">
             <label for="exampleInput1" class="bmd-label-floating">Organization Name
                 <span class="text-danger">*</span></label>
-            <input type="text"   id="ORGANIZATION_NAME" class="form-control" name="ORGANIZATION_NAME" value=""  >
+            <input type="text"   id="ORGANIZATION_NAME" class="form-control allow-string" name="ORGANIZATION_NAME" value=""  >
 
 
         </div>
@@ -48,7 +50,7 @@
         <div class="top-margin">
             <label for="exampleInput1" class="bmd-label-floating">Organization Address
                 <span class="text-danger">*</span></label>
-            <input type="text"   id="ADDRESS" class="form-control" name="ADDRESS" value=""  >
+            <input type="text"   id="ADDRESS" class="form-control allow-address" name="ADDRESS" value=""  >
 
 
         </div>
@@ -57,7 +59,7 @@
         <div class="top-margin">
             <label for="exampleInput1" class="bmd-label-floating">Job Description
                 <span class="text-danger">*</span></label>
-            <input type="text"   id="DESCRIPTION" class="form-control" name="DESCRIPTION" value=""  >
+            <input type="text"   id="DESCRIPTION" class="form-control allow-string" name="DESCRIPTION" value=""  >
 
 
         </div>
@@ -76,7 +78,7 @@
             <div class="form-group data-custon-pick" id="data_2">
                 <div class="input-group date">
                     <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                    <input type="text" id="JOB_START_DATE"  name="JOB_START_DATE" class="form-control" value="">
+                    <input type="text" id="JOB_START_DATE"  name="JOB_START_DATE" class="form-control" readonly value="">
                 </div>
             </div>
 
@@ -90,7 +92,7 @@
             <div class="form-group data-custon-pick" id="data_2">
                 <div class="input-group date">
                     <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                    <input type="text" id="JOB_END_DATE"  name="JOB_END_DATE" class="form-control" value="">
+                    <input type="text" id="JOB_END_DATE"  name="JOB_END_DATE" class="form-control" readonly value="">
                 </div>
             </div>
 
@@ -111,7 +113,7 @@
         <div class="top-margin">
             <label for="exampleInput1" class="bmd-label-floating">Organization Contact
                 <span class="text-danger"></span></label>
-            <input type="text"   id="CONTACT_NO" class="form-control" name="CONTACT_NO" value=""  >
+            <input type="text"   id="CONTACT_NO" class="form-control allow-number" name="CONTACT_NO" value=""  >
 
 
         </div>
@@ -120,7 +122,7 @@
         <div class="top-margin">
             <label for="exampleInput1" class="bmd-label-floating">Salary
                 <span class="text-danger"><small>(PKR)</small></span></label>
-            <input type="number"   id="SALARY" class="form-control" name="SALARY" value=""  >
+            <input type="number"   id="SALARY" class="form-control allow-number" name="SALARY" value=""  >
 
 
         </div>

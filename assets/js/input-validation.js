@@ -15,6 +15,7 @@ Documentation
 $(document).ready(function() {
 
 	$('.allow-string').keypress(function (key) {
+		// alert("working");
 		if ((key.charCode < 65 || key.charCode > 90) && (key.charCode < 97 || key.charCode > 122) && key.charCode !==32 ) return false;
 	});
 
@@ -34,7 +35,16 @@ $(document).ready(function() {
 		let value = $.trim($(this).val());
 			value = value.toUpperCase();
 			$(this).val(value);
-	})
+	});
+
+	$('.allow_grade_cgpa').keypress(function (key) {
+		if ((key.charCode < 48 || key.charCode > 57) && key.charCode > 46) return false;
+	});
+
+	$('.allow-string-number-special').keypress(function (key) {
+		// alert("working");
+		if ((key.charCode < 65 || key.charCode > 90) && (key.charCode < 97 || key.charCode > 122) && (key.charCode < 44 || key.charCode > 59) && key.charCode !==32 && key.charCode !==44 && key.charCode !==45 && key.charCode !==46 && key.charCode !==40 && key.charCode !==41 && key.charCode !==47  ) return false;
+	});
 
 });
 

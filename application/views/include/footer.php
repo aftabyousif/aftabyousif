@@ -96,9 +96,7 @@
 <script src="<?=base_url()?>assets/js/input-validation.js"></script>
     <script>
 document.getElementById('min-height').style="padding:30px;min-height:"+(window.innerHeight-120)+"px;";
-
-     
-</script>
+	</script>
     
     <!-- tawk chat JS
 		============================================ -->

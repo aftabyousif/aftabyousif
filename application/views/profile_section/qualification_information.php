@@ -6,6 +6,8 @@
  * Time: 11:06 AM
  */
 ?>
+
+
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="review-content-section">
@@ -33,10 +35,8 @@
         </div>
     </div>
 </div>
+
 <script>
-
-
-
 
     $('#add_qulification').click(function (event) {
         event.preventDefault();
@@ -343,10 +343,6 @@
         callAjax("<?=base_url()?>candidate/apiGetDisciplineById?"+query_string,'DISCIPLINE_ID','cus_msg');
 
     }
-
-
-
-
 
     getQualification();
 </script>

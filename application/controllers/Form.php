@@ -30,6 +30,7 @@ class Form extends CI_Controller
 //		$this->load->view('include/footer_area');
 		$this->load->view('include/footer');
 	}
+
 	public function review ()
 	{
 		$this->form_validation->set_rules('ADMISSION_SESSION_ID','form session','required');

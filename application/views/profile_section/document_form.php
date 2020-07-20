@@ -13,7 +13,7 @@
 
             <div id="doc_form_msg"></div>
             <hr>
-            <h3>Upload Additional Documents</h3>
+            <h3>Upload Supporting Documents</h3>
             <hr>
             <div class="row">
                 <?php
@@ -77,7 +77,7 @@
                     <div class="col-md-6">
                         <div style="margin-top:35px">
 
-                            <label for="exampleInput1" class="bmd-label-floating">Upload CNIC Front Side
+                            <label for="exampleInput1" class="bmd-label-floating">Upload CNIC Front Side / Form B
                                 <span class="text-danger">*</span>
                             </label>
                             <br>
@@ -103,7 +103,7 @@
                     <div class="col-md-6">
                         <div style="margin-top:35px">
 
-                            <label for="exampleInput1" class="bmd-label-floating">Upload CNIC Back Side
+                            <label for="exampleInput1" class="bmd-label-floating">Upload CNIC Back Side / Form B
                                 <span class="text-danger">*</span>
                             </label>
                             <br>
@@ -133,7 +133,7 @@
                 <div class="col-md-6">
                     <div style="margin-top:35px">
 
-                        <label for="exampleInput1" class="bmd-label-floating">Upload Domicile P-1<span class="text-danger">*</span></label>
+                        <label for="exampleInput1" class="bmd-label-floating">Upload Domicile P-1 <span class="text-danger">*</span></label>
                         <br>
                         <?php
                         $image_path = "";
@@ -157,7 +157,7 @@
                 <div class="col-md-6">
                     <div style="margin-top:35px">
 
-                        <label for="exampleInput1" class="bmd-label-floating">Upload Domicile Form-C<span class="text-danger">*</span>
+                        <label for="exampleInput1" class="bmd-label-floating">Upload Domicile Form-C <span class="text-danger">*</span>
                         </label>
                         <br>
                         <?php

@@ -40,10 +40,10 @@ $readonly ="";
                 <ul id="myTabedu1" class="tab-review-design">
                     <li class="active"><a href="#basic_information">Basic Information</a></li>
                     <li class=""><a href="#education"> Education Information</a></li>
-                    <li class=""><a href="#documents"> Additional Documents</a></li>
-                    <li class=""><a href="#experiances"> Experiances</a></li>
-
+					<li class=""><a href="#experiances"> Experience</a></li>
+                    <li class=""><a href="#documents"> Supporting Documents</a></li>
                 </ul>
+
                 <div id="myTabContent" class="tab-content custom-product-edit">
                     <div class="product-tab-list tab-pane fade active in" id="basic_information">
                     <?php   require_once "profile_section/basic_information.php";?>
@@ -66,6 +66,24 @@ $readonly ="";
 
 <script>
 
+	$(document).ready(function () {
+
+		function profile_guideline() {
+
+			var msg="<ol style='font-size: 11pt' class='list-group'>";
+			msg+="<li class='list-group-item list-group-item-warning'>Fill your profile carefully once submitted can't be editable.</li>";
+			msg+="<li class='list-group-item'><span class='text-danger'>*</span> Marked fields are required, do not leave them blank.</li>";
+			msg+="<li class='list-group-item'>Your profile image must be passport size 120 x 159 pixels dimensions approximately and it must be in white background.</li>";
+			msg+="<li class='list-group-item'>All documents may not be greater than 500 KB.</li>";
+			msg+="<li class='list-group-item'><a href=''> <i class='fa fa-file-video-o'></i> Please watch this tutorial before filling / updating profile.</a></li>";
+			msg+="<li class='list-group-item'><a href=''> <i class='fa fa-file-video-o'></i> For more tutorials click here.</a></li>";
+			msg+="<li class='list-group-item'><i class='fa fa-connectdevelop'></i> If you have any trouble, Please email at itsc@usindh.edu.pk you will get reply within 24 to 48 hrs from Monday to Friday</li>";
+			msg+="</ol>";
+
+			alertMsg('Form Filling Guidelines',msg);
+		}
+		profile_guideline();
+	});
     function callAjax(url,set_id,msg_id="alert_msg_for_ajax_call"){
         jQuery.ajax({
             url:url ,
@@ -84,13 +102,14 @@ $readonly ="";
         });
     }
     $('#add_qulification').click(function (event) {
-        event.preventDefault();
+		event.preventDefault();
 
-        callAjax("<?=base_url()?>Candidate/apiGetAddQualificationForm","qulification_form_view");
-        $('.js-example-basic-single').select2();
-        $('.select2').attr('style','width:100%');
-        $('.disab').hide();
+		callAjax("<?=base_url()?>Candidate/apiGetAddQualificationForm", "qulification_form_view");
+		$('.js-example-basic-single').select2();
+		$('.select2').attr('style', 'width:100%');
+		$('.disab').hide();
 
+	});
 
     $( '.img-table-certificate' ).click(function() {
         alertImage('Image',$(this).attr('src'));
@@ -106,7 +125,7 @@ $readonly ="";
         $('.select2').attr('style','width:100%');
         $('.disab').hide();
     }
-    var name;
+    let name;
     // var
     function deleteQulification(id){
         if(confirm("Are You Sure?\nDo You want to delete your qualification..!")){
@@ -156,6 +175,6 @@ $readonly ="";
             });
         }
     }
-    getQualification();
+		getQualification();
 </script>
 

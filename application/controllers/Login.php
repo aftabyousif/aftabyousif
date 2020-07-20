@@ -11,7 +11,7 @@ class Login extends CI_Controller {
     /**
      * Login constructor.
      */
-    private $HomeController = 'candidate';
+    private $HomeController = 'advertisement/ug_advertisement';
     private $SelfController = 'login';
     private $SessionName = 'USER_LOGIN_FOR_ADMISSION';
 

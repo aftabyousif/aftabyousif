@@ -213,7 +213,7 @@ array_push($side_bar_values,array('is_submenu' => 0,
 
     </div>
     <a id="priamry_modal_btn" class="Primary mg-b-10" href="#" data-toggle="modal" data-target="#PrimaryModalalert" hidden>Primary</a>
-    <div id="PrimaryModalalert" class="modal modal-edu-general default-popup-PrimaryModal fade" role="dialog">
+    <div id="PrimaryModalalert" class="modal modal-edu-general default-popup-PrimaryModal fade " role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-close-area modal-close-df">
@@ -221,8 +221,8 @@ array_push($side_bar_values,array('is_submenu' => 0,
                 </div>
                 <div class="modal-body">
                     <i class="educate-icon educate-checked modal-check-pro"></i>
-                    <h2 id="priamry_modal_title">Awesome!</h2>
-                    <p id="priamry_modal_msg">The Modal plugin is a dialog box/popup window that is displayed on top of the current page</p>
+                    <h4 id="priamry_modal_title">Awesome!</h4>
+                    <div id="priamry_modal_msg" class="text-left">The Modal plugin is a dialog box/popup window that is displayed on top of the current page</div>
                 </div>
                 <div class="modal-footer" id="add_btn">
                     <a data-dismiss="modal" href="#">OK</a>
@@ -260,8 +260,6 @@ array_push($side_bar_values,array('is_submenu' => 0,
             document.getElementById("priamry_modal_title").innerHTML= title;
             document.getElementById("priamry_modal_msg").innerHTML= msg;
             document.getElementById("priamry_modal_btn").click();
-
-
         }
         function alertImage(title,path){
             document.getElementById("image_modal_title").innerHTML= title;

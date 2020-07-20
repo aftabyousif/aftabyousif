@@ -5,6 +5,9 @@
  * Date: 7/14/2020
  * Time: 10:28 PM
  */?>
+
+<script src="<?=base_url()?>assets/js/input-validation.js"></script>
+
 <?=form_open('', 'id="qulification_form" onsubmit="event.preventDefault();"');?>
     <div id="qul_form_msg"></div>
     <h3>Add Qualification</h3>
@@ -61,7 +64,7 @@
                     <option value="-1">--OTHER--</option>
                 </select>
                 <div id="add_new_org">
-                    <input id="org_name" type="text" class="form-control"/> <button class="btn btn-warning" onclick="addOrg()">Add</button>
+                    <input id="org_name" type="text" class="form-control allow-string-number-special" placeholder="Type missing institute name and add it"/> <button class="btn btn-warning" onclick="addOrg()">Add</button>
                 </div>
             </div>
         </div>
@@ -76,7 +79,7 @@
 
                 </select>
                 <div id="add_new_inst">
-                    <input id="institute_name" type="text" class="form-control"/> <button class="btn btn-warning" onclick="addInst()">Add</button>
+                    <input id="institute_name" type="text" class="form-control allow-string-number-special" placeholder="Type missing institute name and add it"/> <button class="btn btn-warning" onclick="addInst()">Add</button>
                 </div>
             </div>
 
@@ -102,7 +105,7 @@
                 <div class="form-group data-custon-pick" id="data_2">
                     <div class="input-group date">
                         <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                        <input type="text" id="RESULT_DATE"  name="RESULT_DATE" class="form-control" value="">
+                        <input type="text" id="RESULT_DATE"  name="RESULT_DATE" class="form-control" value="" readonly>
                     </div>
                 </div>
 
@@ -133,7 +136,7 @@
                 <div class="form-group data-custon-pick" id="data_2">
                     <div class="input-group date">
                         <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                        <input type="text" id="START_DATE"  name="START_DATE" class="form-control" value="">
+                        <input type="text" id="START_DATE"  name="START_DATE" class="form-control" value="" readonly>
                     </div>
                 </div>
 
@@ -147,7 +150,7 @@
                 <div class="form-group data-custon-pick" id="data_2">
                     <div class="input-group date">
                         <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                        <input type="text" id="END_DATE"  name="END_DATE" class="form-control" value="">
+                        <input type="text" id="END_DATE"  name="END_DATE" class="form-control" value="" readonly>
                     </div>
                 </div>
 
@@ -163,7 +166,7 @@
                         <small class="text-danger" id="view_total_mark_error">
                          </small>
                     </span></label>
-                <input type="number"  onfocusout="checkPercentage()" id="TOTAL_MARKS" MIN="0" class="form-control" name="TOTAL_MARKS" value=""  >
+                <input type="text"  onfocusout="checkPercentage()" id="TOTAL_MARKS" MIN="0" class="form-control allow-number" name="TOTAL_MARKS" value=""  >
 
 
             </div>
@@ -173,7 +176,7 @@
                 <label for="exampleInput1" class="bmd-label-floating">Obtained Marks
                     <span class="text-danger">* <small class="text-danger" id="view_obtained_mark_error">
                          </small></span></label>
-                <input type="number" onfocusout="checkPercentage()" id="OBTAINED_MARKS" MIN="0" class="form-control" name="OBTAINED_MARKS" value=""  >
+                <input type="text" onfocusout="checkPercentage()" id="OBTAINED_MARKS" MIN="0" class="form-control allow-number" name="OBTAINED_MARKS" value=""  >
 
 
             </div>
@@ -198,7 +201,6 @@
                 <div class="row">
                     <input style="width:1.3em;height:1.3em;" type="radio" class=" mb-3" id="is_cgpa" name="check_grade" value="cgpa">
                     <label for="" style="font-size:17px"><small>CGPA/Percentage</small></label>
-
                 </div>
             </div>
         </div>
@@ -220,9 +222,9 @@
         <div class="col-md-2 cgpa_view">
 
             <div class="top-margin">
-                <label for="exampleInput1" style="font-size: 1.1rem" class="bmd-label-floating">CGPA/Percentage
+                <label for="exampleInput1" style="font-size: 1.1rem" class="bmd-label-floating">CGPA/ Percentage
                     <span class="text-danger">* &nbsp;</span></label>
-                <input type="text"   id="cgpa" class="form-control" name="cgpa" value=""  >
+                <input type="text"   id="cgpa" class="form-control allow_grade_cgpa" name="cgpa" value=""  >
             </div>
         </div>
         <div class="col-md-2 cgpa_view">
@@ -258,7 +260,7 @@
 
                 ?>
                 <img src="<?php echo $image_path_default; ?>" alt="Marksheet/Transcript " class="img-table-certificate" id="marksheet-image-view" onclick="setImage()" width="150px" height="150px" name="marksheet-image-view" >
-                <input type="file" name="marksheet_image" id="marksheet_image"                       onchange="changeImage(this,'marksheet_image','marksheet-image-view',500)" accept=".jpg,.png,.jpeg">
+                <input type="file" name="marksheet_image" id="marksheet_image" onchange="changeImage(this,'marksheet_image','marksheet-image-view',500)" accept=".jpg,.png,.jpeg">
                 <input type="text" name="marksheet_image1" id="marksheet_image1" value="<?php echo $image_path; ?>" hidden>
                 <span class="text-danger">Make Sure Image must be clear Image size should be less than 500kb</span>
 
@@ -267,7 +269,7 @@
         <div class="col-md-3">
             <div style="margin-top:35px">
 
-                <label for="exampleInput1" class="bmd-label-floating">Upload Pass/Pakka Certificate
+                <label for="exampleInput1" class="bmd-label-floating">Upload Pass/ Pakka Certificate
                     <span class="text-danger">*</span>
                 </label>
                 <?php
@@ -379,5 +381,6 @@
         }
     });
 </script>
+
 <script src="<?=base_url()?>dash_assets/js/datapicker/bootstrap-datepicker.js"></script>
 <script src="<?=base_url()?>dash_assets/js/datapicker/datepicker-active.js"></script>
