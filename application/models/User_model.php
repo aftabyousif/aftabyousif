@@ -258,6 +258,48 @@ class User_model extends CI_model
             return true;
         }
     }
+    function addUser($form_array){
+
+        //load loging model
+        $this->load->model('log_model');
+
+        $this->db->trans_begin();
+        $this->db->db_debug = false;
+        if($this->db->insert('users_reg', $form_array)){
+
+            //this code is use for loging
+            $QUERY = $this->db->last_query();
+            $id = $this->db->insert_id();
+
+            if ($this->db->affected_rows() != 1) {
+                $this->db->trans_rollback();
+
+                //this code is use for loging
+                $this->log_model->create_log(0,$id,"","","ADD_USER",'users_reg',11,$id);
+                $this->log_model->itsc_log("ADD_USER","FAILED",$QUERY,'CANDIDATE',$id,"","",$id,'users_reg');
+
+                return false;
+            } else {
+                $this->db->trans_commit();
+
+                //this code is use for loging
+                $this->db->where('USER_ID',$id);
+                $CURRENT_RECORD =  $this->db->get('users_reg')->row_array();
+                $this->log_model->create_log(0,$id,"",$CURRENT_RECORD,"ADD_USER_FAILED",'users_reg',11,$id);
+                $this->log_model->itsc_log("ADD_USER","SUCCESS",$QUERY,'CANDIDATE',$id,$CURRENT_RECORD,"",$id,'users_reg');
+
+                return true;
+            }
+
+        }else{
+            //this code is use for loging
+            $this->log_model->create_log(0,0,"",$form_array,"ADD_USER_FAILED",'users_reg',11,0);
+            $this->log_model->itsc_log("ADD_USER","FAILED","",'CANDIDATE',0,$form_array,"",0,'users_reg');
+
+            return false;
+        }
+
+    }
 
 
 }

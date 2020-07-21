@@ -62,7 +62,7 @@ class Login extends CI_Controller {
 //			$this->User_model->changePasswordByCNIC('4120209109363',cryptPassowrd('Yasir123*&'));
 //			exit();
 
-            $hashpasssword = cryptPassowrd($password);
+            $hashpassword = cryptPassowrd($password);
 
             if($check_cnic==='cnic'&&$cnic&&$password){
 
@@ -74,7 +74,7 @@ class Login extends CI_Controller {
 //                	print_r($user['PASSWORD']);
 //                	exit();
 
-                    if(strcmp($hashpasssword,$user['PASSWORD'])===0){
+                    if(strcmp($hashpassword,$user['PASSWORD'])===0){
 //                    if($hashpassword === $user['PASSWORD']){
 
                         $session_data=$this->getSessionData($user);
@@ -101,7 +101,7 @@ class Login extends CI_Controller {
 
                 }
             }
-            elseif($check_cnic==='passport'&&$passport&&$password){
+            else if($check_cnic==='passport'&&$passport&&$password){
 
 
 

@@ -50,6 +50,7 @@ class Candidate extends CI_Controller
     }
 
     function profile(){
+
         $user = $this->session->userdata($this->SessionName);
 
         $countries =$this->Api_location_model->getAllCountry();
