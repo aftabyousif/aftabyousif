@@ -1,16 +1,10 @@
 <?php
 if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-
-class Fpdf_master
+require('fpdf/fpdf.php');
+class Fpdf_master extends fpdf
 {
-	public function __construct() {
-
-		require_once APPPATH.'third_party/fpdf/fpdf.php';
-
-		$pdf = new FPDF();
-		$pdf->AddPage();
+	function __construct() {
+	    parent::__construct();
 		$CI =& get_instance();
-		$CI->fpdf = $pdf;
-
 	}//method
 }//class

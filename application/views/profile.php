@@ -7,6 +7,8 @@
  */
 $readonly ="";
 ?>
+
+
 <script >
     <?php
     $res = getcsrf($this);
@@ -41,7 +43,7 @@ $readonly ="";
                     <li class="active"><a href="#basic_information">Basic Information</a></li>
                     <li class=""><a href="#education"> Education Information</a></li>
 					<li class=""><a href="#experiances"> Experience</a></li>
-                    <li class=""><a href="#documents"> Supporting Documents</a></li>
+                    <li class=""><a href="#documents"> Additional Documents</a></li>
                 </ul>
 
                 <div id="myTabContent" class="tab-content custom-product-edit">

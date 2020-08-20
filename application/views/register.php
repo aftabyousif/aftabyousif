@@ -18,6 +18,11 @@
                         <label for="" style="font-size:17px">Full Name<span class="text-danger">*</span></label>
                         <input type="text" class="form-control mb-3" id="full_name" name="full_name" data-toggle="tooltip" title="Full Name" placeholder="Full Name">
                     </div>
+                <div class="col-12">
+
+                    <label for="" style="font-size:17px">Father Name<span class="text-danger">*</span></label>
+                    <input type="text" class="form-control mb-3" id="f_name" name="f_name" data-toggle="tooltip" title="Father Name" placeholder="Father Name">
+                </div>
                     <div class="col-12">
 
                         <label for="" style="font-size:17px">Surname / Cast<span class="text-danger">*</span></label>
@@ -65,6 +70,24 @@
                             ?>
                         </select>
                     </div>
+                <div class="col-12">
+                    <label for="" style="font-size:17px">Domicile Province / State<span class="text-danger">*</span></label>
+                    <select  id="PROVINCE_ID" class="js-example-basic-single form-control"  ONCHANGE="getDistrict(this.value)" name="PROVINCE_ID">
+                        <option value="0">--Choose--</option>
+
+
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label for="" style="font-size:17px">Domicile District<span class="text-danger">*</span></label>
+                    <select  id="DISTRICT_ID" class="js-example-basic-single form-control" name="DISTRICT_ID">
+                        <option value="0">--Choose--</option>
+
+
+
+                    </select>
+                </div>
+
                     <div class="col-12">
                         <!--                        <label for="" style="font-size:17px">CNIC<span class="text-danger"></span></label>-->
                         <input style="width:1.3em;height:1.3em;" hidden type="radio" class=" mb-3" id="is_cnic" name="check_cnic" value="cnic" checked>
@@ -137,6 +160,7 @@
 
 <!-----Scripting for Registration form------>
 <script>
+
     <?php
     $res = getcsrf($this);
     ?>
@@ -151,24 +175,36 @@
         let big_error = "";
         let error="";
         let name = $("#full_name").val();
+        let f_name = $("#f_name").val();
         let surname = $("#surname").val();
         let email = $("#email").val();
         let mobile = $("#mobile").val();
         let code = $("#PHONE_CODE").val();
+        let DISTRICT_ID = $("#DISTRICT_ID").val();
+        let PROVINCE_ID = $("#PROVINCE_ID").val();
         if(!name){
             big_error+= "<div class='text-danger'>Please provide your full name as per matriculation certificate.</div>";;
+        }
+        if(!f_name){
+            big_error+= "<div class='text-danger'>Please provide your Father.</div>";;
         }
         if(!surname){
             big_error+= "<div class='text-danger'>Please provide your Surname / Cast / Family Name.</div>";;
         }
         if(!email){
-            big_error+= "<div class='text-danger'>Please provide email</div>";;
+            big_error+= "<div class='text-danger'>Please provide email</div>";
         }
         if(!mobile || mobile.length>=12 ||mobile.length<=9){
             big_error+= "<div class='text-danger'>Please provide your active mobile number  must be less then 12 and greater 9.</div>";;
         }
         if(!(/^\d+$/.test(mobile))){
             big_error += "<div class='text-danger'>All Character must be digit in Mobile No</div>";
+        }
+        if(!(PROVINCE_ID>0)){
+            big_error+= "<div class='text-danger'>Domilice province must be select</div>";
+        }
+        if(!(DISTRICT_ID>0)){
+            big_error+= "<div class='text-danger'>Domilice district must be select</div>";
         }
 
         if($("#is_cnic").is(':checked')) {
@@ -301,6 +337,8 @@
         var value = $("#COUNTRY_ID option:selected");
 
         // console.log($("#COUNTRY_ID").text());
+        getProvinces($("#COUNTRY_ID").val());
+        getDistrict(0);
         if(value.text()==='PAKISTAN'){
             // $("#is_cnic").checked();
             $("#is_cnic").prop("checked", true);
@@ -488,5 +526,71 @@
         $('#retype_cnic').val(null);
         $('#mobile').val(null);
         $('#surname').val(null);
+        getProvinces($("#COUNTRY_ID").val());
+        getDistrict(0);
     }
+
+    function getProvinces(country_id){
+        if(country_id>0){
+            $("#PROVINCE_ID").html("<option value='0'>--Choose--</option>");
+            jQuery.ajax({
+                url: "<?=base_url()?>api/getProvinceByCountryId?country_id="+country_id,
+                async:true,
+                success: function (data, status) {
+                    $('#alert_msg_for_ajax_call').html("");
+
+                    data.forEach(function(item, index) {
+                        $("#PROVINCE_ID").append(new Option(item.PROVINCE_NAME, item.PROVINCE_ID));
+                    });
+
+
+
+                },
+                beforeSend:function (data, status) {
+
+
+                    $('#alert_msg_for_ajax_call').html("LOADING...!");
+                },
+                error:function (data, status) {
+                    alertMsg("Error",data.responseText);
+                    $('#alert_msg_for_ajax_call').html("Something went worng..!");
+                },
+            });
+        }else{
+            $("#PROVINCE_ID").html("<option value='0'>--Choose--</option>");
+            console.log("error");
+        }
+    }
+    function getDistrict(province_id){
+        if(province_id>0){
+            $("#DISTRICT_ID").html("<option value='0'>--Choose--</option>");
+            jQuery.ajax({
+                url: "<?=base_url()?>api/getDistrictByProvinceId?province_id="+province_id,
+                async:true,
+                success: function (data, status) {
+                    $('#alert_msg_for_ajax_call').html("");
+
+                    data.forEach(function(item, index) {
+                        $("#DISTRICT_ID").append(new Option(item.DISTRICT_NAME, item.DISTRICT_ID));
+                    });
+
+
+
+                },
+                beforeSend:function (data, status) {
+
+
+                    $('#alert_msg_for_ajax_call').html("LOADING...!");
+                },
+                error:function (data, status) {
+                    alertMsg("Error",data.responseText);
+                    $('#alert_msg_for_ajax_call').html("Something went worng..!");
+                },
+            });
+        }else{
+            $("#DISTRICT_ID").html("<option value='0'>--Choose--</option>");
+            console.log("error");
+        }
+    }
+    getProvinces($("#COUNTRY_ID").val());
 </script>

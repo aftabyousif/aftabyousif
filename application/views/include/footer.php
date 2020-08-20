@@ -204,7 +204,14 @@ document.getElementById('min-height').style="padding:30px;min-height:"+(window.i
  $('.preloader').fadeOut(700);
     </script>
     <?php
-
+    if($url = $this->session->flashdata('OPEN_TAB')){
+       ?>
+        <script>
+            //console.log('ASD');
+            window.open('<?=$url?>', '_blank');
+        </script>
+        <?php
+    }
     if(isset($_SESSION['ALERT_MSG'])){
         $msg = isValidData($_SESSION['ALERT_MSG']['MSG']);
         $title = $_SESSION['ALERT_MSG']['TYPE'];

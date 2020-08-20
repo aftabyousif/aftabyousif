@@ -173,7 +173,7 @@
                                 <span class="text-danger">*</span></label>
                             <br>
 
-                            <select   id="COUNTRY_ID" class="js-example-basic-single form-control " ONCHANGE="getProvinces(this.value)" name="COUNTRY_ID">
+                            <select  disabled id="COUNTRY_ID" class="js-example-basic-single form-control " ONCHANGE="getProvinces(this.value)" name="COUNTRY_ID">
                                 <option value="0">--Choose--</option>
                                 <?php
 
@@ -195,7 +195,7 @@
                             <label for="exampleInput1" class="bmd-label-floating">Province / State
                                 <span class="text-danger"></span></label>
                             <br>
-                            <select  id="PROVINCE_ID" class="js-example-basic-single form-control"  ONCHANGE="getDistrict(this.value)" name="PROVINCE_ID">
+                            <select disabled id="PROVINCE_ID" class="js-example-basic-single form-control"  ONCHANGE="getDistrict(this.value)" name="PROVINCE_ID">
                                 <option value="0">--Choose--</option>
 
 
@@ -207,7 +207,7 @@
                             <label for="exampleInput1" class="bmd-label-floating">District
                                 <span class="text-danger"></span></label>
                             <br>
-                            <select  id="DISTRICT_ID" class="js-example-basic-single form-control" ONCHANGE="getCity(this.value)" name="DISTRICT_ID">
+                            <select disabled id="DISTRICT_ID" class="js-example-basic-single form-control" ONCHANGE="getCity(this.value)" name="DISTRICT_ID">
                                 <option value="0">--Choose--</option>
 
 
@@ -220,7 +220,7 @@
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group">
                             <label for="exampleInput1" class="bmd-label-floating">City
-                                <span class="text-danger"></span></label>
+                                <span class="text-danger">*</span></label>
                             <br>
                             <select  id="CITY_ID" class="js-example-basic-single form-control"  name="CITY_ID">
                                 <option value="0">--Choose--</option>
@@ -241,7 +241,7 @@
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group res-mg-t-15">
                             <label for="exampleInput1" class="bmd-label-floating">Parmanent Address
-                                <span class="text-danger"></span></label>
+                                <span class="text-danger">*</span></label>
                             <textarea name="PERMANENT_ADDRESS" id="PERMANENT_ADDRESS" class="allow-address"  style="height:70px" row="3"><?=$user['PERMANENT_ADDRESS']?></textarea>
 
                         </div>
@@ -252,7 +252,7 @@
                         <div class="form-group">
                             <label for="BLOOD_GROUP" class="bmd-label-floating">Blood Group
 
-                                <span class="text-danger"></span></label>
+                                <span class="text-danger">*</span></label>
 
                             <select name="BLOOD_GROUP" id="BLOOD_GROUP" class="form-control">
                                 <?php
@@ -383,7 +383,7 @@
                         $("#DISTRICT_ID").append(new Option(item.DISTRICT_NAME, item.DISTRICT_ID));
                     });
 
-                    let DISTRICT_ID = <?=$user['DISTRICT_ID']?>;
+                    let DISTRICT_ID = <?=$user['DISTRICT_ID']?$user['DISTRICT_ID']:0?>;
                     if(DISTRICT_ID){
                         $('#DISTRICT_ID').val(DISTRICT_ID);
                     }
@@ -416,7 +416,7 @@
                         $("#CITY_ID").append(new Option(item.CITY_NAME, item.CITY_ID));
                     });
 
-                    let CITY_ID = <?=$user['CITY_ID']?>;
+                    let CITY_ID = <?=$user['CITY_ID']?$user['CITY_ID']:0?>;
                     if(CITY_ID){
                         $('#CITY_ID').val(CITY_ID);
                     }

@@ -41,7 +41,24 @@
 										$sno=0;
 										foreach ($admission_announcement as $admission_announcement_key=>$admission_announcement_value)
 										{
-											$sno++;
+
+										    $is_already_applied = false;
+
+                                            //this method is define in functions_helper in this mehtod we provide Array and key of arary and finding value method return obj if exists else return false;
+                                            $res = findObjectinList($user_application_list,'ADMISSION_SESSION_ID',$admission_announcement_value['ADMISSION_SESSION_ID']);
+
+                                            // if res contain not false value or any o object it mean user already applied
+                                            if($res){
+
+                                                $APPLICATION_ID=$res['APPLICATION_ID'];
+                                                $is_already_applied = true;
+                                            }
+//                                            foreach($user_application_list as $user_app){
+//                                                if($SESSION_ID==$user_app['SESSION_ID']){
+//
+//                                                }
+//                                            }
+                                            $sno++;
 											$NAME = $admission_announcement_value['NAME'];
 											$YEAR = $admission_announcement_value['YEAR'];
 											$ADMISSION_SESSION_ID = $admission_announcement_value['ADMISSION_SESSION_ID'];
@@ -66,11 +83,24 @@
 												$link = "will be open soon";
 											elseif ($ADMISSION_END_DATE<date('Y-m-d'))
 												$link = 'Form over due date';
-											else $link="<button type='submit' class='btn btn-success widget-btn-1 btn-sm'>Apply Now</button>";
+											else {
+											    if($is_already_applied){
+                                                    $url = "candidate/profile";
+                                                    $challan_url = "form/admission_form_challan/$APPLICATION_ID";
+                                                    $link="<a href='".base_url().$url."' class='btn btn-warning widget-btn-1 btn-sm'>Already Applied click here to next</a>";
+                                                    $challan_link = "<a href='".base_url().$challan_url."' class='btn btn-info widget-btn-1 btn-sm'>Download Challan</a>";
+                                                }else{
+
+                                                    $link="<button type='submit' class='btn btn-success widget-btn-1 btn-sm'>Apply Now</button>";
+                                                    $url = "form/addApplication";
+                                                    $challan_link="";
+                                                }
+
+                                            }
 											$hidden = array('ADMISSION_SESSION_ID' => $ADMISSION_SESSION_ID, 'CAMPUS_ID' => $CAMPUS_ID);
 											?>
 
-											<?=form_open(base_url().'form/review','',$hidden)?>
+											<?=$is_already_applied?'':form_open(base_url().$url,'',$hidden)?>
 									<tbody>
 									<tr style="font-size: 11pt;color: black">
 										<td><?=$sno?></td>
@@ -78,14 +108,14 @@
 										<td><?=ucwords(strtolower($LOCATION))?></td>
 										<td><?=ucwords(strtolower($PROGRAM_TITLE))?></td>
 										<td><?=ucwords(strtolower($BATCH_REMARKS))?> <?=$YEAR?></td>
-<!--										<td>--><?//=ucwords(strtolower($BATCH_REMARKS))?><!--</td>-->
 										<td><?=$start_date?></td>
 										<td><?=$end_date?></td>
 
 										<td><?=$link?></td>
+                                        <td><?=$challan_link?></td>
 									</tr>
 									</tbody>
-											<?=form_close()?>
+											<?=$is_already_applied?'':form_close()?>
 								<?php
 										}//foreach
 									}//if

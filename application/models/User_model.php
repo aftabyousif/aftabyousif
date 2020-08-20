@@ -8,6 +8,17 @@
 
 class User_model extends CI_model
 {
+    function getUserFullDetailById($user_id){
+        $user_reg  = $this->getUserById($user_id);
+        if($user_reg){
+            $qual = $this->getQulificatinByUserId($user_id);
+            $expr = $this->getExperiancesByUserId($user_id);
+            return array("users_reg"=>$user_reg,"qualifications"=>$qual,"experiances"=>$expr);
+        }else{
+            return false;
+        }
+
+    }
     function getUserByCnicAndPassword($cnic,$password){
             $this->db->where('CNIC_NO',$cnic);
             $this->db->where('PASSWORD',$password);
@@ -258,6 +269,7 @@ class User_model extends CI_model
             return true;
         }
     }
+
     function addUser($form_array){
 
         //load loging model
@@ -291,7 +303,8 @@ class User_model extends CI_model
                 return true;
             }
 
-        }else{
+        }
+        else{
             //this code is use for loging
             $this->log_model->create_log(0,0,"",$form_array,"ADD_USER_FAILED",'users_reg',11,0);
             $this->log_model->itsc_log("ADD_USER","FAILED","",'CANDIDATE',0,$form_array,"",0,'users_reg');

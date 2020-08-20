@@ -6,7 +6,6 @@ class Admission_session_model extends CI_Model
 		function __construct()
 		{
 			parent::__construct();
-	//		$CI =& get_instance();
 			$this->load->model('log_model');
 		}//function
 
@@ -15,6 +14,7 @@ class Admission_session_model extends CI_Model
 			$this->legacy_db = $this->load->database("admission_db",true);
 			$this->legacy_db->select("`ADMISSION_SESSION_ID`,
 									  c.`CAMPUS_ID`,
+									  c.`IS_COLLEGE`,
 									  s.`SESSION_ID`,
 									  pt.`PROGRAM_TYPE_ID`,
 									  `ADMISSION_START_DATE`,
@@ -33,4 +33,18 @@ class Admission_session_model extends CI_Model
 			return $this->legacy_db->get()->result_array();
 
 		}
+		function getFormFeesBySessionAndCampusId($session_id,$campus_id){
+            $this->legacy_db = $this->load->database("admission_db",true);
+            $this->legacy_db->where('SESSION_ID',$session_id);
+            $this->legacy_db->where('CAMPUS_ID',$campus_id);
+            return $this->legacy_db->get('form_fees')->row_array();
+        }
+		function getAdmissionSessionById($admission_session_id){
+                $this->legacy_db = $this->load->database("admission_db",true);
+                $this->legacy_db->where('ADMISSION_SESSION_ID',$admission_session_id);
+                return $this->legacy_db->get('admission_session')->row_array();
+            }
+
+
+
 }

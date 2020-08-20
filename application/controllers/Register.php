@@ -10,7 +10,19 @@ class Register extends CI_Controller {
     /**
      * Login constructor.
      */
+    private $HomeController = 'advertisement/ug_advertisement';
+    private $SelfController = 'Register';
+    private $SessionName = 'USER_LOGIN_FOR_ADMISSION';
 
+    public function __construct()
+    {
+        parent::__construct();
+
+        if($this->session->has_userdata($this->SessionName)){
+            redirect(base_url().$this->HomeController);
+            exit();
+        }
+    }
 
     function index(){
         $this->load->model('Api_location_model');
@@ -42,6 +54,8 @@ class Register extends CI_Controller {
                 &&isset($_POST['retype_password'])
                 &&isset($_POST['retype_cnic'])
                 &&isset($_POST['COUNTRY_ID'])
+                &&isset($_POST['DISTRICT_ID'])
+                &&isset($_POST['PROVINCE_ID'])
             ){
 
                 $cnic = null;
@@ -77,15 +91,33 @@ class Register extends CI_Controller {
                 }
                 $COUNTRY_ID = isValidData($_POST['COUNTRY_ID']);
                 if(!$COUNTRY_ID){
-                    $error_msg .="Invalid Name..!<br>";
+                    $error_msg .="Invalid Country..!<br>";
 
                 }
+                $PROVINCE_ID = isValidData($_POST['PROVINCE_ID']);
+                if(!$PROVINCE_ID){
+                    $error_msg .="Invalid Domicile Province..!<br>";
+
+                }
+                $DISTRICT_ID = isValidData($_POST['DISTRICT_ID']);
+                if(!$DISTRICT_ID){
+                    $error_msg .="Invalid Domicile District..!<br>";
+
+                }
+
 
                 $surname = strtoupper(isValidData($_POST['surname']));
                 if(!$surname){
                     $error_msg .="Invalid Surname..!<br>";
 
                 }
+                $f_name = strtoupper(isValidData($_POST['f_name']));
+                if(!$f_name){
+                    $error_msg .="Invalid Father Name..!<br>";
+
+                }
+
+
                 $email = isValidData($_POST['email']);
                 if(!$email){
                     $error_msg .="Invalid Email..!<br>";
@@ -132,6 +164,7 @@ class Register extends CI_Controller {
 
                    $data=array(
                        "FIRST_NAME"=>$name,
+                       "FNAME"=>$f_name,
                        "LAST_NAME"=>$surname,
                        "PASSWORD"=>$password,
                        "CNIC_NO "=>$cnic,
@@ -142,8 +175,11 @@ class Register extends CI_Controller {
                        "MOBILE_NO"=>$mobile,
                        "MOBILE_CODE"=>$PHONE_CODE,
                        "ACCT_OPENING_DATE"=>$DATE,
-                       "PASSWORD_TOKEN"=>$password_token
+                       "PASSWORD_TOKEN"=>$password_token,
+                       "PROVINCE_ID"=>$PROVINCE_ID,
+                       "DISTRICT_ID"=>$DISTRICT_ID
                    );
+
                     $bol=$this->User_model->addUser($data);
                         if($bol === true){
                             $reponse['RESPONSE'] = "SUCCESS";

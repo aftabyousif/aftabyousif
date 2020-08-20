@@ -99,7 +99,9 @@ class Candidate extends CI_Controller
         $PASSPORT_EXPIRY=$user['PASSPORT_EXPIRY'];
         $CNIC_EXPIRY=$user['CNIC_EXPIRY'];
         $error ="";
-
+        $GENDER=$BLOOD_GROUP = $ZIP_CODE=$PERMANENT_ADDRESS=$HOME_ADDRESS=$PLACE_OF_BIRTH =$MOBILE_CODE = $FNAME =$PLACE_OF_BIRTH= $LAST_NAME= $MOBILE_NO = $PREFIX_ID = $FIRST_NAME = "";
+        $CITY_ID =$DISTRICT_ID=$PROVINCE_ID=$COUNTRY_ID = 0;
+        $PASSPORT_EXPIRY = $CNIC_EXPIRY =$DATE_OF_BIRTH='1900-01-01';
         if(isset($_POST['FIRST_NAME'])&&isValidData($_POST['FIRST_NAME'])){
             $FIRST_NAME = strtoupper(isValidData($_POST['FIRST_NAME']));
         }else{
@@ -159,17 +161,17 @@ class Candidate extends CI_Controller
         if(isset($_POST['COUNTRY_ID'])&&isValidData($_POST['COUNTRY_ID'])){
             $COUNTRY_ID = isValidData($_POST['COUNTRY_ID']);
         }else{
-            $error.="<div class='text-danger'>Country Must be Select</div>";
+            //$error.="<div class='text-danger'>Country Must be Select</div>";
         }
         if(isset($_POST['PROVINCE_ID'])&&isValidData($_POST['PROVINCE_ID'])){
             $PROVINCE_ID = isValidData($_POST['PROVINCE_ID']);
         }else{
-            $error.="<div class='text-danger'>Province Must be Select</div>";
+          //  $error.="<div class='text-danger'>Province Must be Select</div>";
         }
         if(isset($_POST['DISTRICT_ID'])&&isValidData($_POST['DISTRICT_ID'])){
             $DISTRICT_ID = isValidData($_POST['DISTRICT_ID']);
         }else{
-            $error.="<div class='text-danger'>District Must be Select</div>";
+            //$error.="<div class='text-danger'>District Must be Select</div>";
         }
         if(isset($_POST['CITY_ID'])&&isValidData($_POST['CITY_ID'])){
             $CITY_ID = isValidData($_POST['CITY_ID']);
@@ -242,9 +244,9 @@ class Candidate extends CI_Controller
             "PLACE_OF_BIRTH"=>$PLACE_OF_BIRTH,
             "HOME_ADDRESS"=>$HOME_ADDRESS,
             "PERMANENT_ADDRESS"=>$PERMANENT_ADDRESS,
-            "COUNTRY_ID"=>$COUNTRY_ID,
-            "PROVINCE_ID"=>$PROVINCE_ID,
-            "DISTRICT_ID"=>$DISTRICT_ID,
+//            "COUNTRY_ID"=>$COUNTRY_ID,
+//            "PROVINCE_ID"=>$PROVINCE_ID,
+//            "DISTRICT_ID"=>$DISTRICT_ID,
             "CITY_ID"=>$CITY_ID,
             "DATE_OF_BIRTH"=>$DATE_OF_BIRTH,
             "ZIP_CODE"=>$ZIP_CODE,
@@ -709,7 +711,9 @@ class Candidate extends CI_Controller
                 }
             }
             if ($END_DATE <= $START_DATE) {
-                $error .= "<div class='text-danger'>Invalid Date Start Date must be less then End Date</div>";
+                if($IS_JOB_CONTINUE=='N') {
+                    $error .= "<div class='text-danger'>Invalid Date Start Date must be less then End Date</div>";
+                }
             }
 
 
