@@ -45,6 +45,8 @@ class AdminLogin extends CI_Controller {
             $cnic =isValidData($this->input->post('cnic',TRUE));
             $password = isValidData($this->input->post('password',TRUE));
 
+//			$hashpassword = cryptPassowrd('yasir123');
+//			exit($hashpassword);
             $hashpassword = cryptPassowrd($password);
 
             if($cnic&&$password){

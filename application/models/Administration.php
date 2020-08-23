@@ -134,4 +134,35 @@ class Administration extends CI_Model
 		}
 		else return false;
 	}
+	function MinorMapping ($minor_mapping_id)
+	{
+		$this->legacy_db = $this->load->database('admission_db',true);
+//		print_r($adm_con);
+		$this->legacy_db->select('*');
+		$this->legacy_db->from('`minor_mapping`');
+		$this->legacy_db->where("MINOR_MAPPING_ID=$minor_mapping_id");
+		return($this->legacy_db->get()->result_array());
+	}
+	function getMinorsByDiscipline_id ($discipline_id)
+	{
+		$this->legacy_db = $this->load->database('admission_db',true);
+//		print_r($adm_con);
+		$this->legacy_db->select('*');
+		$this->legacy_db->from('`minor_mapping`');
+		$this->legacy_db->where("DISCIPLINE_ID=$discipline_id");
+		return($this->legacy_db->get()->result_array());
+	}
+	function DeleteMinorSubject($minor_mapping_id)
+	{
+		$prev_record = $this->MinorMapping($minor_mapping_id);
+		$this->legacy_db = $this->load->database('admission_db',true);
+		$this->legacy_db->where("MINOR_MAPPING_ID",$minor_mapping_id);
+		$query = $this->legacy_db->delete('minor_mapping');
+		if ($query)
+		{
+			$this->log_model->create_log($minor_mapping_id,$this->legacy_db->insert_id(),$prev_record,'','storing minor_mapping_id','minor_mapping',13,0);
+			return true;
+		}
+		else return false;
+	}
 }

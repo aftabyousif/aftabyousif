@@ -19,6 +19,7 @@ class Mapping extends AdminLogin
 
 		$this->load->model('Administration');
 		$this->load->model('log_model');
+		$this->load->model('Api_qualification_model');
 //		$this->load->library('javascript');
 		$this->verify_login();
 	}
@@ -68,6 +69,29 @@ class Mapping extends AdminLogin
 		$this->load->view('include/footer');
 
 	}
+
+	public function add_minor ()
+	{
+		$data['user'] = '';
+		$data['user'] = '';
+		$data['profile_url'] = '';
+
+		$degree_programs = $this->Api_qualification_model->getAllDegreeProgram();
+//		$shifts	= $this->Administration->shifts();
+
+		$data['degree_programs'] = $degree_programs;
+//		$data['shifts'] = $shifts;
+
+		$this->load->view('include/header',$data);
+//		$this->load->view('include/preloder');
+		$this->load->view('include/side_bar');
+		$this->load->view('include/nav',$data);
+		$this->load->view('display_minors',$data);
+		$this->load->view('include/footer_area');
+		$this->load->view('include/footer');
+
+	}
+
 	 public function save_shift_program_mapping ()
 	{
 			$this->form_validation->set_rules('selected_programs[]','Programs are required','required');
@@ -231,6 +255,128 @@ class Mapping extends AdminLogin
 			$category_id = html_escape(htmlspecialchars($this->input->post('category_id')));
 
 			$response = $this->Administration->DeleteMappedCategory($category_id);
+			if ($response == true)
+			{
+				http_response_code(202);
+				echo json_encode("Successfully Deleted");
+			}
+			else
+			{
+				http_response_code(406);
+				echo json_encode("Could not delete mapped category");
+			}
+		}
+	}//function
+
+	public function get_discipline ()
+	{
+//		echo json_encode('hello');
+		$this->form_validation->set_rules('degree_id','degree program is required','required|trim');
+		if ($this->form_validation->run())
+		{
+			$degree_id = $this->input->post("degree_id");
+
+			$record = $this->Api_qualification_model->getDisciplineByDegreeId($degree_id);
+			echo json_encode($record);
+		}//if
+	}//function
+
+	public function save_minor ()
+	{
+		$this->form_validation->set_rules('degree_id','Degree is required','required|trim|integer');
+		$this->form_validation->set_rules('discipline_id','Discipline type is required','required|trim|integer');
+		$this->form_validation->set_rules('minor_name','Minor Title is required','trim|required');
+		$this->form_validation->set_rules('minor_mapping_id','','trim');
+
+		if (!$this->form_validation->run())
+		{
+			$this->session->set_flashdata('message','Following * marked fields are required.');
+			redirect("mapping/add_minor");
+		}else
+		{
+			$degree_id 				= html_escape(htmlspecialchars($this->input->post('degree_id')));
+			$discipline_id 			= html_escape(htmlspecialchars($this->input->post('discipline_id')));
+			$minor_name 			= html_escape(htmlspecialchars(ucwords(strtoupper($this->input->post('minor_name')))));
+			$minor_mapping_id		= html_escape(htmlspecialchars($this->input->post('minor_mapping_id')));
+
+			$record = array(
+				'DISCIPLINE_ID'=>html_escape(htmlspecialchars($discipline_id)),
+				'SUBJECT_TITLE'=>(htmlspecialchars($minor_name)),
+			);
+			if ($minor_mapping_id == 0 || empty($minor_mapping_id) || is_nan($minor_mapping_id))
+			{
+				$response = $this->Administration->insert($record,'minor_mapping');
+			}else
+			{
+				$previous_record = $this->Administration->MinorMapping ($minor_mapping_id);
+				$response = $this->Administration->update("MINOR_MAPPING_ID=$minor_mapping_id",$record,$previous_record,'minor_mapping');
+			}
+
+			if ($response == true)
+			{
+				$this->session->set_flashdata('message',"This $minor_name is successfully added.");
+				redirect("mapping/add_minor");
+
+			}else
+			{
+				$this->session->set_flashdata('message','Process failed, Please try again.');
+				redirect("mapping/add_minor");
+			}
+		}//else
+	}
+
+public function getMappedMinors ()
+{
+	$this->form_validation->set_rules('discipline_id','Discipline is required','required|trim|integer');
+	$discipline_id 			= html_escape(htmlspecialchars($this->input->post('discipline_id')));
+
+	$disciplines = $this->Api_qualification_model->getDisciplineById($discipline_id);
+	if (is_array($disciplines) || is_object($disciplines))
+	{
+			$DEGREE_ID = $disciplines['DEGREE_ID'];
+			$DISCIPLINE_ID = $disciplines['DISCIPLINE_ID'];
+			$DISCIPLINE_NAME = $disciplines['DISCIPLINE_NAME'];
+			$DISCIPLINE_REMARKS = $disciplines['REMARKS'];
+
+			$minor_list = $this->Administration->getMinorsByDiscipline_id($DISCIPLINE_ID);
+
+			if (is_array($minor_list) || is_object($minor_list))
+			{
+				$array = array ();
+				$i=0;
+				foreach ($minor_list as $minor_list_key=>$minor_list_value)
+				{
+					$minor_array = array();
+					$MINOR_MAPPING_ID = $minor_list_value['MINOR_MAPPING_ID'];
+					$SUBJECT_TITLE = $minor_list_value['SUBJECT_TITLE'];
+					$MINOR_REMARKS = $minor_list_value['REMARKS'];
+
+					$minor_array['DISCIPLINE_ID'] = $DISCIPLINE_ID;
+					$minor_array['DISCIPLINE_NAME'] = $DISCIPLINE_NAME;
+					$minor_array['DEGREE_ID'] = $DEGREE_ID;
+					$minor_array['MINOR_MAPPING_ID'] = $MINOR_MAPPING_ID;
+					$minor_array['SUBJECT_TITLE'] = $SUBJECT_TITLE;
+					$minor_array['DISCIPLINE_REMARKS'] = $DISCIPLINE_REMARKS;
+					$minor_array['MINOR_REMARKS'] = $MINOR_REMARKS;
+
+					$array[$i] = $minor_array;
+					$i++;
+				}//foreach
+			}//if
+		echo json_encode($array);
+		exit();
+		}//if
+
+}//function
+
+	public function DeleteMinorSubject ()
+	{
+		$this->form_validation->set_rules('minor_mapping_id','Minor subject id is required','required|trim|integer');
+		if ($this->form_validation->run())
+		{
+			$minor_mapping_id = html_escape(htmlspecialchars($this->input->post('minor_mapping_id')));
+
+			$response = $this->Administration->DeleteMinorSubject($minor_mapping_id);
 			if ($response == true)
 			{
 				http_response_code(202);
