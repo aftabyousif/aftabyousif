@@ -32,28 +32,28 @@
 <!--										<th>Batch</th>-->
 										<th>Form Start Date</th>
 										<th>Form Last Date</th>
-										<th>Apply Now</th>
+										<th colspan="3">Action</th>
 									</tr>
 									</thead>
 									<?php
-									if(is_array($admission_announcement) || is_object($admission_announcement))
+									if(is_array($user_application_list) || is_object($user_application_list))
 									{
 										$sno=0;
-										foreach ($admission_announcement as $admission_announcement_key=>$admission_announcement_value)
+										foreach ($user_application_list as $admission_announcement_key=>$admission_announcement_value)
 										{
 
 										    $is_already_applied = false;
 
                                             //this method is define in functions_helper in this mehtod we provide Array and key of arary and finding value method return obj if exists else return false;
-                                            $res = findObjectinList($user_application_list,'ADMISSION_SESSION_ID',$admission_announcement_value['ADMISSION_SESSION_ID']);
+                                            //$res = findObjectinList($user_application_list,'ADMISSION_SESSION_ID',$admission_announcement_value['ADMISSION_SESSION_ID']);
 
                                             // if res contain not false value or any o object it mean user already applied
                                             $APPLICATION_ID=0;
-                                            if($res){
-
-                                                $APPLICATION_ID=$res['APPLICATION_ID'];
-                                                $is_already_applied = true;
-                                            }
+//                                            if($res){
+//
+//                                                $APPLICATION_ID=$res['APPLICATION_ID'];
+//                                                $is_already_applied = true;
+//                                            }
 //                                            foreach($user_application_list as $user_app){
 //                                                if($SESSION_ID==$user_app['SESSION_ID']){
 //
@@ -71,6 +71,7 @@
 											$LOCATION = $admission_announcement_value['LOCATION'];
 											$PROGRAM_TITLE = $admission_announcement_value['PROGRAM_TITLE'];
 											$BATCH_REMARKS = $admission_announcement_value['BATCH_REMARKS'];
+                                            $APPLICATION_ID=$admission_announcement_value['APPLICATION_ID'];
 											if ($BATCH_REMARKS == 'S') $BATCH_REMARKS = "Spring";
 											elseif ($BATCH_REMARKS == 'F') $BATCH_REMARKS = "Fall";
 
@@ -82,34 +83,32 @@
 											$link = "";
                                             $url = "candidate/profile";
                                             $APPLICATION_ID = urlencode(base64_encode($APPLICATION_ID));
+                                            $nextpage = urlencode(base64_encode("upload_challan"));
                                             $challan_url = "form/admission_form_challan/$APPLICATION_ID";
-										    if ($ADMISSION_START_DATE>date('Y-m-d')){
-                                                $link = "will be open soon";
-                                                $challan_link = "";
+                                            $review_url = "form/review/$APPLICATION_ID/$nextpage";
+                                            $submit_url = "form/submit/$APPLICATION_ID";
+
+                                            $review_link = "<a href='".base_url().$review_url."' class='btn btn-success widget-btn-1 btn-sm'>Review Form</a>";
+
+                                            if ($ADMISSION_START_DATE>date('Y-m-d')){
+                                                $challan_link =$submit_link= "";
                                             }
-											elseif ($ADMISSION_END_DATE<date('Y-m-d'))
+
+                                            else if ($ADMISSION_END_DATE<date('Y-m-d'))
                                             {
-                                                $link = 'Form over due date';
-                                                $challan_link = "";
+                                                $challan_link =$submit_link= "";
                                             }
-											else {
-											    if($is_already_applied){
-                                                    $url = "candidate/profile";
-                                                    $challan_url = "form/admission_form_challan/$APPLICATION_ID";
-                                                    $link="<a href='".base_url().$url."' class='btn btn-warning widget-btn-1 btn-sm'>Already Applied click here to next</a>";
-                                                    $challan_link = "<a href='".base_url().$challan_url."' class='btn btn-info widget-btn-1 btn-sm'>Download Challan</a>";
-                                                }else{
 
-                                                    $link="<button type='submit' class='btn btn-success widget-btn-1 btn-sm'>Apply Now</button>";
-                                                    $url = "form/addApplication";
-                                                    $challan_link="";
-                                                }
+                                            else {
 
+                                                $submit_link = "<a href='".base_url().$submit_url."' class='btn btn-danger widget-btn-1 btn-sm'>Submit Form</a>";
+                                                $challan_link = "<a href='".base_url().$challan_url."' class='btn btn-info widget-btn-1 btn-sm'>Download Challan</a>";
                                             }
-											$hidden = array('ADMISSION_SESSION_ID' => $ADMISSION_SESSION_ID, 'CAMPUS_ID' => $CAMPUS_ID);
+
+                                            $hidden = array('ADMISSION_SESSION_ID' => $ADMISSION_SESSION_ID, 'CAMPUS_ID' => $CAMPUS_ID);
 											?>
 
-											<?=$is_already_applied?'':form_open(base_url().$url,'',$hidden)?>
+
 									<tbody>
 									<tr style="font-size: 11pt;color: black">
 										<td><?=$sno?></td>
@@ -120,11 +119,12 @@
 										<td><?=$start_date?></td>
 										<td><?=$end_date?></td>
 
-										<td><?=$link?></td>
+										<td><?=$review_link?></td>
+										<td><?=$submit_link?></td>
                                         <td><?=$challan_link?></td>
 									</tr>
 									</tbody>
-											<?=$is_already_applied?'':form_close()?>
+
 								<?php
 										}//foreach
 									}//if

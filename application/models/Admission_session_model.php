@@ -35,15 +35,21 @@ class Admission_session_model extends CI_Model
 		}
 		function getFormFeesBySessionAndCampusId($session_id,$campus_id){
             $this->legacy_db = $this->load->database("admission_db",true);
-            $this->legacy_db->where('SESSION_ID',$session_id);
-            $this->legacy_db->where('CAMPUS_ID',$campus_id);
-            return $this->legacy_db->get('form_fees')->row_array();
+            $this->legacy_db->from('form_fees ff');
+            $this->legacy_db->join('bank_account AS ba', 'ba.BANK_ACCOUNT_ID = ff.ACCOUNT_ID');
+            $this->legacy_db->where('ff.SESSION_ID',$session_id);
+            $this->legacy_db->where('ff.CAMPUS_ID',$campus_id);
+            return $this->legacy_db->get()->row_array();
         }
 		function getAdmissionSessionById($admission_session_id){
                 $this->legacy_db = $this->load->database("admission_db",true);
                 $this->legacy_db->where('ADMISSION_SESSION_ID',$admission_session_id);
                 return $this->legacy_db->get('admission_session')->row_array();
-            }
+		}
+		function getAllBankInformation(){
+            $this->legacy_db = $this->load->database("admission_db",true);
+            return $this->legacy_db->get('bank_information')->result_array();
+        }
 
 
 

@@ -280,9 +280,31 @@
                                 <option value='0'>--choose--</option> ;
                                 <?php
                                 $selected = "";
-                                $blood_groups=array('M'=>"MALE","F"=>"FEMALE","O"=>"OTHER");
-                                foreach($blood_groups as $k=>$boolg){
+
+                                foreach($GENDER as $k=>$boolg){
                                     if($user['GENDER']==$k)
+                                        echo "<option value='$k' selected>$boolg</option>" ;
+                                    else
+                                        echo "<option value='$k' >$boolg</option>" ;
+                                }
+                                ?>
+
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group res-mg-t-15">
+                            <label for="U_R" class="bmd-label-floating">Urban / Rural
+
+                                <span class="text-danger">*</span></label>
+
+                            <select name="U_R" id="U_R" class="form-control">
+                                <option value='0'>--choose--</option> ;
+                                <?php
+                                $selected = "";
+
+                                foreach($area as $k=>$boolg){
+                                    if($user['U_R']==$k)
                                         echo "<option value='$k' selected>$boolg</option>" ;
                                     else
                                         echo "<option value='$k' >$boolg</option>" ;
@@ -294,6 +316,98 @@
                     </div>
 
                 </div>
+                <hr>
+                <h4>Gaurdian's / Sponser Information</h4>
+                <hr>
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <label for="exampleInput1" class="bmd-label-floating">Guardian Name
+                                <span class="text-danger">*</span></label>
+                            <input <?=$readonly?> type="text" id="GNAME" class="form-control allow-string" name="GNAME" value="<?=$family_info['FIRST_NAME']?>"  >
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group res-mg-t-15">
+                            <label for="GENDER" class="bmd-label-floating">Relationship With Guardian
+
+                                <span class="text-danger">*</span></label>
+
+                            <select name="REL_GUARD" id="REL_GUARD" class="form-control">
+                                <option value='0'>--choose--</option> ;
+                                <?php
+                                $selected = "";
+
+                                foreach($REL_GUARD as $k=>$boolg){
+                                    if($family_info['RELATIONSHIP']==$k)
+                                        echo "<option value='$k' selected>$boolg</option>" ;
+                                    else
+                                        echo "<option value='$k' >$boolg</option>" ;
+                                }
+                                ?>
+
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group res-mg-t-15">
+                            <label for="U_R" class="bmd-label-floating">Occupation of Guardian
+
+                                <span class="text-danger">*</span></label>
+
+                            <select name="OCC_GUARD" id="OCC_GUARD" class="form-control">
+                                <option value='0'>--choose--</option> ;
+                                <?php
+                                $selected = "";
+
+                                foreach($OCC_GUARD as $k=>$boolg){
+                                    if($family_info['OCCUPATION']==$k)
+                                        echo "<option value='$k' selected>$boolg</option>" ;
+                                    else
+                                        echo "<option value='$k' >$boolg</option>" ;
+                                }
+                                ?>
+
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <label for="exampleInput1" class="bmd-label-floating"> Mobile Code
+                                <span class="text-danger">*</span></label>
+                            <select  class="js-example-basic-single form-control mb-3" name="GAURD_MOBILE_CODE" id="GAURD_MOBILE_CODE">
+                                <?php
+                                foreach ($countries as $country) {
+                                    $select = "";
+                                    if($country['PHONE_CODE']==$family_info['MOBILE_CODE']){
+                                        $select = "selected";
+                                    }
+                                    echo "<option value='{$country['PHONE_CODE']}' $select >{$country['COUNTRY_NAME']} &nbsp;&nbsp; {$country['PHONE_CODE']}</option>";
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group">
+                            <label for="exampleInput1" class="bmd-label-floating">Guardian's Mobile No
+                                <span class="text-danger">*</span></label>
+                            <input type="text" id="GAURD_MOBILE_NO" class="form-control allow-mobile-number" name="GAURD_MOBILE_NO" value="<?=$family_info['MOBILE_NO']?>"  >`
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <div class="form-group res-mg-t-15">
+                            <label for="exampleInput1" class="bmd-label-floating">Guardian Address
+                                <span class="text-danger">*</span></label>
+                            <textarea name="GAURD_HOME_ADDRESS" id="GAURD_HOME_ADDRESS" class="allow-address"  style="height:70px" rows="3"><?=$family_info['HOME_ADDRESS']?></textarea>
+
+                        </div>
+                    </div>
+                </div>
+                <hr>
                 <div class="row">
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group res-mg-t-15">
@@ -318,15 +432,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-lg-4">
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="payment-adress">
-                            <button type="submit" class="btn btn-primary btn-lg waves-effect waves-light">Save</button>
-                        </div>
-                    </div>
-                </div>
+
 
 
 
@@ -339,7 +445,15 @@
     function getProvinces(country_id){
         if(country_id>0){
             $("#PROVINCE_ID").html("<option value='0'>--Choose--</option>");
-            jQuery.ajax({
+            jQuery.ajax({ <div class="row">
+                <div class="col-lg-4">
+                </div>
+                <div class="col-lg-4">
+                <div class="payment-adress">
+                <button type="submit" class="btn btn-primary btn-lg waves-effect waves-light">Save</button>
+                </div>
+                </div>
+                </div>
                 url: "<?=base_url()?>api/getProvinceByCountryId?country_id="+country_id,
                 async:true,
                 success: function (data, status) {

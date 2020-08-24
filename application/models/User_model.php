@@ -41,8 +41,11 @@ class User_model extends CI_model
     }
     
 	function getUserById($user_id){
+        $this->db->from("users_reg ur");
+        $this->db->join('districts AS d', 'ur.DISTRICT_ID = d.DISTRICT_ID');
         $this->db->where('USER_ID',$user_id);
-        $user = $this->db->get('users_reg')->row_array();
+
+        $user = $this->db->get()->row_array();
         return $user;
 
     }
@@ -287,7 +290,7 @@ class User_model extends CI_model
                 $this->db->trans_rollback();
 
                 //this code is use for loging
-                $this->log_model->create_log(0,$id,"","","ADD_USER",'users_reg',11,$id);
+                $this->log_model->create_log(0,$id,"","","ADD_USER_FAILED",'users_reg',11,$id);
                 $this->log_model->itsc_log("ADD_USER","FAILED",$QUERY,'CANDIDATE',$id,"","",$id,'users_reg');
 
                 return false;
@@ -297,7 +300,7 @@ class User_model extends CI_model
                 //this code is use for loging
                 $this->db->where('USER_ID',$id);
                 $CURRENT_RECORD =  $this->db->get('users_reg')->row_array();
-                $this->log_model->create_log(0,$id,"",$CURRENT_RECORD,"ADD_USER_FAILED",'users_reg',11,$id);
+                $this->log_model->create_log(0,$id,"",$CURRENT_RECORD,"ADD_USER",'users_reg',11,$id);
                 $this->log_model->itsc_log("ADD_USER","SUCCESS",$QUERY,'CANDIDATE',$id,$CURRENT_RECORD,"",$id,'users_reg');
 
                 return true;
@@ -312,6 +315,111 @@ class User_model extends CI_model
             return false;
         }
 
+    }
+    function addFamilyInfo($form_array){
+
+        //load loging model
+        $this->load->model('log_model');
+
+        $this->db->trans_begin();
+        $this->db->db_debug = false;
+        if($this->db->insert('family_info', $form_array)){
+
+            //this code is use for loging
+            $QUERY = $this->db->last_query();
+            $id = $this->db->insert_id();
+
+            if ($this->db->affected_rows() != 1) {
+                $this->db->trans_rollback();
+
+                //this code is use for loging
+                $this->log_model->create_log(0,$id,"","","ADD_FAMILY_INFO_FAILED",'family_info',11,$form_array['USER_ID']);
+                $this->log_model->itsc_log("ADD_FAMILY_INFO","FAILED",$QUERY,'CANDIDATE',$form_array['USER_ID'],"","",$id,'family_info');
+
+                return -1;
+
+            } else {
+                $this->db->trans_commit();
+
+                //this code is use for loging
+                $this->db->where('USER_ID',$id);
+                $CURRENT_RECORD =  $this->db->get('family_info')->row_array();
+                $this->log_model->create_log(0,$id,"",$CURRENT_RECORD,"ADD_FAMILY_INFO",'family_info',11,$form_array['USER_ID']);
+                $this->log_model->itsc_log("ADD_FAMILY_INFO","SUCCESS",$QUERY,'CANDIDATE',$form_array['USER_ID'],$CURRENT_RECORD,"",$id,'family_info');
+
+                return 1;
+            }
+
+        }
+        else{
+            //this code is use for loging
+            $this->log_model->create_log(0,0,"",$form_array,"ADD_FAMILY_INFO_FAILED",'family_info',11,$form_array['USER_ID']);
+            $this->log_model->itsc_log("ADD_FAMILY_INFO","FAILED","",'CANDIDATE',$form_array['USER_ID'],$form_array,"",0,'family_info');
+
+            return -1;
+        }
+
+    }
+    function updateFamilyInfoById($id,$formArray){
+        //load loging model
+        $this->load->model('log_model');
+        $this->db->where('FAMILY_INFO_ID',$id);
+        $PRE_RECORD =  $this->db->get('family_info')->row_array();
+
+        $this->db->trans_begin();
+        $this->db->where('FAMILY_INFO_ID',$id);
+        $this->db->update('family_info',$formArray);
+
+        //this code is use for loging
+        $QUERY = $this->db->last_query();
+
+        if($this->db->affected_rows() ==1){
+            $this->db->trans_commit();
+            //this code is use for loging
+            $this->db->where('FAMILY_INFO_ID',$id);
+            $CURRENT_RECORD =  $this->db->get('family_info')->row_array();
+            $this->log_model->create_log($id,$id,$PRE_RECORD,$CURRENT_RECORD,"UPDATE_FAMILY_INFO",'family_info',12,$formArray['USER_ID']);
+            $this->log_model->itsc_log("UPDATE_FAMILY_INFO","SUCCESS",$QUERY,'CANDIDATE',$formArray['USER_ID'],$CURRENT_RECORD,$PRE_RECORD,$id,'family_info');
+
+            return 1;
+        }elseif($this->db->affected_rows() ==0){
+            $this->db->trans_commit();
+
+            //this code is use for loging
+            $this->db->where('FAMILY_INFO_ID',$id);
+            $CURRENT_RECORD =  $this->db->get('family_info')->row_array();
+            $this->log_model->create_log($id,$id,$PRE_RECORD,$CURRENT_RECORD,"UPDATE_FAMILY_INFO",'family_info',12,$formArray['USER_ID']);
+            $this->log_model->itsc_log("UPDATE_FAMILY_INFO","SUCCESS",$QUERY,'CANDIDATE',$formArray['USER_ID'],$CURRENT_RECORD,$PRE_RECORD,$id,'family_info');
+
+            return 0;
+        }else{
+            $this->db->trans_rollback();
+
+            //this code is use for loging
+            $this->db->where('FAMILY_INFO_ID',$id);
+            $CURRENT_RECORD =  $this->db->get('family_info')->row_array();
+            $this->log_model->create_log($id,$id,$PRE_RECORD,$CURRENT_RECORD,"UPDATE_FAMILY_INFO",'family_info',12,$formArray['USER_ID']);
+            $this->log_model->itsc_log("UPDATE_FAMILY_INFO","FAILED",$QUERY,'CANDIDATE',$formArray['USER_ID'],$CURRENT_RECORD,$PRE_RECORD,$id,'family_info');
+
+            return -1;
+        }
+
+    }
+    function saveGuardianByUserId($user_id,$formArray){
+
+        $family_info = $this->getGuardianByUserId($user_id);
+        if($family_info){
+            return $this->updateFamilyInfoById($family_info['FAMILY_INFO_ID'],$formArray);
+        }else{
+            return $this->addFamilyInfo($formArray);
+        }
+
+    }
+    function getGuardianByUserId($user_id){
+        $this->db->where('USER_ID',$user_id);
+        $this->db->where('IS_CANDIDATE_GUARDIAN','Y');
+
+       return $this->db->get('family_info')->row_array();
     }
 
 

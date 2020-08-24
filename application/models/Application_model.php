@@ -105,6 +105,9 @@ class Application_model extends CI_Model
         $this->legacy_db = $this->load->database("admission_db",true);
 
         $this->legacy_db->where("USER_ID",$user_id);
+        $this->legacy_db->join("`admission_session` ass","ass.`ADMISSION_SESSION_ID` = a.`ADMISSION_SESSION_ID`");
+        $this->legacy_db->join("`campus` c","ass.`CAMPUS_ID` = c.`CAMPUS_ID`");
+        $this->legacy_db->join("`program_type` pt","ass.`PROGRAM_TYPE_ID` = pt.`PROGRAM_TYPE_ID`");
         $this->legacy_db->where("ADMISSION_SESSION_ID",$admission_session_id);
         return $this->legacy_db->get('applications')->row_array();
 
@@ -112,7 +115,9 @@ class Application_model extends CI_Model
     function getApplicationByAdmissionSessionId($admission_session_id)
     {
         $this->legacy_db = $this->load->database("admission_db",true);
-
+        $this->legacy_db->join("`admission_session` ass","ass.`ADMISSION_SESSION_ID` = a.`ADMISSION_SESSION_ID`");
+        $this->legacy_db->join("`campus` c","ass.`CAMPUS_ID` = c.`CAMPUS_ID`");
+        $this->legacy_db->join("`program_type` pt","ass.`PROGRAM_TYPE_ID` = pt.`PROGRAM_TYPE_ID`");
         $this->legacy_db->where("ADMISSION_SESSION_ID",$admission_session_id);
         return $this->legacy_db->get('applications')->result_array();
 
@@ -122,20 +127,26 @@ class Application_model extends CI_Model
         $this->legacy_db = $this->load->database("admission_db",true);
         $this->legacy_db->from('applications a');
         $this->legacy_db->join("`admission_session` ass","ass.`ADMISSION_SESSION_ID` = a.`ADMISSION_SESSION_ID`");
+        $this->legacy_db->join("`sessions` ss","ass.`SESSION_ID` = ss.`SESSION_ID`");
         $this->legacy_db->join("`campus` c","ass.`CAMPUS_ID` = c.`CAMPUS_ID`");
-        $this->legacy_db->where("USER_ID",$user_id);
+        $this->legacy_db->join("`form_challan` fc","a.`APPLICATION_ID` = fc.`APPLICATION_ID`");
+        $this->legacy_db->join("`program_type` pt","ass.`PROGRAM_TYPE_ID` = pt.`PROGRAM_TYPE_ID`");
+        $this->legacy_db->where("a.USER_ID",$user_id);
         return $this->legacy_db->get()->result_array();
 
     }
     function getApplicationByUserAndApplicationId($user_id,$application_id)
     {
         $this->legacy_db = $this->load->database("admission_db",true);
+        $this->legacy_db->select('*');
         $this->legacy_db->from('applications a');
         $this->legacy_db->join("`admission_session` ass","ass.`ADMISSION_SESSION_ID` = a.`ADMISSION_SESSION_ID`");
         $this->legacy_db->join("`campus` c","ass.`CAMPUS_ID` = c.`CAMPUS_ID`");
-        $this->legacy_db->where("USER_ID",$user_id);
-        $this->legacy_db->where("APPLICATION_ID",$application_id);
-        return $this->legacy_db->get()->result_array();
+        $this->legacy_db->join("`form_challan` fc","a.`APPLICATION_ID` = fc.`APPLICATION_ID`");
+        $this->legacy_db->join("`program_type` pt","ass.`PROGRAM_TYPE_ID` = pt.`PROGRAM_TYPE_ID`");
+        $this->legacy_db->where("a.USER_ID",$user_id);
+        $this->legacy_db->where("a.APPLICATION_ID",$application_id);
+        return $this->legacy_db->get()->row_array();
 
     }
 

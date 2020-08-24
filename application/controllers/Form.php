@@ -43,20 +43,21 @@ class Form extends CI_Controller
 		$this->load->view('include/footer');
 	}
 
-	public function review ()
+	public function review($APPLICATION_ID,$next_page)
 	{
-		$this->form_validation->set_rules('ADMISSION_SESSION_ID','form session','required');
-		$this->form_validation->set_rules('CAMPUS_ID','campus','required');
-		if ($this->form_validation->run())
-		{
-			$ADMISSION_SESSION_ID = html_escape(htmlspecialchars($this->input->post('ADMISSION_SESSION_ID')));
-			$CAMPUS_ID 			  = html_escape(htmlspecialchars($this->input->post('CAMPUS_ID')));
+	    $APPLICATION_ID =urldecode($APPLICATION_ID);
+        $APPLICATION_ID = base64_decode($APPLICATION_ID);
+        $next_page =urldecode($next_page);
+        $next_page = base64_decode($next_page);
 
-			$data['user'] = '';
-			$data['user'] = '';
-			$data['profile_url'] = '';
+        $user = $this->user ;
+        $user_id = $user['USER_ID'];
 
-			$data['student_profile'] = '';
+        $user_data = $this->User_model->getUserFullDetailById($user_id);
+prePrint($user_data);
+        $data['user'] = $user_data['users_reg'];
+        $data['qualifications'] = $user_data['qualifications'];
+
 
 			$this->load->view('include/header',$data);
 //		$this->load->view('include/preloder');
@@ -66,12 +67,25 @@ class Form extends CI_Controller
 //		$this->load->view('include/footer_area');
 			$this->load->view('include/footer');
 
-		}else
-		{
-			echo "please try again";
-		}
+
 
 	}
+
+	public function application_list(){
+
+        $user = $this->user ;
+        $data['user'] = $user;
+        $data['profile_url'] = '';
+
+
+        $data['user_application_list'] = $this->Application_model->getApplicationByUserId($user['USER_ID']);
+        $this->load->view('include/header',$data);
+
+        $this->load->view('application_list',$data);
+
+        $this->load->view('include/footer');
+    }
+
     public function addApplication (){
 
         $user = $this->user ;
@@ -157,17 +171,115 @@ class Form extends CI_Controller
             redirect(base_url().'form/announcement');
         }
     }
+
     public function admission_form_challan($APPLICATION_ID){
+        $APPLICATION_ID =urldecode($APPLICATION_ID);
+        $APPLICATION_ID = base64_decode($APPLICATION_ID);
         $user = $this->session->userdata($this->SessionName);
+        $user = $this->User_model->getUserById($user['USER_ID']);
+
         $data['user'] = $user;
         $data['APPLICATION_ID']=$APPLICATION_ID;
         $application = $this->Application_model->getApplicationByUserAndApplicationId($user['USER_ID'],$APPLICATION_ID);
+
         if($application){
-            $this->load->view('fpdf',$data);
+            $form_fees = $this->Admission_session_model->getFormFeesBySessionAndCampusId($application['SESSION_ID'],$application['CAMPUS_ID']);
+            if($form_fees){
+                $valid_upto = getDateCustomeView($application['ADMISSION_END_DATE'],'d-m-Y');
+
+                if ($application['ADMISSION_END_DATE']<date('Y-m-d'))
+                    {
+                        exit("Sorry your challan is expired..");
+                    }
+
+
+                        $row = array('CHALLAN_NO' => $application['FORM_CHALLAN_ID'],
+                            "FIRST_NAME" => $user['FIRST_NAME'],
+                            "CANDIDATE_SURNAME" => $user['LAST_NAME'],
+                            "CANDIDATE_FNAME" => $user['FNAME'],
+                            "CANDIDATE_NAME" => $user['FIRST_NAME'],
+                            "TOTAL_AMOUNT" => $form_fees['AMOUNT'],
+                            "CATEGORY_NAME" => "ADMISSION FORM",
+                            "VALID_UPTO" => $valid_upto,
+                            "ACCOUNT_NO" => $form_fees['ACCOUNT_NO'],
+                            "ACCOUNT_TITLE" => $form_fees['ACCOUNT_TITLE'],
+                            "CANDIDATE_ID" => $user['USER_ID'],
+                            "DEGREE_PROGRAM" => $application['PROGRAM_TITLE']
+                        );
+                        $data['row'] = $row;
+                        $data['roll_no'] = $user['USER_ID'];
+                        $this->load->view('admission_form_challan', $data);
+
+            }else{
+                echo "fees not found";
+            }
+
         }else{
             echo "this application id is not associate with you";
         }
 
+    }
+    public function upload_application_challan($APPLICATION_ID){
+        $APPLICATION_ID =urldecode($APPLICATION_ID);
+        $APPLICATION_ID = base64_decode($APPLICATION_ID);
+        $user = $this->session->userdata($this->SessionName);
+        $user = $this->User_model->getUserById($user['USER_ID']);
+
+        $data['user'] = $user;
+        $data['APPLICATION_ID']=$APPLICATION_ID;
+        $application = $this->Application_model->getApplicationByUserAndApplicationId($user['USER_ID'],$APPLICATION_ID);
+        $bank_branches = $this->Admission_session_model->getAllBankInformation();
+        if($application){
+            $form_fees = $this->Admission_session_model->getFormFeesBySessionAndCampusId($application['SESSION_ID'],$application['CAMPUS_ID']);
+            if($form_fees){
+                $valid_upto = getDateCustomeView($application['ADMISSION_END_DATE'],'d-m-Y');
+
+                if ($application['ADMISSION_END_DATE']<date('Y-m-d'))
+                {
+                    exit("Sorry your challan is expired..");
+                }
+
+
+                $row = array('CHALLAN_NO' => $application['FORM_CHALLAN_ID'],
+                    "FIRST_NAME" => $user['FIRST_NAME'],
+                    "CANDIDATE_SURNAME" => $user['LAST_NAME'],
+                    "CANDIDATE_FNAME" => $user['FNAME'],
+                    "CANDIDATE_NAME" => $user['FIRST_NAME'],
+                    "TOTAL_AMOUNT" => $form_fees['AMOUNT'],
+                    "CATEGORY_NAME" => "ADMISSION FORM",
+                    "VALID_UPTO" => $valid_upto,
+                    "ACCOUNT_NO" => $form_fees['ACCOUNT_NO'],
+                    "ACCOUNT_TITLE" => $form_fees['ACCOUNT_TITLE'],
+                    "CANDIDATE_ID" => $user['USER_ID'],
+                    "DEGREE_PROGRAM" => $application['PROGRAM_TITLE']
+                );
+
+                $data['profile_url'] = base_url().$this->profile;
+                $data['bank_branches'] = $bank_branches;
+                $data['row'] = $row;
+                $data['roll_no'] = $user['USER_ID'];
+                $this->load->view('include/header',$data);
+                $this->load->view('include/preloder');
+                $this->load->view('include/side_bar',$data);
+                $this->load->view('include/nav',$data);
+                $this->load->view('upload_challan_detail',$data);
+                $this->load->view('include/footer_area',$data);
+                $this->load->view('include/footer',$data);
+
+
+            }else{
+                echo "fees not found";
+            }
+
+        }else{
+            echo "this application id is not associate with you";
+        }
+
+    }
+
+    public function challan_upload_handler(){
+	    prePrint($_POST);
+        prePrint($_GET);
     }
 
 }
