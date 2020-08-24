@@ -8,7 +8,7 @@ class Form extends CI_Controller
     private $LoginController = 'login';
     private $SessionName = 'USER_LOGIN_FOR_ADMISSION';
     private $user ;
-    private $file_size = 500;
+    private $file_size = 200;
 
 	public function __construct()
 	{
@@ -219,6 +219,7 @@ prePrint($user_data);
         }
 
     }
+
     public function upload_application_challan($APPLICATION_ID){
         $APPLICATION_ID =urldecode($APPLICATION_ID);
         $APPLICATION_ID = base64_decode($APPLICATION_ID);
@@ -240,23 +241,11 @@ prePrint($user_data);
                 }
 
 
-                $row = array('CHALLAN_NO' => $application['FORM_CHALLAN_ID'],
-                    "FIRST_NAME" => $user['FIRST_NAME'],
-                    "CANDIDATE_SURNAME" => $user['LAST_NAME'],
-                    "CANDIDATE_FNAME" => $user['FNAME'],
-                    "CANDIDATE_NAME" => $user['FIRST_NAME'],
-                    "TOTAL_AMOUNT" => $form_fees['AMOUNT'],
-                    "CATEGORY_NAME" => "ADMISSION FORM",
-                    "VALID_UPTO" => $valid_upto,
-                    "ACCOUNT_NO" => $form_fees['ACCOUNT_NO'],
-                    "ACCOUNT_TITLE" => $form_fees['ACCOUNT_TITLE'],
-                    "CANDIDATE_ID" => $user['USER_ID'],
-                    "DEGREE_PROGRAM" => $application['PROGRAM_TITLE']
-                );
 
                 $data['profile_url'] = base_url().$this->profile;
                 $data['bank_branches'] = $bank_branches;
-                $data['row'] = $row;
+                $data['application'] = $application;
+
                 $data['roll_no'] = $user['USER_ID'];
                 $this->load->view('include/header',$data);
                 $this->load->view('include/preloder');
@@ -278,8 +267,238 @@ prePrint($user_data);
     }
 
     public function challan_upload_handler(){
-	    prePrint($_POST);
-        prePrint($_GET);
+
+        $user = $this->user ;
+        $USER_ID = $user['USER_ID'];
+        $is_upload_any_doc = false;
+        $config_a = array();
+        $config_a['maintain_ratio'] = true;
+        $config_a['width']         = 360;
+        $config_a['height']       = 500;
+        $config_a['resize']       = false;
+        $error = "";
+        $challan_image ="";
+        $CHALLAN_AMOUNT =$BRANCH_ID = 0;
+        $CHALLAN_PAID_DATE='0000-00-00';
+        $APPLICATION_ID = 0;
+        if ($this->input->server('REQUEST_METHOD') == 'POST') {
+            if(isset($_POST['APPLICATION_ID'])&&isValidData($_POST['APPLICATION_ID'])){
+                $APPLICATION_ID =isValidData($_POST['APPLICATION_ID']);
+            }
+            else{
+                $error.="<div class='text-danger'>Application Id not found</div>";
+            }
+            $application = $this->Application_model->getApplicationByUserAndApplicationId($user['USER_ID'],$APPLICATION_ID);
+            if($application) {
+                $FORM_CHALLAN_ID = $application['FORM_CHALLAN_ID'];
+                $challan_image = $application['CHALLAN_IMAGE'];
+                $CHALLAN_PAID_DATE = $application['CHALLAN_DATE'];
+                $CHALLAN_AMOUNT = $application['PAID_AMOUNT'];
+                $BRANCH_ID = $application['BRANCH_ID'];
+
+                   // $valid_upto = getDateCustomeView($application['ADMISSION_END_DATE'], 'd-m-Y');
+
+
+
+                    if ($application['ADMISSION_END_DATE'] < date('Y-m-d')) {
+
+                        $error.="<div class='text-danger'>Sorry your challan is expired..</div>";
+                    }else {
+                        $folder = EXTRA_IMAGE_CHECK_PATH . "$USER_ID";
+                        if (!is_dir($folder)) {
+                            mkdir(EXTRA_IMAGE_CHECK_PATH . "/$USER_ID");
+                        }
+
+
+                        if(isset($_POST['BRANCH_ID'])&&isValidData($_POST['BRANCH_ID'])){
+                            $BRANCH_ID =isValidData($_POST['BRANCH_ID']);
+                        }else{
+                            $error.="<div class='text-danger'>Bank Branch must be select</div>";
+                        }
+                        if(isset($_POST['CHALLAN_AMOUNT'])&&isValidData($_POST['CHALLAN_AMOUNT'])){
+                            $CHALLAN_AMOUNT =isValidData($_POST['CHALLAN_AMOUNT']);
+                            if($CHALLAN_AMOUNT != $application['CHALLAN_AMOUNT']){
+                                $error.="<div class='text-danger'>Your entered amount does not match actual challan amount </div>";
+                            }
+
+                        }else{
+                            $error.="<div class='text-danger'>Challan Amount Must be Enter</div>";
+                        }
+                        if(isset($_POST['CHALLAN_NO'])&&isValidData($_POST['CHALLAN_NO'])){
+                            $CHALLAN_NO =isValidData($_POST['CHALLAN_NO']);
+                            if($CHALLAN_NO!=$FORM_CHALLAN_ID){
+                                $error.="<div class='text-danger'>Invalid Challan No..!</div>";
+                            }
+                        }else{
+                            $error.="<div class='text-danger'>Challan Number Must be Enter</div>";
+                        }
+
+                        if(isset($_POST['CHALLAN_PAID_DATE'])&&isValidTimeDate($_POST['CHALLAN_PAID_DATE'],'d/m/Y')){
+                            $CHALLAN_PAID_DATE = getDateForDatabase($_POST['CHALLAN_PAID_DATE']);
+                            if($CHALLAN_PAID_DATE>date('Y-m-d')){
+                                $error.="<div class='text-danger'>Choose Valid Challan Paid Date</div>";
+                            }
+                        }else{
+                            $error.="<div class='text-danger'>Challan Paid Date Must be Choose</div>";
+                        }
+
+
+                        if (isset($_FILES['challan_image'])) {
+                            if (isValidData($_FILES['challan_image']['name'])) {
+
+                                $file_path = EXTRA_IMAGE_CHECK_PATH . "$USER_ID/";
+                                $image_name = "challan_image_$USER_ID";
+                                $res = $this->upload_image('challan_image', $image_name, $this->file_size, $file_path, $config_a);
+                                if ($res['STATUS'] === true) {
+                                    $challan_image = "$USER_ID/" . $res['IMAGE_NAME'];
+                                    $is_upload_any_doc = true;
+
+                                } else {
+                                    $error .= "<div class='text-danger'>Error {$res['MESSAGE']}</div>";
+                                }
+                            } else {
+                                if ($challan_image == "")
+                                    $error .= "<div class='text-danger'>Must Upload Challan Image and image size must be less then {$this->file_size}kb </div>";
+                            }
+                        }
+                        else {
+
+                            if ($challan_image == "")
+                                $error .= "<div class='text-danger'>Must Upload Challan Image and image size must be less then {$this->file_size}kb </div>";
+                        }
+
+                        if($error==""){
+                            $form_data=array("BRANCH_ID"=>$BRANCH_ID,
+                                "CHALLAN_DATE"=>$CHALLAN_PAID_DATE,
+                                "PAID_AMOUNT"=>$CHALLAN_AMOUNT,
+                                "CHALLAN_IMAGE"=>$challan_image,
+                                "PAID"=>"N",
+                                "USER_ID"=>$USER_ID);
+                            $res = $this->Application_model->updateChallanById($FORM_CHALLAN_ID,$form_data);
+                            if($res==1){
+
+                                $APPLICATION_ID = base64_encode($APPLICATION_ID);
+                                $APPLICATION_ID = urlencode($APPLICATION_ID);
+                                $success= "<div class='text-success'>Challan Information Update Successfully</div>";
+                                $alert = array('MSG'=>$success,'TYPE'=>'SUCCESS');
+                                $this->session->set_flashdata('ALERT_MSG',$alert);
+                                redirect(base_url()."form/upload_application_challan/$APPLICATION_ID");
+
+                            }else if($res==0){
+
+                                $APPLICATION_ID = base64_encode($APPLICATION_ID);
+                                $APPLICATION_ID = urlencode($APPLICATION_ID);
+                                if($is_upload_any_doc){
+                                    $success= "<div class='text-success'>Challan Information Update Successfully</div>";
+                                }else{
+                                    $success= "<div class='text-success'>No data has been changed...! </div>";
+                                    $success= "<div class='text-success'>Challan Information Update Successfully...!</div>";
+                                }
+
+                                $alert = array('MSG'=>$success,'TYPE'=>'SUCCESS');
+                                $this->session->set_flashdata('ALERT_MSG',$alert);
+                                redirect(base_url()."form/upload_application_challan/$APPLICATION_ID");
+
+                            }else{
+
+                                $APPLICATION_ID = base64_encode($APPLICATION_ID);
+                                $APPLICATION_ID = urlencode($APPLICATION_ID);
+                                $alert = array('MSG'=>$error,'TYPE'=>'ERROR');
+                                $this->session->set_flashdata('ALERT_MSG',$alert);
+                                redirect(base_url()."form/upload_application_challan/$APPLICATION_ID");
+
+                            }
+                        }
+                    }
+
+
+            }else{
+                    $error.="<div class='text-danger'>This Application is not associate with you</div>";
+            }
+
+        }
+        else{
+            $error.="<div class='text-danger'>Invalid Request</div>";
+        }
+        if($error!=""){
+            $APPLICATION_ID = base64_encode($APPLICATION_ID);
+            $APPLICATION_ID = urlencode($APPLICATION_ID);
+            $alert = array('MSG'=>$error,'TYPE'=>'ERROR');
+            $this->session->set_flashdata('ALERT_MSG',$alert);
+            redirect(base_url()."form/upload_application_challan/$APPLICATION_ID");
+        }
+
+
+    }
+
+
+
+
+    private function upload_image($index_name,$image_name,$max_size = 50,$path = '../eportal_resource/images/applicants_profile_image/',$con_array=array())
+    {
+
+        $config['upload_path']          = $path;
+        $config['allowed_types']        = 'gif|jpg|png|jpeg';
+        $config['max_size']             = $max_size;
+        $config['max_width']            = 0;
+        $config['max_height']           = 0;
+        $config['file_name']			= $image_name;
+        $config['overwrite']			= true;
+
+        if(isset($this->upload)){
+            $this->upload =  null;
+        }
+        $this->load->library('upload', $config);
+
+        if ( ! $this->upload->do_upload($index_name))
+        {
+            return array("STATUS"=>false,"MESSAGE"=>$this->upload->display_errors());
+        }
+        else
+        {
+            $image_data = $this->upload->data();
+
+            $image_path = $image_data['full_path'];
+
+            $config['image_library'] = 'gd2';
+            $config['source_image'] = $image_path;
+            $config['create_thumb'] = FALSE;
+            if(!count($con_array)){
+                $config['maintain_ratio'] = TRUE;
+                $config['width']         = 180;
+                $config['height']       = 260;
+            }else{
+                if(isset($con_array['maintain_ratio'])){
+                    $config['maintain_ratio']=$con_array['maintain_ratio'];
+                }
+
+                if(isset($con_array['width'])){
+                    $config['width']=$con_array['width'];
+                }
+
+                if(isset($con_array['height'])){
+                    $config['height']=$con_array['height'];
+                }
+            }
+            if(isset($this->image_lib)){
+                $this->image_lib =  null;
+            }
+            if(isset($con_array['resize'])){
+                if($con_array['resize']===true){
+                    $this->load->library('image_lib',$config);
+
+                    $this->image_lib->resize();
+                }
+            }else{
+                $this->load->library('image_lib',$config);
+
+                $this->image_lib->resize();
+
+            }
+
+            return array("STATUS"=>true,"IMAGE_NAME"=>$image_data['file_name']);
+
+        }
     }
 
 }

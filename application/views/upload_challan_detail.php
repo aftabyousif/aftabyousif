@@ -9,12 +9,14 @@
                                 <div class="card-body">
                                     <?php
                                     $hidden = array("APPLICATION_ID"=>$APPLICATION_ID);
+
                                     ?>
+
                             <!--                                        <form action="/upload" class="dropzone dropzone-custom needsclick add-professors dz-clickable" id="demo1-upload" novalidate="novalidate">-->
-                            <?=form_open('form/challan_upload_handler', 'class="dropzone dropzone-custom needsclick add-professors dz-clickable" id="base_profile_form"',$hidden);?>
+                            <?=form_open(base_url('form/challan_upload_handler'), ' enctype="multipart/form-data" class="dropzone dropzone-custom needsclick add-professors dz-clickable" id="challan_form "',$hidden);?>
 
                             <div class="row">
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <div class="form-group">
                                         <label for="exampleInput1" class="bmd-label-floating">Bank Branch
                                             <span class="text-danger">*</span></label>
@@ -25,8 +27,10 @@
 
                                             foreach ($bank_branches as $bank_branch) {
                                                 $select = "";
-
-                                                echo "<option   value='{$bank_branch['BRANCH_ID']}'  >{$bank_branch['BRANCH_CODE']} &nbsp;&nbsp;{$bank_branch['BRANCH_NAME']}</option>";
+                                                if($application['BRANCH_ID']==$bank_branch['BRANCH_ID']){
+                                                    $select = "selected";
+                                                }
+                                                echo "<option   value='{$bank_branch['BRANCH_ID']}'  $select>{$bank_branch['BRANCH_CODE']} &nbsp;&nbsp;{$bank_branch['BRANCH_NAME']}</option>";
                                             }
                                             ?>
 
@@ -34,23 +38,38 @@
 
                                     </div>
                                 </div>
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <div class="form-group">
-                                        <label for="exampleInput1" class="bmd-label-floating">Challan Amount
-                                            <span class="text-danger">*</span></label>
-                                        <input  type="text" id="CHALLAN_AMOUNT" class="form-control allow-string" placeholder="CHALLAN AMOUNT" name="CHALLAN_AMOUNT" >
-                                        <input type="text" id="USER_ID" class="" name="USER_ID" value="" hidden>
+                                        <label for="exampleInput1" class="bmd-label-floating">Challan Number
+                                            <span class="text-danger">*</span>
+                                            <span class="text-danger" id="CHALLAN_NO_VIEW_MSG"></span>
+                                        </label>
+                                        <input  type="text" id="CHALLAN_NO" class="form-control allow-number" placeholder="CHALLAN NO" name="CHALLAN_NO" value="<?=($application['PAID']=='N'||$application['PAID']=='Y')?$application['FORM_CHALLAN_ID']:'';?>">
+
 
                                     </div>
                                 </div>
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label for="exampleInput1" class="bmd-label-floating">Challan Amount
+                                            <span class="text-danger">*</span>
+                                            <span class="text-danger" id="CHALLAN_AMOUNT_VIEW_MSG"></span>
+                                        </label>
+                                        <input  type="text" id="CHALLAN_AMOUNT" class="form-control allow-number" placeholder="CHALLAN AMOUNT" name="CHALLAN_AMOUNT" value="<?=$application['PAID_AMOUNT']?>" >
+
+
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <div class="form-group">
                                         <label for="exampleInput1" class="bmd-label-floating">Challan Paid Date
                                             <span class="text-danger">* &nbsp;<small>dd/mm/yyyy</small></span></label>
                                         <div class="form-group data-custon-pick" id="data_2">
                                             <div class="input-group date">
                                                 <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                                <input  type="text" id="CHALLAN_PAID_DATE"  name="CHALLAN_PAID_DATE" class="form-control" value="" readonly>
+                                                <input  type="text" id="CHALLAN_PAID_DATE"  name="CHALLAN_PAID_DATE" class="form-control"  value="<?=getDateForView($application['CHALLAN_DATE'])?>" readonly>
                                             </div>
                                         </div>
                                     </div>
@@ -59,24 +78,25 @@
                             <div class="row">
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                     <div class="form-group res-mg-t-15">
-                                        <label for="exampleInput1" class="bmd-label-floating">Profile Image
+                                        <label for="exampleInput1" class="bmd-label-floating">Paid Challan Image
                                             <span class="text-danger">*</span>
                                         </label><br>
                                         <?php
 
                                         $image_path_default =base_url()."dash_assets/img/avatar/docavtar.png";
                                         $image_path = "";
-//                                        if($user['PROFILE_IMAGE'] != ""){
-//                                            $image_path_default = PROFILE_IMAGE_PATH.$user['PROFILE_IMAGE'];
-//                                            $image_path = PROFILE_IMAGE_PATH.$user['PROFILE_IMAGE'];
-//
-//                                        }
+                                        if($application['CHALLAN_IMAGE'] != ""){
+
+                                            $image_path_default = base_url().EXTRA_IMAGE_PATH.$application['CHALLAN_IMAGE'];
+                                            $image_path =base_url(). EXTRA_IMAGE_PATH.$application['CHALLAN_IMAGE'];
+
+                                        }
                                         ?>
 
                                         <img src="<?php echo $image_path_default; ?>" alt="CHALLAN IMAGE" id="challan-image-view"  class="img-table-certificate"  width="150px" height="150px" name="challan-image-view" >
                                         <input type="file" name="challan_image" id="challan_image"   onchange="changeImage(this,'challan_image','challan-image-view',200)" accept=".jpg,.png,.jpeg" value="<?php echo $image_path; ?>">
                                         <input type="text" name="challan_image1" id="challan_image1" value="<?php echo $image_path; ?>" hidden>
-                                        <span class="text-danger">Image must be passport size with white background and image size should be less than 200kb</span>
+                                        <span class="text-danger">Make Sure Image must be clear Image size should be less than 200kb</span>
 
                                     </div>
                                 </div>
@@ -104,6 +124,23 @@
     </div>
 </div>
 <script>
+    var FORM_CHALLAN_ID = <?=$application['FORM_CHALLAN_ID']?>;
+    var CHALLAN_AMOUNT = <?=$application['CHALLAN_AMOUNT']?>;
+
+    $( '#CHALLAN_NO' ).keyup(function() {
+       if(FORM_CHALLAN_ID==$( '#CHALLAN_NO' ).val()){
+           $( '#CHALLAN_NO_VIEW_MSG' ).html("");
+       }else{
+           $( '#CHALLAN_NO_VIEW_MSG' ).html("INVALID CHALLAN NO");
+       }
+    });
+    $( '#CHALLAN_AMOUNT' ).keyup(function() {
+        if(CHALLAN_AMOUNT==$( '#CHALLAN_AMOUNT' ).val()){
+            $( '#CHALLAN_AMOUNT_VIEW_MSG' ).html("");
+        }else{
+            $( '#CHALLAN_AMOUNT_VIEW_MSG' ).html("INVALID CHALLAN AMOUNT");
+        }
+    });
     $( '.img-table-certificate' ).click(function() {
         alertImage('Image',$(this).attr('src'));
     });
