@@ -58,16 +58,26 @@ class Candidate extends CI_Controller
         $prefixs = $this->Configuration_model->getPrefix();
         $prefixs = json_decode($prefixs['VALUE'],true);
         $blood_groups=array("A+","A-","B+","B-","O+","O-","AB+","AB-");
-
+        $GENDER=array('M'=>"MALE","F"=>"FEMALE","O"=>"OTHER");
+        $area=array('R'=>"RURAL","U"=>"URBAN");
+        $REL_GUARD=array('FATHER'=>"FATHER","MOTHER"=>"MOTHER","BROTHER"=>"BROTHER","SISTER"=>"SISTER","UNCLE"=>"UNCLE","AUNTY"=>"AUNTY","GRAND FATHER"=>"GRAND FATHER","GRAND MOTHER"=>"GRAND MOTHER","OTHER"=>"OTHER");
+        $OCC_GUARD=array('BUSSINESS MAN'=>"BUSSINESS MAN","ENGINEER"=>"ENGINEER","DOCTOR"=>"DOCTOR","FARMER"=>"FARMER","GOVERMENT EMPLOYEE"=>"GOVERMENT EMPLOYEE","PRIVATE COMPANY EMPLOYEE"=>"PRIVATE COMPANY EMPLOYEE","LANDLOARD"=>"LANDLOARD","RETIRED"=>"RETIRED","OTHER"=>"OTHER");
         if($user){
 
             $user = $this->User_model->getUserById($user['USER_ID']);
-
+            $family_info  =  $this->User_model->getGuardianByUserId($user['USER_ID']);
             $data['user'] = $user;
             $data['profile_url'] = base_url().$this->profile;
             $data['countries'] = $countries;
             $data['prefixs'] = $prefixs;
             $data['blood_groups'] = $blood_groups;
+            $data['family_info'] = $family_info;
+            $data['REL_GUARD'] = $REL_GUARD;
+            $data['OCC_GUARD'] = $OCC_GUARD;
+            $data['GENDER'] = $GENDER;
+            $data['area'] = $area;
+
+
 
             $this->load->view('include/header',$data);
             $this->load->view('include/preloder');
@@ -99,6 +109,7 @@ class Candidate extends CI_Controller
         $PASSPORT_EXPIRY=$user['PASSPORT_EXPIRY'];
         $CNIC_EXPIRY=$user['CNIC_EXPIRY'];
         $error ="";
+        $GNAME =$GAURD_MOBILE_NO =$GAURD_HOME_ADDRESS = $GAURD_MOBILE_CODE =$REL_GUARD=$OCC_GUARD="";
         $GENDER=$BLOOD_GROUP = $ZIP_CODE=$PERMANENT_ADDRESS=$HOME_ADDRESS=$PLACE_OF_BIRTH =$MOBILE_CODE = $FNAME =$PLACE_OF_BIRTH= $LAST_NAME= $MOBILE_NO = $PREFIX_ID = $FIRST_NAME = "";
         $CITY_ID =$DISTRICT_ID=$PROVINCE_ID=$COUNTRY_ID = 0;
         $PASSPORT_EXPIRY = $CNIC_EXPIRY =$DATE_OF_BIRTH='1900-01-01';
@@ -130,6 +141,7 @@ class Candidate extends CI_Controller
         }else{
             $error.="<div class='text-danger'>Mobile Must be Enter</div>";
         }
+
 
         if(isset($_POST['LAST_NAME'])&&isValidData($_POST['LAST_NAME'])){
             $LAST_NAME = strtoupper(isValidData($_POST['LAST_NAME']));
@@ -195,6 +207,12 @@ class Candidate extends CI_Controller
         }else{
             $error.="<div class='text-danger'>Blood Group Must be Select</div>";
         }
+        if(isset($_POST['U_R'])&&isValidData($_POST['U_R'])){
+            $U_R = isValidData($_POST['U_R']);
+        }else{
+            $error.="<div class='text-danger'>Urban / Rural Must be Select</div>";
+        }
+
         if(isset($_POST['CNIC_EXPIRY'])&&isValidTimeDate($_POST['CNIC_EXPIRY'],'d/m/Y')){
             $CNIC_EXPIRY = getDateForDatabase($_POST['CNIC_EXPIRY']);
         }
@@ -207,6 +225,54 @@ class Candidate extends CI_Controller
         }else{
             $error.="<div class='text-danger'>Gender Must be select</div>";
         }
+
+        //Guardian information
+        if(isset($_POST['GNAME'])&&isValidData($_POST['GNAME'])){
+            $GNAME = strtoupper(isValidData($_POST['GNAME']));
+        }else{
+            $error.="<div class='text-danger'>Guardian Name Must be Enter</div>";
+        }
+        if(isset($_POST['REL_GUARD'])&&isValidData($_POST['REL_GUARD'])){
+            $REL_GUARD = isValidData($_POST['REL_GUARD']);
+        }else{
+            $error.="<div class='text-danger'>Relationship of Guardian  Must be select</div>";
+        }
+        if(isset($_POST['OCC_GUARD'])&&isValidData($_POST['OCC_GUARD'])){
+            $OCC_GUARD = isValidData($_POST['OCC_GUARD']);
+        }else{
+            $error.="<div class='text-danger'>Occupation of Guardian Must be select</div>";
+        }
+        if(isset($_POST['GAURD_MOBILE_CODE'])&&isValidData($_POST['GAURD_MOBILE_CODE'])){
+            $GAURD_MOBILE_CODE = isValidData($_POST['GAURD_MOBILE_CODE']);
+        }else{
+            $error.="<div class='text-danger'>Guardian Mobile Code Must be select</div>";
+        }
+        if(isset($_POST['GAURD_MOBILE_NO'])&&isValidData($_POST['GAURD_MOBILE_NO'])){
+            $GAURD_MOBILE_NO = isValidData($_POST['GAURD_MOBILE_NO']);
+        }else{
+            $error.="<div class='text-danger'>Guardian's Mobile No Must be Enter</div>";
+        }
+        if(isset($_POST['GAURD_HOME_ADDRESS'])&&isValidData($_POST['GAURD_HOME_ADDRESS'])){
+            $GAURD_HOME_ADDRESS = isValidData($_POST['GAURD_HOME_ADDRESS']);
+        }else{
+            $error.="<div class='text-danger'>Guardian Address Must be Enter</div>";
+        }
+
+
+        $gardian_array=array(
+            "FIRST_NAME"=>$GNAME,
+            "RELATIONSHIP"=>$REL_GUARD,
+            "OCCUPATION"=>$OCC_GUARD,
+            "MOBILE_CODE"=>$GAURD_MOBILE_CODE,
+            "MOBILE_NO"=>$GAURD_MOBILE_NO,
+            "HOME_ADDRESS"=>$GAURD_HOME_ADDRESS,
+            "ACTIVE"=>1,
+            "USER_ID"=>$USER_ID,
+            "IS_CANDIDATE_GUARDIAN"=>'Y');
+
+
+        //END GARDIAN INFORMATION
+
 
         if (isset($_FILES['profile_image'])) {
             // prePrint($_FILES['profile_image'][]);
@@ -255,19 +321,22 @@ class Candidate extends CI_Controller
             "PASSPORT_EXPIRY"=>$PASSPORT_EXPIRY,
             "GENDER"=>$GENDER,
             "PROFILE_IMAGE"=>$PROFILE_IMAGE,
+            "U_R"=>$U_R
         );
 
         if($error==""){
             $res = $this->User_model->updateUserById($USER_ID,$form_array);
-            if($res===1){
-                $reponse['RESPONSE'] = "SUCCESS";
-                $reponse['MESSAGE'] = "<div class='text-success'>Successfully Save ..!<div>";
-            }else if($res===0){
+            $res_guard = $this->User_model->saveGuardianByUserId($USER_ID,$gardian_array);
+            if($res===-1||$res_guard==-1){
+                $reponse['RESPONSE'] = "ERROR";
+                $reponse['MESSAGE'] = "<div class='text-danger'>Something went worng..!</div>";
+            }
+            if($res===0&&$res_guard==0){
                 $reponse['RESPONSE'] = "SUCCESS";
                 $reponse['MESSAGE'] = "<div class='text-success'>No data has been changed..!<div>";
             }else{
-                $reponse['RESPONSE'] = "ERROR";
-                $reponse['MESSAGE'] = "<div class='text-danger'>Something went worng..!</div>";
+                $reponse['RESPONSE'] = "SUCCESS";
+                $reponse['MESSAGE'] = "<div class='text-success'>Successfully Save ..!<div>";
             }
 
         }else{

@@ -49,7 +49,7 @@
 							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 center">
 								<div class="login-social-inner">
 									<a href="<?=base_url().'form/announcement'?>" class="button btn-social basic-ele-mg-b-10 facebook span-left"> <span><i class="fa fa-forward"></i></span> Next </a>
-									<a href="#" class="button btn-social basic-ele-mg-b-10 twitter span-left"> <span><i class="fa fa-power-off"></i></span> Logout </a>
+									<a href="<?=base_url().'logout'?>"" class="button btn-social basic-ele-mg-b-10 twitter span-left"> <span><i class="fa fa-power-off"></i></span> Logout </a>
 								</div>
 							</div>
 						</div>

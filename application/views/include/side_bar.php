@@ -25,6 +25,12 @@
                             'class' =>'educate-icon educate-professor icon-wrap'));
                         array_push($side_bar_values,array('is_submenu' => 0,
                             'is_tab_base'=>'N',
+                            'value' => 'Download Challan',
+                            'link' => base_url()."form/application_list",
+                            'class' =>'educate-icon educate-data-table icon-wrap'));
+
+                        array_push($side_bar_values,array('is_submenu' => 0,
+                            'is_tab_base'=>'N',
                             'value' => 'Logout',
                             'link' => base_url()."logout",
                             'class' =>'educate-icon educate-pages icon-wrap'));

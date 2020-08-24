@@ -74,21 +74,7 @@ $pdf = new PDF('L','mm','A4');
 $pdf->AddPage();
 
 $x=7;
-$roll_no="asd";
-$row = array('CHALLAN_NO'=>"1123",
-    "FIRST_NAME"=>"FIRST_NAME",
-    "CANDIDATE_SURNAME"=>"CANDIDATE_SURNAME",
-    "CANDIDATE_FNAME"=>"CANDIDATE_FNAME",
-    "CANDIDATE_NAME"=>"CANDIDATE_NAME",
-    "FEE_AMOUNT"=>"10000",
-    "FEE_LABLE"=>"FORM FEES",
-    "DUES"=>"10000",
-    "TOTAL_AMOUNT"=>"10000",
-    "CATEGORY_NAME"=>"ADMISSION FORM",
-    "VALID_UPTO"=>"12-12-2020",
-    "ACCOUNT_NO"=>"123123",
-    "CANDIDATE_ID"=>"1",
-    );
+
 
 myFunction("BANK'S COPY",$x,$pdf,$row,$roll_no);
 line($x,$pdf);
@@ -118,15 +104,14 @@ function myFunction($copy, $x,$pdf,$record,$roll_no)
 
 
 
-    $fee_label = $record['FEE_LABLE'];
-    $fee_amount = $record['FEE_AMOUNT'];
 
-    $due = $record['DUES'];
+    $degree_program = $record['DEGREE_PROGRAM'];
+
     $total_amount = $record['TOTAL_AMOUNT'];
 
     // $in_words = $record['IN_WORDS'];
-
-    $in_words = "ASD";
+    $in_words =  convert_number_to_words($total_amount);
+    //$in_words = "ASD";
     $in_words = ucwords(strtoupper($in_words)).' ONLY';
 
     $category_name = $record['CATEGORY_NAME'];
@@ -148,38 +133,45 @@ function myFunction($copy, $x,$pdf,$record,$roll_no)
     $pdf->Image(base_url().'assets/img/hbl_logo.jpg',25+$x,10,18);
 
     $pdf->SetFont('Arial','B',7);
-    $pdf->text(20+$x,23,$copy);
+    $height=25;
+    $pdf->text(20+$x,$height,$copy);
     $pdf->Ln();
 
     $pdf->SetFont('Arial','B',8);
 
 //    $pdf->text($x+5,33,"UNIVERSITY OF SINDH BRANCH, JAMSHORO");
-    $pdf->SetFont('Arial','',7.5);
-    $pdf->text($x+9,28,"Please receive and credit to University of Sindh");
-
-    $pdf->SetFont('Arial','B',7.5);
-    $pdf->text($x+15,32,"ADMISSION ACCOUNT NUMBER");
-    $pdf->SetFont('Arial','B',11);
-    $pdf->text($x+15,36,"CMD. $account_no");
-
-    $pdf->SetFont('Arial','B',9);
-    $pdf->text($x+4,40,"CHALLAN NO: ".$challan_no);
+    $height=$height+6;
     $pdf->SetFont('Arial','',8);
-    $pdf->text($x+43,40,"DATE: $current_date");
+    $pdf->text($x+9,$height,"Please receive and credit to University of Sindh");
+    $height = $height+5;
+    $pdf->SetFont('Arial','B',8);
+    $pdf->text($x+15,$height,"ADMISSION ACCOUNT NUMBER");
+    $pdf->SetFont('Arial','B',11);
+    $height = $height+5;
+    $pdf->text($x+15,$height,"CMD. $account_no");
+    $height = $height+5;
+    $pdf->SetFont('Arial','B',9);
+    $pdf->text($x+4,$height,"CHALLAN NO: ".$challan_no);
+    $pdf->SetFont('Arial','',8);
+    $pdf->text($x+43,$height,"DATE: $current_date");
 
     $pdf->SetFont('Arial','B',9);
-    $pdf->text($x+7,44,"This challan is valid upto: $valid_upto");
+    $height=$height+7;
+    $pdf->SetTextColor(255,0,0);
+    $pdf->text($x+7,$height,"This challan is valid upto: $valid_upto");
 
     $pdf->SetFont('Arial','B',10);
-
-    $pdf->SetXY($x + 5, 45);
+    $height =$height+ 3;
+    $pdf->SetXY($x + 5, $height);
     $pdf->SetTextColor(255,255,255);
     $pdf->MultiCell(60, 5, $category_name, 1, 'C', true);
     $pdf->SetTextColor(0,0,0);
 
 //    $pdf->text($x+19,49,$category_name);
 
-    $pdf->setTextColor(110,110,110);
+//    $pdf->setTextColor(110,110,110);
+    $pdf->setTextColor(0,0,0);
+
 //    $pdf->SetFont('Arial','B',10);
 //    $pdf->text($x+10,85,"CANDIDATE INFORMATION");
 
@@ -192,21 +184,31 @@ function myFunction($copy, $x,$pdf,$record,$roll_no)
 //    $pdf->text($x+5,58,"SEAT NO:");
 //    $pdf->SetFont('Arial','B',9);
 //    $pdf->text($x+22,58,$seat_no);
+    $height =$height+ 10;
+    $pdf->SetFont('Arial','',8);
+    $pdf->text($x+5,$height,"STUDENT'S NAME:");
+    $pdf->SetFont('Arial','B',9);
+    $height =$height+4;
+    $pdf->text($x+5,$height,strtoupper($stdName));
 
     $pdf->SetFont('Arial','',8);
-    $pdf->text($x+5,62,"STUDENT'S NAME:");
+    $height =$height+6;
+    $pdf->text($x+5,$height,"FATHER'S NAME:");
     $pdf->SetFont('Arial','B',9);
-    $pdf->text($x+5,66,strtoupper($stdName));
-
+    $height =$height+4;
+    $pdf->text($x+5,$height,strtoupper($fName));
+    $height =$height+6;
     $pdf->SetFont('Arial','',8);
-    $pdf->text($x+5,70,"FATHER'S NAME:");
+    $pdf->text($x+5,$height,"SURNAME:");
     $pdf->SetFont('Arial','B',9);
-    $pdf->text($x+5,74,strtoupper($fName));
-
+    $height =$height+4;
+    $pdf->text($x+5,$height,strtoupper($surName));
+    $height =$height+6;
     $pdf->SetFont('Arial','',8);
-    $pdf->text($x+5,78,"SURNAME:");
+    $pdf->text($x+5,$height,"DEGREE PROGRAM:");
+    $height =$height+4;
     $pdf->SetFont('Arial','B',9);
-    $pdf->text($x+5,82,strtoupper($surName));
+    $pdf->text($x+5,$height,strtoupper($degree_program));
 
 
 //    $pdf->SetFont('Arial','',8);
@@ -229,22 +231,26 @@ function myFunction($copy, $x,$pdf,$record,$roll_no)
     $pdf->setTextColor(0,0,0);
 
     $pdf->ln(0);
-    $pdf->SetXY($x + 3, 115);
+    $height=$height+6;
+    $pdf->SetXY($x + 3, $height);
     $pdf->SetFont('Times','B',10);
-    $pdf->Cell(40,6,"$fee_label",1,"","R",false);
-    $pdf->Cell(25,6,"Rs. ".number_format($fee_amount,2),1,"","R",false);
+    $pdf->Cell(40,6,"Purpose of Payment",1,"","R",false);
+    $pdf->Cell(25,6,"Amount (Rs.)",1,"","R",false);
 //    $pdf->ln();
-    $pdf->SetXY($x + 3, 121);
+//    $pdf->SetXY($x + 3, 121);
+//    $pdf->SetFont('Times','B',10);
+//    $pdf->Cell(40,6,"DUES",1,"","R",false);
+//    $pdf->Cell(25,6,"Rs. ".number_format($due,2),1,"","R",false);
+    $height = $height+6;
+    $pdf->SetXY($x + 3,$height );
     $pdf->SetFont('Times','B',10);
-    $pdf->Cell(40,6,"DUES",1,"","R",false);
-    $pdf->Cell(25,6,"Rs. ".number_format($due,2),1,"","R",false);
-
-    $pdf->SetXY($x + 3, 127);
-    $pdf->SetFont('Times','B',10);
-    $pdf->Cell(40,6,"TOTAL FEE",1,"","R",false);
-    $pdf->Cell(25,6,"Rs. ".number_format($total_amount,2),1,"","R",false);
-
-    $pdf->SetXY($x + 3, 134);
+    $x1 = $pdf->getX();
+    $y = $pdf->getY();
+    $pdf->MultiCell(40,5,"Admission Kit and Pre-Entry Test Fee for the Academic Year 2019",1,"J");
+    $pdf->SetXY($x1+40, $y);
+    $pdf->Cell(25,15,"Rs. ".number_format($total_amount,2),1,"","R",false);
+    $height = $height+20;
+    $pdf->SetXY($x + 3, $height);
     $pdf->SetFont('Times','B',9);
 
 //    $pdf->TableCell(65,4,"Amount (in words): $in_words",0,'L',0);
