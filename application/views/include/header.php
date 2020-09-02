@@ -252,6 +252,11 @@ background: #337ab7;
     .sidebar-nav ul {
     background: #204d7f;
 }
+
+     .select2-container--default .select2-results__option[aria-disabled=true] {
+         color: #f90000;
+     }
+
 </style>
 
 </head>

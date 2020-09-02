@@ -82,7 +82,9 @@
 											$link = "";
                                             $url = "candidate/profile";
                                             $APPLICATION_ID = urlencode(base64_encode($APPLICATION_ID));
-                                            $challan_url = "form/admission_form_challan/$APPLICATION_ID";
+                                            $challan_url = "form/admission_form_challan";
+                                          //  set_application_id($APPLICATION_ID,$url);
+                                                $application_url = "form/set_application_id/$APPLICATION_ID/";
 										    if ($ADMISSION_START_DATE>date('Y-m-d')){
                                                 $link = "will be open soon";
                                                 $challan_link = "";
@@ -93,11 +95,12 @@
                                                 $challan_link = "";
                                             }
 											else {
+
 											    if($is_already_applied){
                                                     $url = "candidate/profile";
-                                                    $challan_url = "form/admission_form_challan/$APPLICATION_ID";
-                                                    $link="<a href='".base_url().$url."' class='btn btn-warning widget-btn-1 btn-sm'>Already Applied click here to next</a>";
-                                                    $challan_link = "<a href='".base_url().$challan_url."' class='btn btn-info widget-btn-1 btn-sm'>Download Challan</a>";
+                                                    $challan_url = "form/admission_form_challan";
+                                                    $link="<a href='".base_url().$application_url.urlencode(base64_encode($url))."' class='btn btn-warning widget-btn-1 btn-sm'>Already Applied click here to next</a>";
+                                                    $challan_link = "<a href='".base_url().$application_url.urlencode(base64_encode($challan_url))."' class='btn btn-info widget-btn-1 btn-sm'>Download Challan</a>";
                                                 }else{
 
                                                     $link="<button type='submit' class='btn btn-success widget-btn-1 btn-sm'>Apply Now</button>";

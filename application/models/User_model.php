@@ -61,6 +61,10 @@ class User_model extends CI_model
         $this->db->where('r.ACTIVE','1');
 		$user = $this->db->get()->row_array();
         return $user;
+
+		//echo $this->db->last_query();
+//        return $user;
+
     }
 
 	function getUserAdmissionRoleByUserId($user_id){
@@ -76,7 +80,7 @@ class User_model extends CI_model
 	}
 
     function getQulificatinByUserId($user_id){
-        $this->db->select('q.*,p.DEGREE_TITLE,d.DISCIPLINE_NAME,i.INSTITUTE_NAME INSTITUTE,o.INSTITUTE_NAME ORGANIZATION');
+        $this->db->select('*');
         $this->db->from('qualifications q');
         $this->db->join('institute AS i', 'q.INSTITUTE_ID = i.INSTITUTE_ID');
         $this->db->join('institute AS o', 'q.ORGANIZATION_ID = o.INSTITUTE_ID');

@@ -104,7 +104,7 @@ array_push($side_bar_values,array('is_submenu' => 0,
                                                 <a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="nav-link dropdown-toggle">
                                                     <?php
                                                     if(isset($user['PROFILE_IMAGE'])){
-                                                        $v =PROFILE_IMAGE_PATH;
+                                                        $v =base_url().PROFILE_IMAGE_PATH;
                                                         echo " <img src='$v{$user['PROFILE_IMAGE']}' alt=''  >";
                                                     }else {
                                                         $image_path_default = base_url() . "dash_assets/img/avatar/default-avatar.png";
