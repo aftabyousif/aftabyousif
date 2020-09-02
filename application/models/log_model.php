@@ -24,8 +24,8 @@ class log_model extends CI_Model
 
 	function create_log($PREV_ID,$NEW_ID,$PREV_RECORD,$NEW_RECORD,$DETAIL,$TABLE_NAME,$OPERATION_CODE,$USER_ID)
 	{
-//		$datetime = date('Y-m-d H:i:s');
-		$datetime = gmdate('Y-m-d H:i:s',time());
+		$datetime = date('Y-m-d H:i:s');
+		//$datetime = gmdate('Y-m-d H:i:s',time());
 
 		$ipaddress = '';
 		if (getenv('HTTP_CLIENT_IP'))
@@ -106,8 +106,8 @@ class log_model extends CI_Model
 	}//function
     function itsc_log($QUERY_TITLE,$QUERY_STATUS,$QUERY,$USER_TYPE,$USER_ID,$CURRENT_RECORD,$PRE_RECORD,$ROW_ID,$TABLE_NAME){
 
-	    $datetime = gmdate('Y-m-d H:i:s',time());
-
+	    //$datetime = gmdate('Y-m-d H:i:s',time());
+        $datetime = date('Y-m-d H:i:s');
         $ipaddress = '';
         if (getenv('HTTP_CLIENT_IP'))
             $ipaddress = getenv('HTTP_CLIENT_IP');

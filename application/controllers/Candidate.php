@@ -19,16 +19,19 @@ class Candidate extends CI_Controller
     {
         parent::__construct();
 
-        if(!$this->session->has_userdata($this->SessionName)){
+        if($this->session->has_userdata($this->SessionName)&&$this->session->has_userdata('APPLICATION_ID')){
+            $this->user = $this->session->userdata($this->SessionName);
+
+        }else{
             redirect(base_url().$this->LoginController);
             exit();
-        }else{
-            $this->user = $this->session->userdata($this->SessionName);
         }
         $this->load->model('User_model');
         $this->load->model('Api_location_model');
         $this->load->model('Configuration_model');
         $this->load->model('Api_qualification_model');
+
+
 
     }
 

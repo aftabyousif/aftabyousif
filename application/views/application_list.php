@@ -84,12 +84,13 @@
                                             $url = "candidate/profile";
                                             $APPLICATION_ID = urlencode(base64_encode($APPLICATION_ID));
                                             $nextpage = urlencode(base64_encode("upload_challan"));
-                                            $challan_url = "form/admission_form_challan/$APPLICATION_ID";
+
                                             $upload_challan = "form/upload_application_challan/$APPLICATION_ID";
                                             $review_url = "form/review/$APPLICATION_ID/$nextpage";
                                             $submit_url = "form/submit/$APPLICATION_ID";
-
-                                            $review_link = "<a href='".base_url().$review_url."' class='btn btn-success widget-btn-1 btn-sm'>Review Form</a>";
+                                            $challan_url = "form/admission_form_challan";
+                                            $application_url = "form/set_application_id/$APPLICATION_ID/";
+                                            $review_link = "<a href='".base_url().$application_url.base64_encode(urlencode($review_url))."' class='btn btn-success widget-btn-1 btn-sm'>Review Form</a>";
 
                                             if ($ADMISSION_START_DATE>date('Y-m-d')){
                                                 $upload_challan_link = $challan_link =$submit_link= "";
@@ -102,9 +103,9 @@
 
                                             else {
 
-                                                $submit_link = "<a href='".base_url().$submit_url."' class='btn btn-danger widget-btn-1 btn-sm'>Submit Form</a>";
-                                                $challan_link = "<a href='".base_url().$challan_url."' class='btn btn-info widget-btn-1 btn-sm'>Download Challan</a>";
-                                                $upload_challan_link = "<a href='".base_url().$upload_challan."' class='btn btn-warning widget-btn-1 btn-sm'>Upload Challan</a>";
+                                                $submit_link = "<a href='".base_url().$application_url.base64_encode(urlencode($submit_url))."' class='btn btn-danger widget-btn-1 btn-sm'>Submit Form</a>";
+                                                $challan_link = "<a href='".base_url().$application_url.urlencode(base64_encode($challan_url))."' class='btn btn-info widget-btn-1 btn-sm'>Download Challan</a>";
+                                                $upload_challan_link = "<a href='".base_url().$application_url.base64_encode(urlencode($upload_challan))."' class='btn btn-warning widget-btn-1 btn-sm'>Upload Challan</a>";
                                             }
 
                                             $hidden = array('ADMISSION_SESSION_ID' => $ADMISSION_SESSION_ID, 'CAMPUS_ID' => $CAMPUS_ID);
@@ -121,9 +122,7 @@
 										<td><?=$start_date?></td>
 										<td><?=$end_date?></td>
 
-										<td><?=$review_link?></td>
-										<td><?=$upload_challan_link?></td>
-										<td><?=$submit_link?></td>
+
                                         <td><?=$challan_link?></td>
 									</tr>
 									</tbody>

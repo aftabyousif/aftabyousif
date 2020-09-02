@@ -43,30 +43,32 @@ class Form extends CI_Controller
 		$this->load->view('include/footer');
 	}
 
-	public function review($APPLICATION_ID,$next_page)
+	public function review($next_page)
 	{
-	    $APPLICATION_ID =urldecode($APPLICATION_ID);
-        $APPLICATION_ID = base64_decode($APPLICATION_ID);
+
         $next_page =urldecode($next_page);
         $next_page = base64_decode($next_page);
+        if($this->session->has_userdata('APPLICATION_ID')) {
+            $APPLICATION_ID = $this->session->userdata('APPLICATION_ID');
+            $user = $this->user;
+            $user_id = $user['USER_ID'];
 
-        $user = $this->user ;
-        $user_id = $user['USER_ID'];
-
-        $user_data = $this->User_model->getUserFullDetailById($user_id);
-prePrint($user_data);
-        $data['user'] = $user_data['users_reg'];
-        $data['qualifications'] = $user_data['qualifications'];
+            $user_data = $this->User_model->getUserFullDetailById($user_id);
+            prePrint($user_data);
+            $data['user'] = $user_data['users_reg'];
+            $data['qualifications'] = $user_data['qualifications'];
 
 
-			$this->load->view('include/header',$data);
+            $this->load->view('include/header', $data);
 //		$this->load->view('include/preloder');
 //		$this->load->view('include/side_bar');
 //		$this->load->view('include/nav',$data);
-			$this->load->view('form_review',$data);
+            $this->load->view('form_review', $data);
 //		$this->load->view('include/footer_area');
-			$this->load->view('include/footer');
-
+            $this->load->view('include/footer');
+        }else{
+            echo "Application Id not found";
+        }
 
 
 	}
@@ -136,9 +138,16 @@ prePrint($user_data);
 
 
                                 if ($is_add_challan) {
-                                    $url = base_url() . "form/admission_form_challan/$APPLICATION_ID";
+
+                                    $APPLICATION_ID = urlencode(base64_encode($APPLICATION_ID));
+                                    //setting session data for application
+                                    $this->session->set_userdata('APPLICATION_ID', $APPLICATION_ID);
+
+                                    $url = base_url() . "form/admission_form_challan";
                                     $this->session->set_flashdata('OPEN_TAB', $url);
-                                    redirect(base_url() . "candidate/profile");
+                                    $this->set_application_id($APPLICATION_ID,urlencode(base64_encode('candidate/profile')));
+
+
                                 } else {
                                     echo "can not generate challan";
                                 }
@@ -172,98 +181,107 @@ prePrint($user_data);
         }
     }
 
-    public function admission_form_challan($APPLICATION_ID){
-        $APPLICATION_ID =urldecode($APPLICATION_ID);
-        $APPLICATION_ID = base64_decode($APPLICATION_ID);
-        $user = $this->session->userdata($this->SessionName);
-        $user = $this->User_model->getUserById($user['USER_ID']);
+    public function admission_form_challan(){
 
-        $data['user'] = $user;
-        $data['APPLICATION_ID']=$APPLICATION_ID;
-        $application = $this->Application_model->getApplicationByUserAndApplicationId($user['USER_ID'],$APPLICATION_ID);
+        if($this->session->has_userdata('APPLICATION_ID')){
+            $APPLICATION_ID = $this->session->userdata('APPLICATION_ID');
 
-        if($application){
-            $form_fees = $this->Admission_session_model->getFormFeesBySessionAndCampusId($application['SESSION_ID'],$application['CAMPUS_ID']);
-            if($form_fees){
-                $valid_upto = getDateCustomeView($application['ADMISSION_END_DATE'],'d-m-Y');
+            $user = $this->session->userdata($this->SessionName);
+            $user = $this->User_model->getUserById($user['USER_ID']);
 
-                if ($application['ADMISSION_END_DATE']<date('Y-m-d'))
+            $data['user'] = $user;
+            $data['APPLICATION_ID']=$APPLICATION_ID;
+            $application = $this->Application_model->getApplicationByUserAndApplicationId($user['USER_ID'],$APPLICATION_ID);
+
+            if($application){
+                $form_fees = $this->Admission_session_model->getFormFeesBySessionAndCampusId($application['SESSION_ID'],$application['CAMPUS_ID']);
+                if($form_fees){
+                    $valid_upto = getDateCustomeView($application['ADMISSION_END_DATE'],'d-m-Y');
+
+                    if ($application['ADMISSION_END_DATE']<date('Y-m-d'))
                     {
                         exit("Sorry your challan is expired..");
                     }
 
 
-                        $row = array('CHALLAN_NO' => $application['FORM_CHALLAN_ID'],
-                            "FIRST_NAME" => $user['FIRST_NAME'],
-                            "CANDIDATE_SURNAME" => $user['LAST_NAME'],
-                            "CANDIDATE_FNAME" => $user['FNAME'],
-                            "CANDIDATE_NAME" => $user['FIRST_NAME'],
-                            "TOTAL_AMOUNT" => $form_fees['AMOUNT'],
-                            "CATEGORY_NAME" => "ADMISSION FORM",
-                            "VALID_UPTO" => $valid_upto,
-                            "ACCOUNT_NO" => $form_fees['ACCOUNT_NO'],
-                            "ACCOUNT_TITLE" => $form_fees['ACCOUNT_TITLE'],
-                            "CANDIDATE_ID" => $user['USER_ID'],
-                            "DEGREE_PROGRAM" => $application['PROGRAM_TITLE']
-                        );
-                        $data['row'] = $row;
-                        $data['roll_no'] = $user['USER_ID'];
-                        $this->load->view('admission_form_challan', $data);
+                    $row = array('CHALLAN_NO' => $application['FORM_CHALLAN_ID'],
+                        "FIRST_NAME" => $user['FIRST_NAME'],
+                        "CANDIDATE_SURNAME" => $user['LAST_NAME'],
+                        "CANDIDATE_FNAME" => $user['FNAME'],
+                        "CANDIDATE_NAME" => $user['FIRST_NAME'],
+                        "TOTAL_AMOUNT" => $form_fees['AMOUNT'],
+                        "CATEGORY_NAME" => "ADMISSION FORM",
+                        "VALID_UPTO" => $valid_upto,
+                        "ACCOUNT_NO" => $form_fees['ACCOUNT_NO'],
+                        "ACCOUNT_TITLE" => $form_fees['ACCOUNT_TITLE'],
+                        "CANDIDATE_ID" => $user['USER_ID'],
+                        "DEGREE_PROGRAM" => $application['PROGRAM_TITLE']
+                    );
+                    $data['row'] = $row;
+                    $data['roll_no'] = $user['USER_ID'];
+                    $this->load->view('admission_form_challan', $data);
+
+                }else{
+                    echo "fees not found";
+                }
 
             }else{
-                echo "fees not found";
+                echo "this application id is not associate with you";
             }
 
         }else{
-            echo "this application id is not associate with you";
+            echo "Application Id Not Found";
         }
+
 
     }
 
-    public function upload_application_challan($APPLICATION_ID){
-        $APPLICATION_ID =urldecode($APPLICATION_ID);
-        $APPLICATION_ID = base64_decode($APPLICATION_ID);
-        $user = $this->session->userdata($this->SessionName);
-        $user = $this->User_model->getUserById($user['USER_ID']);
+    public function upload_application_challan(){
 
-        $data['user'] = $user;
-        $data['APPLICATION_ID']=$APPLICATION_ID;
-        $application = $this->Application_model->getApplicationByUserAndApplicationId($user['USER_ID'],$APPLICATION_ID);
-        $bank_branches = $this->Admission_session_model->getAllBankInformation();
-        if($application){
-            $form_fees = $this->Admission_session_model->getFormFeesBySessionAndCampusId($application['SESSION_ID'],$application['CAMPUS_ID']);
-            if($form_fees){
-                $valid_upto = getDateCustomeView($application['ADMISSION_END_DATE'],'d-m-Y');
+        if($this->session->has_userdata('APPLICATION_ID')) {
+            $APPLICATION_ID = $this->session->userdata('APPLICATION_ID');
+            $user = $this->session->userdata($this->SessionName);
+            $user = $this->User_model->getUserById($user['USER_ID']);
 
-                if ($application['ADMISSION_END_DATE']<date('Y-m-d'))
-                {
-                    exit("Sorry your challan is expired..");
+            $data['user'] = $user;
+            $data['APPLICATION_ID'] = $APPLICATION_ID;
+            $application = $this->Application_model->getApplicationByUserAndApplicationId($user['USER_ID'], $APPLICATION_ID);
+            $bank_branches = $this->Admission_session_model->getAllBankInformation();
+            if ($application) {
+                $form_fees = $this->Admission_session_model->getFormFeesBySessionAndCampusId($application['SESSION_ID'], $application['CAMPUS_ID']);
+                if ($form_fees) {
+                    $valid_upto = getDateCustomeView($application['ADMISSION_END_DATE'], 'd-m-Y');
+
+                    if ($application['ADMISSION_END_DATE'] < date('Y-m-d')) {
+                        exit("Sorry your challan is expired..");
+                    }
+
+
+                    $data['profile_url'] = base_url() . $this->profile;
+                    $data['bank_branches'] = $bank_branches;
+                    $data['application'] = $application;
+
+                    $data['roll_no'] = $user['USER_ID'];
+                    $this->load->view('include/header', $data);
+                    $this->load->view('include/preloder');
+                    $this->load->view('include/side_bar', $data);
+                    $this->load->view('include/nav', $data);
+                    $this->load->view('upload_challan_detail', $data);
+                    $this->load->view('include/footer_area', $data);
+                    $this->load->view('include/footer', $data);
+
+
+                } else {
+                    echo "fees not found";
                 }
 
-
-
-                $data['profile_url'] = base_url().$this->profile;
-                $data['bank_branches'] = $bank_branches;
-                $data['application'] = $application;
-
-                $data['roll_no'] = $user['USER_ID'];
-                $this->load->view('include/header',$data);
-                $this->load->view('include/preloder');
-                $this->load->view('include/side_bar',$data);
-                $this->load->view('include/nav',$data);
-                $this->load->view('upload_challan_detail',$data);
-                $this->load->view('include/footer_area',$data);
-                $this->load->view('include/footer',$data);
-
-
-            }else{
-                echo "fees not found";
+            } else {
+                echo "this application id is not associate with you";
             }
-
-        }else{
-            echo "this application id is not associate with you";
         }
-
+        else{
+            echo "Application Id Not Found";
+        }
     }
 
     public function challan_upload_handler(){
@@ -282,8 +300,16 @@ prePrint($user_data);
         $CHALLAN_PAID_DATE='0000-00-00';
         $APPLICATION_ID = 0;
         if ($this->input->server('REQUEST_METHOD') == 'POST') {
+            if($this->session->has_userdata('APPLICATION_ID')) {
+                $APPLICATION_ID_SESSION = $this->session->userdata('APPLICATION_ID');
+            }else{
+                $error.="<div class='text-danger'>Application Id not found in Session</div>";
+            }
             if(isset($_POST['APPLICATION_ID'])&&isValidData($_POST['APPLICATION_ID'])){
                 $APPLICATION_ID =isValidData($_POST['APPLICATION_ID']);
+                if($APPLICATION_ID_SESSION!=$APPLICATION_ID){
+                    $error.="<div class='text-danger'>Application Id Missmatch</div>";
+                }
             }
             else{
                 $error.="<div class='text-danger'>Application Id not found</div>";
@@ -431,7 +457,211 @@ prePrint($user_data);
 
     }
 
+    public function upload_minor_subjects(){
+        $error = "";
+        $success = true;
+        $success_msg = "";
+        $user = $this->session->userdata($this->SessionName);
 
+        if ($this->input->server('REQUEST_METHOD') == 'POST') {
+
+            if ($this->session->has_userdata('APPLICATION_ID')) {
+                $APPLICATION_ID_SESSION = $this->session->userdata('APPLICATION_ID');
+            } else {
+                $error .= "<div class='text-danger'>Application Id not found in Session</div>";
+            }
+            if(isset($_POST['DISCIPLINE_ID'])&&isValidData($_POST['DISCIPLINE_ID'])){
+                $DISCIPLINE_ID =isValidData($_POST['DISCIPLINE_ID']);
+            }else{
+                $error.="<div class='text-danger'>Discipline Id Not found</div>";
+            }
+
+            if(isset($_POST['minor_subject_array'])&&is_array($_POST['minor_subject_array'])&&count($_POST['minor_subject_array'])>0&&$error==""){
+
+                $minor_subject_array = $_POST['minor_subject_array'];
+                $delete_result = $this->Application_model->deleteApplicantsMinorsByUserIdAndDisciplineId($user['USER_ID'],$DISCIPLINE_ID);
+                if($delete_result>0) {
+                    foreach ($minor_subject_array as $MINOR_MAPPING_ID) {
+
+                        //$is_exist = $this->Application_model->getApplicantsMinorsByUserIdAndMinorMappingId($user['USER_ID'],$MINOR_MAPPING_ID);
+
+                        $applicants_minnor = array(
+                            "APPLICATION_ID" => $APPLICATION_ID_SESSION,
+                            "DISCIPLINE_ID" => $DISCIPLINE_ID,
+                            "MINOR_MAPPING_ID" => $MINOR_MAPPING_ID,
+                            "USER_ID" => $user['USER_ID'],
+                            "ACTIVE" => 1
+                        );
+                        $is_add = $this->Application_model->addApplicantsMinors($applicants_minnor);
+                        if ($is_add) {
+                            $success_msg .= "<div class='text-success'>Successfully added $MINOR_MAPPING_ID</div>";
+                            //success add
+                        } else {
+                            $success = false;
+                            $error .= "<div class='text-danger'>Something went wrong in minor id $MINOR_MAPPING_ID</div>";
+                            // something went wrong
+                        }
+
+                    }
+                }else{
+                    $error .= "<div class='text-danger'>Something went wrong delete previous minor</div>";
+                }
+
+
+            }else{
+                $error .= "<div class='text-danger'>Must select at least one subject </div>";
+            }
+
+        }else{
+            $error .= "<div class='text-danger'>Invalid request upload_minor_subjects</div>";
+
+        }
+        if($error){
+            $alert = array('MSG'=>$error,'TYPE'=>'ERROR');
+            $this->session->set_flashdata('ALERT_MSG',$alert);
+        }else{
+            $success_msg .= "<div class='text-success'>your subject add successfully</div>";
+            $alert = array('MSG'=>$success_msg,'TYPE'=>'SUCCESS');
+            $this->session->set_flashdata('ALERT_MSG',$alert);
+        }
+        redirect(base_url()."form/select_subject");
+
+    }
+
+    public function select_subject(){
+
+        if($this->session->has_userdata('APPLICATION_ID')) {
+            $APPLICATION_ID = $this->session->userdata('APPLICATION_ID');
+
+            $user = $this->session->userdata($this->SessionName);
+            $user = $this->User_model->getUserById($user['USER_ID']);
+
+            $data['user'] = $user;
+            $data['APPLICATION_ID'] = $APPLICATION_ID;
+            $application = $this->Application_model->getApplicationByUserAndApplicationId($user['USER_ID'], $APPLICATION_ID);
+
+            if ($application) {
+
+                $form_data = $this->User_model->getUserFullDetailById($user['USER_ID']);
+
+                $degree_list = array(
+                    'BACHELOR'=>array('PROGRAM_TYPE_ID'=>1,'DEGREE_ID'=>3),
+                    'MASTER'=>array('PROGRAM_TYPE_ID'=>2,'DEGREE_ID'=>4)
+                );
+
+                //$form_data = json_decode($application['FORM_DATA'],true);
+                $bool = false;
+                $valid_qualification = null;
+                if($application['PROGRAM_TYPE_ID']==$degree_list['BACHELOR']['PROGRAM_TYPE_ID']){
+                    // echo "bach";
+                    foreach ($form_data['qualifications'] as $qualification){
+                        if($qualification['DEGREE_ID'] ==$degree_list['BACHELOR']['DEGREE_ID']){
+                            $bool  = true;
+                            $valid_qualification = $qualification;
+                            break;
+                        }
+                    }
+
+
+                }else if($application['PROGRAM_TYPE_ID']==$degree_list['MASTER']['PROGRAM_TYPE_ID']){
+                    //echo "master";
+                    //4
+                    // prePrint($form_data['qualifications']);
+                    foreach ($form_data['qualifications'] as $qualification){
+                        if($qualification['DEGREE_ID'] ==$degree_list['MASTER']['DEGREE_ID']){
+                            $bool  = true;
+                            $valid_qualification = $qualification;
+                            break;
+                        }
+                    }
+                }
+                //$from_data = json_encode($from_data);
+
+
+                $form_fees = $this->Admission_session_model->getFormFeesBySessionAndCampusId($application['SESSION_ID'], $application['CAMPUS_ID']);
+
+                if ($form_fees) {
+                    $valid_upto = getDateCustomeView($application['ADMISSION_END_DATE'], 'd-m-Y');
+
+                    if ($application['ADMISSION_END_DATE'] < date('Y-m-d')) {
+                        exit("Sorry your challan is expired..");
+                    }
+
+
+                    $data['profile_url'] = base_url() . $this->profile;
+//                    $data['is_valid_qualification'] = $bool;
+//                    $data['form_data'] = $form_data;
+                    //$data['application'] = $application;
+                    if($bool&&$valid_qualification!=null){
+
+                        $result = $this->Application_model->getMinorMappingByDisciplineId($valid_qualification['DISCIPLINE_ID']);
+
+                        if($result!=null && count($result)==1){
+                        //prePrint($result);
+                            $result =$result[0];
+
+                            $is_exist = $this->Application_model->getApplicantsMinorsByUserIdAndMinorMappingId($user['USER_ID'],$result['MINOR_MAPPING_ID']);
+                            if(count($is_exist)==0) {
+                                $applicants_minnor = array(
+                                    "APPLICATION_ID" => $APPLICATION_ID,
+                                    "DISCIPLINE_ID" => $result['DISCIPLINE_ID'],
+                                    "MINOR_MAPPING_ID" => $result['MINOR_MAPPING_ID'],
+                                    "USER_ID" => $user['USER_ID'],
+                                    "ACTIVE" => 1
+                                );
+                                $is_add = $this->Application_model->addApplicantsMinors($applicants_minnor);
+                                if ($is_add) {
+                                    echo "Minor Automatic Added";
+                                } else{
+                                    echo "ByDefault Minor Not added";
+                                }
+
+                            }else{
+                                echo "Already selected minors";
+                            }
+
+                        }
+                        else if($result!=null && count($result)>1){
+                            $data['minors'] = $result;
+                            $data['DISCIPLINE_ID'] = $valid_qualification['DISCIPLINE_ID'];
+                            $data['applicantsMinors'] = $this->Application_model->getApplicantsMinorsByUserIdAndDisciplineID($user['USER_ID'],$valid_qualification['DISCIPLINE_ID']);
+                           // $data['roll_no'] = $user['USER_ID'];
+                            $this->load->view('include/header', $data);
+                            $this->load->view('include/preloder');
+                            $this->load->view('include/side_bar', $data);
+                            $this->load->view('include/nav', $data);
+                            $this->load->view('select_minor_subject', $data);
+                            $this->load->view('include/footer_area', $data);
+                            $this->load->view('include/footer', $data);
+                        }else{
+                            echo "minors not found";
+                        }
+                    }else{
+                        echo "Invalid Degree Please must add appropriate degree";
+                    }
+                   // prePrint($application);
+
+
+
+                } else {
+                    echo "fees not found";
+                }
+
+            } else {
+                echo "this application id is not associate with you";
+            }
+        }else{
+            echo "Application Id Not Found";
+        }
+    }
+
+    public function set_application_id($APPLICATION_ID,$url){
+        $APPLICATION_ID = base64_decode(urldecode($APPLICATION_ID));
+	    $this->session->set_userdata('APPLICATION_ID', $APPLICATION_ID);
+        $url = base_url() . base64_decode(urldecode($url));
+        redirect($url);
+        exit();
+    }
 
 
     private function upload_image($index_name,$image_name,$max_size = 50,$path = '../eportal_resource/images/applicants_profile_image/',$con_array=array())
