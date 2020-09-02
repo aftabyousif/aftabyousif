@@ -453,7 +453,7 @@ $config['csrf_token_name'] = 'csrf_form_token';
 $config['csrf_cookie_name'] = 'csrf_cookie_name';
 $config['csrf_expire'] = 7200;
 $config['csrf_regenerate'] = TRUE;
-$config['csrf_exclude_uris'] = array('mapping/getMappedPrograms','mapping/ignoreMappedPrograms','mapping/DeleteMappedPrograms','mapping/getLogUpdate','form/review','mapping/getMappedCategory','mapping/DeleteMappedCategory','mapping/get_discipline','mapping/getMappedMinors','mapping/DeleteMinorSubject','prerequisite/getPrerequisite','prerequisite/DeletePrerequisite');
+$config['csrf_exclude_uris'] = array('mapping/getMappedPrograms','mapping/ignoreMappedPrograms','mapping/DeleteMappedPrograms','mapping/getLogUpdate','form/review','mapping/getMappedCategory','mapping/DeleteMappedCategory','mapping/get_discipline','mapping/getMappedMinors','mapping/DeleteMinorSubject','prerequisite/getPrerequisite','prerequisite/DeletePrerequisite','AdmitCard/getVenue','AdmitCard/DeleteVenue','AdmitCard/getBlock');
 
 /*
 |--------------------------------------------------------------------------

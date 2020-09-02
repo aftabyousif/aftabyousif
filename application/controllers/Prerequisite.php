@@ -13,21 +13,33 @@ class Prerequisite extends AdminLogin
 		$this->load->model('log_model');
 		$this->load->model('Api_qualification_model');
 		$this->load->model('Prerequisite_model');
+		$this->load->model("Configuration_model");
 //		$this->load->library('javascript');
+		$self = $_SERVER['PHP_SELF'];
+		$self = explode('index.php/',$self);
+		$this->script_name = $self[1];
 		$this->verify_login();
 	}
 
 	public function add_prerequisite ()
 	{
-		$data['user'] = '';
-		$data['user'] = '';
+		$user = $this->session->userdata($this->SessionName);
+		$user_role = $this->session->userdata($this->user_role);
+		$user_id = $user['USER_ID'];
+		$role_id = $user_role['ROLE_ID'];
+
+		$side_bar_data = $this->Configuration_model->side_bar_data($user_id,$role_id);
+		$this->verify_path($this->script_name,$side_bar_data);
+
+		$data['user'] = $user;
 		$data['profile_url'] = '';
 
 		$degree_programs = $this->Api_qualification_model->getAllDegreeProgram();
 		$programs = $this->Administration->programs();
 		$data['degree_programs'] = $degree_programs;
 		$data['program_list'] = $programs;
-//		$data['shifts'] = $shifts;
+		$data['side_bar_values'] = $side_bar_data;
+		$data['script_name'] = $this->script_name;
 
 		$this->load->view('include/header',$data);
 //		$this->load->view('include/preloder');

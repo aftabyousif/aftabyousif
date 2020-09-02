@@ -13,10 +13,12 @@ class AdminLogin extends CI_Controller {
     private $SelfController = 'AdminLogin';
     private $HomeController = 'mapping/shift_program_mapping';
     protected $SessionName = 'ADMIN_LOGIN_FOR_ADMISSION';
+	protected $user_role	= 'ADMISSION_ROLE';
 
     public function __construct()
     {
         parent::__construct();
+		$this->load->model('Configuration_model');
     }
 
     /**
@@ -33,7 +35,10 @@ class AdminLogin extends CI_Controller {
         $this->load->view('include/login_footer');
     }
 
-
+	function set_admission_role ($user_admission_role)
+	{
+		$this->session->set_userdata($this->user_role, $user_admission_role[0]);
+	}
     function adminLoginHandler(){
 
         $this->load->model('User_model');
@@ -57,11 +62,13 @@ class AdminLogin extends CI_Controller {
                     if(strcmp($hashpassword,$user['PASSWORD'])===0){
 						$userId=$user['USER_ID']; // recieved user_id, now pass this id to get and verify user_role.
                         $user_role_object = $this->User_model->getUserRoleByUserId($userId);
+                        $user_admission_role = $this->User_model->getUserAdmissionRoleByUserId($userId);
 
                         if($user_role_object!=null || !(empty($user_role_object))){
                             //set session and redirect to another page
                             $session_data=$this->getSessionData($user_role_object,$user);
                             $this->session->set_userdata($this->SessionName, $session_data);
+                            $this->set_admission_role($user_admission_role);
                             redirect(base_url().$this->HomeController);
                         }else{
                             $error =array('TYPE'=>'ERROR','MSG'=>'Your are un-authorized person, please stay away');
@@ -106,5 +113,20 @@ class AdminLogin extends CI_Controller {
 			redirect(base_url().$this->SelfController);
 			exit();
 		}
+	}
+	protected function verify_path ($path=null,$side_bar_data)
+	{
+			foreach ($side_bar_data as $p){
+				if ($path == null)
+				{
+					$self = $_SERVER['PHP_SELF'];
+					$path = explode('index.php/',$self);
+				}
+				if ($p['link'] == $path)
+				{
+					return true;
+				}
+			}
+			exit("<h2>Access Prohibited</h2>");
 	}
 }//class

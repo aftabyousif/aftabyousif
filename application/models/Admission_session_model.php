@@ -50,7 +50,9 @@ class Admission_session_model extends CI_Model
             $this->legacy_db = $this->load->database("admission_db",true);
             return $this->legacy_db->get('bank_information')->result_array();
         }
-
-
+	function getSessionData(){
+		$this->legacy_db = $this->load->database("admission_db",true);
+		return $this->legacy_db->get('sessions')->result_array();
+	}
 
 }

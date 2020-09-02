@@ -60,9 +60,20 @@ class User_model extends CI_model
 		$this->db->where('r.KEYWORD','UG_A');
         $this->db->where('r.ACTIVE','1');
 		$user = $this->db->get()->row_array();
-        return $user; 
-
+        return $user;
     }
+
+	function getUserAdmissionRoleByUserId($user_id){
+		$this->legacy_db = $this->load->database('admission_db',true);
+		$this->legacy_db->select('r.ROLE_ID, rr.R_R_ID, r.`ROLE_NAME`,r.`ACTIVE`, rr.`USER_ID`, r.`KEYWORD`');
+		$this->legacy_db->from('role_relation rr');
+		$this->legacy_db->join('role AS r', 'rr.ROLE_ID = r.ROLE_ID');
+		$this->legacy_db->where('rr.USER_ID',$user_id);
+//		$this->db->where('r.KEYWORD','UG_A');
+		$this->legacy_db->where('r.ACTIVE','1');
+		$user = $this->legacy_db->get()->result_array();
+		return $user;
+	}
 
     function getQulificatinByUserId($user_id){
         $this->db->select('q.*,p.DEGREE_TITLE,d.DISCIPLINE_NAME,i.INSTITUTE_NAME INSTITUTE,o.INSTITUTE_NAME ORGANIZATION');

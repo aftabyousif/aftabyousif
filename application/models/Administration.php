@@ -17,6 +17,14 @@ class Administration extends CI_Model
 		return $this->legacy_db->get('program_list')->result_array();
 	}
 
+	function programTypes ()
+	{
+		$this->legacy_db = $this->load->database('admission_db',true);
+//		print_r($adm_con);
+		$this->legacy_db->select('PROGRAM_TYPE_ID, PROGRAM_TITLE, REMARKS');
+		return $this->legacy_db->get('program_type')->result_array();
+	}
+
 	function shifts ()
 	{
 		$this->legacy_db = $this->load->database('admission_db',true);
@@ -62,16 +70,18 @@ class Administration extends CI_Model
 		}else return $this->legacy_db->error();
 	}//method
 
-	function getMappedPrograms ($shift_id)
+	function getMappedPrograms ($shift_id,$program_type)
 	{
 		$this->legacy_db = $this->load->database('admission_db',true);
 //		print_r($adm_con);
-		$this->legacy_db->select('p.PROG_LIST_ID AS PROG_ID, PROGRAM_TITLE,pm.REMARKS AS REMARKS,s.SHIFT_ID AS SHIFT_ID, SHIFT_NAME');
+		$this->legacy_db->select('p.PROG_LIST_ID AS PROG_ID, pt.PROGRAM_TITLE AS DEGREE_TITLE,p.PROGRAM_TITLE,pm.REMARKS AS REMARKS,s.SHIFT_ID AS SHIFT_ID, SHIFT_NAME');
 		$this->legacy_db->from('program_list p');
 		$this->legacy_db->join('shift_program_mapping pm','p.PROG_LIST_ID=pm.PROG_LIST_ID','INNER');
 		$this->legacy_db->join('shift s','s.SHIFT_ID=pm.SHIFT_ID','INNER');
+		$this->legacy_db->join('program_type pt','pt.PROGRAM_TYPE_ID=pm.PROGRAM_TYPE_ID','INNER');
 
-		if ($shift_id>0)	$this->legacy_db->where("s.SHIFT_ID IN ({$shift_id})");
+		if ($shift_id>0)		$this->legacy_db->where("s.SHIFT_ID IN ({$shift_id})");
+		if ($program_type>0) 	$this->legacy_db->where("pt.PROGRAM_TYPE_ID IN ({$program_type})");
 
 		return $this->legacy_db->get()->result_array();
 	}
