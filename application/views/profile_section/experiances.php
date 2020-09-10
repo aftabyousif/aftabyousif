@@ -30,6 +30,15 @@
                     </div>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-lg-5">
+                </div>
+                <div class="col-lg-2">
+                    <div class="payment-adress">
+                        <button type="button"onclick = "next_tab('documents_tab')" class="btn btn-primary btn-lg waves-effect waves-light">Next</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

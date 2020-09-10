@@ -50,7 +50,7 @@
                                 </select>
                             </div>
                             <div class="col-10">
-                                <input type="text" class="form-control mb-3" id="mobile" name="mobile" placeholder="3423527802">
+                                <input type="text" class="form-control mb-3 allow-mobile-number" id="mobile" name="mobile" placeholder="3423527802">
                             </div>
                         </div>
                     </div>
@@ -108,11 +108,11 @@
 
 
                         <div class="col-12">
-                            <label for="" style="font-size:17px">CNIC<span class="text-danger">* (with out dashes)</span></label>
+                            <label for="" style="font-size:17px">CNIC NO / B-Form NO<span class="text-danger">* (with out dashes)</span></label>
                             <input onfocusout="checkAlertValidation('CNIC')" type="text" class="form-control mb-3" id="cnic" name="cnic" placeholder="CNIC or Form-B(xxxxxxxxxxxxx)">
                         </div>
                         <div class="col-12">
-                            <label for="" style="font-size:17px">Re-Type CNIC<span class="text-danger">* (with out dashes)</span></label>
+                            <label for="" style="font-size:17px">Re-Type CNIC NO / B-Form NO<span class="text-danger">* (with out dashes)</span></label>
                             <input onfocusout="checkAlertValidation('RE-CNIC')" type="text" class="form-control mb-3" id="retype_cnic" name="retype_cnic" placeholder="Re-Type CNIC or Form-B(xxxxxxxxxxxxx)">
                         </div>
                     </div>
@@ -403,7 +403,28 @@
         if(!(/^\d+$/.test(cnic))){
             error += "<div class='text-danger'>All Character must be digit</div>";
         }
-
+        let invalid_list = [
+            "0000000000000",
+            "1111111111111",
+            "2222222222222",
+            "3333333333333",
+            "4444444444444",
+            "5555555555555",
+            "6666666666666",
+            "7777777777777",
+            "8888888888888",
+            "9999999999999",
+            "1234567891234"];
+        let bool = false;
+        for(let i = 0 ; i<invalid_list.length;i++){
+            if(invalid_list[i]==cnic){
+                bool = true;
+                break;
+            }
+        }
+        if(bool){
+            error += "<div class='text-danger'>Invalid Cnic No Please Provide Valid CNIC NO</div>";
+        }
         if(error!==""){
             // alert_msg(error);
             return error;

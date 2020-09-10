@@ -65,6 +65,7 @@ class Api_qualification_model extends CI_Model
         }
 
         $this->db->where('DEGREE_ID',$degree_id);
+        $this->db->where('ACTIVE',1);
         $this->db->order_by('DISCIPLINE_NAME');
         return $this->db->get('discipline')->result_array();
     }

@@ -12,8 +12,9 @@ class User_model extends CI_model
         $user_reg  = $this->getUserById($user_id);
         if($user_reg){
             $qual = $this->getQulificatinByUserId($user_id);
-            $expr = $this->getExperiancesByUserId($user_id);
-            return array("users_reg"=>$user_reg,"qualifications"=>$qual,"experiances"=>$expr);
+            //$expr = $this->getExperiancesByUserId($user_id);
+            $gaurd = $this-> getGuardianByUserId($user_id);
+            return array("users_reg"=>$user_reg,"qualifications"=>$qual,"guardian"=>$gaurd);
         }else{
             return false;
         }
@@ -66,7 +67,7 @@ class User_model extends CI_model
     }
 
     function getQulificatinByUserId($user_id){
-        $this->db->select('*');
+        $this->db->select('q.*,d.DEGREE_ID,p.DEGREE_TITLE,d.DISCIPLINE_NAME,i.INSTITUTE_NAME INSTITUTE,o.INSTITUTE_NAME ORGANIZATION');
         $this->db->from('qualifications q');
         $this->db->join('institute AS i', 'q.INSTITUTE_ID = i.INSTITUTE_ID');
         $this->db->join('institute AS o', 'q.ORGANIZATION_ID = o.INSTITUTE_ID');
@@ -75,6 +76,15 @@ class User_model extends CI_model
         $this->db->where('q.USER_ID',$user_id);
         $this->db->where('q.ACTIVE',1);
         $this->db->order_by('p.DEGREE_ID', 'DESC');
+//        $this->db->select('*');
+//        $this->db->from('qualifications q');
+//        $this->db->join('institute AS i', 'q.INSTITUTE_ID = i.INSTITUTE_ID');
+//        $this->db->join('institute AS o', 'q.ORGANIZATION_ID = o.INSTITUTE_ID');
+//        $this->db->join('discipline AS d', 'q.DISCIPLINE_ID = d.DISCIPLINE_ID');
+//        $this->db->join('degree_program AS p', 'd.DEGREE_ID = p.DEGREE_ID');
+//        $this->db->where('q.USER_ID',$user_id);
+//        $this->db->where('q.ACTIVE',1);
+//        $this->db->order_by('p.DEGREE_ID', 'DESC');
         $qulification_list = $this->db->get()->result_array();
         return $qulification_list;
 

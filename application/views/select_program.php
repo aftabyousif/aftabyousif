@@ -14,23 +14,30 @@
                                     <div class="row">
                                         <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
                                             <div class="form-group">
-                                                <label for="exampleInput1" class="bmd-label-floating"> CHOOSE SUBJECT
+                                                <label for="exampleInput1" class="bmd-label-floating"> CHOOSE PROGRAM
                                                     <span class="text-danger">*</span></label>
-                                                <select  class="js-example-basic-single form-control mb-3" name="MINOR_MAPPING_ID" id="MINOR_MAPPING_ID">
+                                                <select  class="js-example-basic-single form-control mb-3" name="PROGRAM_LIST_ID" id="PROGRAM_LIST_ID">
                                                     <option value="0">--Choose--</option>
                                                     <?php
-                                                    foreach ($minors as $minor) {
+                                                    foreach ($PROGRAM_LIST as $PROGRAM) {
+                                                       foreach ($VALID_PROGRAM_LIST as $k =>$VALID_PROGRAM) {
+                                                            if($PROGRAM['PROG_LIST_ID']==$VALID_PROGRAM['PROG_LIST_ID']){
+                                                                echo "<option value='{$PROGRAM['PROG_LIST_ID']}' $is_disabled >{$PROGRAM['PROGRAM_TITLE']} </option>";
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                    foreach ($PROGRAM_LIST as $PROGRAM) {
                                                         $bool = true;
-                                                        foreach ($applicantsMinors as $k =>$applicantsMinor) {
-                                                            if($applicantsMinor['MINOR_MAPPING_ID']==$minor['MINOR_MAPPING_ID']){
+                                                        foreach ($VALID_PROGRAM_LIST as $k =>$VALID_PROGRAM) {
+                                                            if($PROGRAM['PROG_LIST_ID']==$VALID_PROGRAM['PROG_LIST_ID']){
                                                                 $bool = false;
                                                                 break;
                                                             }
                                                         }
                                                         if($bool){
-                                                            echo "<option value='{$minor['MINOR_MAPPING_ID']}'  >{$minor['SUBJECT_TITLE']} </option>";
+                                                            echo "<option value='{$PROGRAM['PROG_LIST_ID']}' disabled >{$PROGRAM['PROGRAM_TITLE']} </option>";
                                                         }
-
                                                     }
                                                     ?>
                                                 </select>
@@ -38,13 +45,12 @@
                                         </div>
                                         <div class="col-md-4">
                                             <br>
-                                                <button  class="btn btn-success " id="add_minor">ADD</button>
+                                                <button  class="btn btn-success " id="add_program">ADD</button>
 
                                         </div>
                                     </div>
-
                                     <!--                                        <form action="/upload" class="dropzone dropzone-custom needsclick add-professors dz-clickable" id="demo1-upload" novalidate="novalidate">-->
-                                    <?=form_open(base_url('form/upload_minor_subjects'), ' enctype="multipart/form-data" class="dropzone dropzone-custom needsclick add-professors dz-clickable" id="minor_select_form " onsubmit="return validateMinorSelection()"',$hidden);?>
+                                    <?=form_open(base_url('form/upload_program_handler'), ' enctype="multipart/form-data" class="dropzone dropzone-custom needsclick add-professors dz-clickable" onsubmit="return validateProgramSelection()" id="challan_form "',$hidden);?>
 
 
 <!--                                    <div class="row">-->
@@ -60,27 +66,15 @@
                                     <table class='table'>
                                         <thead>
                                         <th>S.No</th>
-                                        <th>Subject</th>
+                                        <th>Program</th>
                                         </thead>
                                         <tbody id="table-body-courceDetail" >
-                                        <?php
-                                        foreach ($applicantsMinors as $k =>$applicantsMinor) {
-                                            ?>
-                                            <tr id="<?=$applicantsMinor['MINOR_MAPPING_ID']?>">
-                                                <td><?=$k+1?></td>
-                                                <input type="hidden" name="minor_subject_array[]" value="<?=$applicantsMinor['MINOR_MAPPING_ID']?>">
-                                                <td><?=$applicantsMinor['SUBJECT_TITLE']?></td>
-                                                <td><input type="button" onclick="deleteDataInTable('<?=$applicantsMinor['MINOR_MAPPING_ID']?>','<?=$applicantsMinor['SUBJECT_TITLE']?>');"
-                                                           value="Delete" class="btn btn-sm btn-danger"></td>
-                                            </tr>
-                                            <?php
-                                        }
-                                        ?>
+
                                         </tbody>
 
                                 <tr><td colspan="3">
                                          <span class="input-group-btn">
-        <button  class="btn btn-primary waves-effect waves-light"><i class="fa fa-save"></i> Save </button>>
+        <button type="submit" class="btn btn-primary waves-effect waves-light"><i class="fa fa-save"></i> Save </button>>
                                                                   </span>
 
                                     </td></tr>
@@ -99,37 +93,34 @@
     </div>
 </div>
 <script>
+
     <?php
     if($PROGRAM_TYPE_ID==1){
-        $value = MINOR_SELECT_FOR_BACHELOR;
+        $value = CHOICE_QUANTITY_FOR_BACHELOR;
     }else if($PROGRAM_TYPE_ID==2){
-        $value = MINOR_SELECT_FOR_MASTER;
+        $value = CHOICE_QUANTITY_FOR_MASTER;
     }
     ?>
 
     var max_list = <?=$value?>;
-    function validateMinorSelection(){
+    function validateProgramSelection(){
 
         var len = ($("#table-body-courceDetail tr").length);
-
-            if(len==max_list||max_list==-1) {
-                return true;
-            }else{
-                alertMsg("Warning","You Must select  "+max_list+" subject...!")
-                return false;
-            }
-
-
+        if(len==max_list||max_list==-1) {
+            return true;
+        }else{
+            alertMsg("Warning","You Must select  "+max_list+" Program...!")
+            return false;
+        }
     }
+    $("#add_program").click(function(){
 
-    $("#add_minor").click(function(){
-
-        var id = $("#MINOR_MAPPING_ID").val();
+        var id = $("#PROGRAM_LIST_ID").val();
         if(id==null ||id<=0){
             return;
         }
         //alert(id);
-        var txt = $("#MINOR_MAPPING_ID option:selected").text();
+        var txt = $("#PROGRAM_LIST_ID option:selected").text();
         addDataInTable(id,txt);
     });
 
@@ -138,8 +129,8 @@
         var len = ($("#table-body-courceDetail tr").length)+1;
         if(len<=max_list||max_list==-1) {
             $("#table-body-courceDetail").append("<tr id='" + id + "'><td>" + len + "</td><input type='hidden' name='minor_subject_array[]' value='" + id + "'><td>" + txt + "</td><td><input type='button' onclick=\"deleteDataInTable('" + id + "','" + txt + "');\" value='Delete' class='btn btn-sm btn-danger' ></td></tr>");
-            $("#MINOR_MAPPING_ID option[value='" + id + "']").remove();
-            $("#MINOR_MAPPING_ID").siblings("[value='" + id + "']").remove();
+            $("#PROGRAM_LIST_ID option[value='" + id + "']").remove();
+            $("#PROGRAM_LIST_ID").siblings("[value='" + id + "']").remove();
         }else{
             alertMsg("Warning","You can select maximum "+max_list+" subject...!")
         }
@@ -150,7 +141,7 @@
         //$(elementNo).parent().parent().remove();
 
         $("#table-body-courceDetail tr[id='"+elementNo+"']").remove();
-        $("#MINOR_MAPPING_ID").append("<option value=\""+elementNo+"\" >"+txt+"</option>");
+        $("#PROGRAM_LIST_ID").append("<option value=\""+elementNo+"\" >"+txt+"</option>");
         $("#table-body-courceDetail tr").each(function(index,elem){
             var no = (index +1);
             var d = $(elem).children().get(0);

@@ -91,3 +91,7 @@ defined('PROFILE_IMAGE_PATH')      OR define('PROFILE_IMAGE_PATH', '../../eporta
 defined('PROFILE_IMAGE_CHECK_PATH')      OR define('PROFILE_IMAGE_CHECK_PATH', '../eportal_resource/images/applicants_profile_image/'); // highest automatically-assigned error code
 defined('EXTRA_IMAGE_PATH')      OR define('EXTRA_IMAGE_PATH', '../../eportal_resource/images/applicants/'); // highest automatically-assigned error code
 defined('EXTRA_IMAGE_CHECK_PATH')      OR define('EXTRA_IMAGE_CHECK_PATH', '../eportal_resource/images/applicants/'); // highest automatically-assigned error code
+defined('MINOR_SELECT_FOR_BACHELOR')      OR define('MINOR_SELECTION_FOR_BACHELOR', 3); // minor select quantity for bachelor if value is -1 we suppose there is no limit
+defined('MINOR_SELECT_FOR_MASTER')      OR define('MINOR_SELECT_FOR_MASTER', 3); // minor select quantity for master if value is -1 we suppose there is no limit
+defined('CHOICE_QUANTITY_FOR_BACHELOR')      OR define('CHOICE_QUANTITY_FOR_BACHELOR', 30); // Program select quantity for bachelor if value is -1 we suppose there is no limit
+defined('CHOICE_QUANTITY_FOR_MASTER')      OR define('CHOICE_QUANTITY_FOR_MASTER', -1); // Program select quantity for master if value is -1 we suppose there is no limit

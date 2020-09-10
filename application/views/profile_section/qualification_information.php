@@ -32,34 +32,29 @@
                     </div>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-lg-5">
+                </div>
+                <div class="col-lg-2">
+                    <div class="payment-adress">
+                        <button type="button"onclick = "next_tab('documents_tab')" class="btn btn-primary btn-lg waves-effect waves-light">Next</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
 
-    $('#add_qulification').click(function (event) {
-        event.preventDefault();
 
-        callAjax("<?=base_url()?>Candidate/apiGetAddQualificationForm","qulification_form_view");
-        $('.js-example-basic-single').select2();
-        $('.select2').attr('style','width:100%');
-        $('.disab').hide();
-
-
-    });
 
     function getQualification(){
+
         callAjax("<?=base_url()?>Candidate/apiGetQualificationList","qulification_table_view");
     }
 
-    function editQualification(id){
 
-        callAjax("<?=base_url()?>Candidate/apiGetEditQualificationForm?qualification_id="+id,'qulification_form_view');
-        $('.js-example-basic-single').select2();
-        $('.select2').attr('style','width:100%');
-        $('.disab').hide();
-    }
 
     function deleteQualification(id){
         if(confirm("Are You Sure?\nDo You want to delete your qualification..!")){
@@ -298,6 +293,11 @@
         }
         TOTAL_MARKS=  Number(TOTAL_MARKS);
         OBTAINED_MARKS =  Number(OBTAINED_MARKS);
+        if(TOTAL_MARKS<100){
+            $('#view_total_mark_error').html('Total Marks Invalid.Enter Your Total Marks');
+            $('#view_per').html('');
+            return false;
+        }
         if(TOTAL_MARKS===0 || TOTAL_MARKS<OBTAINED_MARKS){
             $('#view_total_mark_error').html('Total Marks Invalid');
             $('#view_per').html('');
@@ -331,11 +331,32 @@
 
     function getDiscipline(degree_id) {
 
-        let query_string = "action=DISCIPLINE";
-
+        let query_string = "action=DISCIPLINE&PROG_TYPE_ID=";
+        let program_type_id = <?=$application['PROGRAM_TYPE_ID']?$application['PROGRAM_TYPE_ID']:0 ?>;
+            let YEAR = <?=date('Y')?>;
+        let  last = 0;
         if(degree_id>0){
             query_string +="&DEGREE_ID="+degree_id;
-
+            if(program_type_id==1 && degree_id==2){
+                last  = YEAR-2;
+            }
+            if(program_type_id==1 && degree_id==3){
+                last  = YEAR;
+            }
+            if(program_type_id==2 && degree_id==2){
+                last = YEAR-4;
+            }
+            if(program_type_id==2 && degree_id==3){
+                last  = YEAR-2;
+            }
+            if(program_type_id==2 && degree_id==4){
+                last  = YEAR;
+            }
+            let string="";
+            for(let i=last;i>=1770;i--){
+                string+="<option value='"+i+"'>"+i+"</option>";
+            }
+            $('#PASSING_YEAR').html(string);
         }else{
             $('#DISTRICT_ID').html(" <option value='0'>--Choose--</option>");
             return;

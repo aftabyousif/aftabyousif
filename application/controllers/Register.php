@@ -65,9 +65,14 @@ class Register extends CI_Controller {
                     $IS_CNIC_PASS = 'C';
                     $cnic = isValidData($_POST['cnic']);
                     $r_cnic = isValidData($_POST['retype_cnic']);
-                    if(!($cnic&&$r_cnic&&$cnic===$r_cnic&&strlen($cnic)==13)){
-                        $cnic = "";
-                        $error_msg .="Invalid Cnic..!<br>";
+                    if(is_numeric($cnic)){
+
+                        if(!($cnic&&$r_cnic&&$cnic===$r_cnic&&strlen($cnic)==13)){
+                            $cnic = "";
+                            $error_msg .="Invalid Cnic..!<br>";
+                        }
+                    }else{
+                        $error_msg .="Invalid Cnic No Please do not enter dashesh..!<br>";
                     }
 
                 }else if($_POST['check_cnic']==='passport'){
@@ -148,12 +153,12 @@ class Register extends CI_Controller {
                 if($IS_CNIC_PASS=='C'){
                     $user = $this->User_model->getUserByCnic($cnic);
                     if($user){
-                        $error_msg .="This CNIC No $cnic is already exist kindly use your personal cnic or bform to register yourself <br>";
+                        $error_msg .="This CNIC No $cnic is already registered.Kindly use your personal CNIC No or B-Form No to register yourself <br>";
                     }
                 }else if($IS_CNIC_PASS=='C'){
                     $user = $this->User_model->getUserByPassport($passport);
                     if($user){
-                        $error_msg .="This Passport No $passport is already exist kindly use your personal Passport to register yourself <br>";
+                        $error_msg .="This Passport No $passport is already registered.Kindly use your personal Passport to register yourself <br>";
                     }
                 }
 
@@ -183,7 +188,7 @@ class Register extends CI_Controller {
                     $bol=$this->User_model->addUser($data);
                         if($bol === true){
                             $reponse['RESPONSE'] = "SUCCESS";
-                            $reponse['MESSAGE'] = "Your account has been created successfully";
+                            $reponse['MESSAGE'] = "You are successfully registered <br> <a href='".base_url()."login"."'>Click Here For Login</a>";
                         }else{
                             $reponse['RESPONSE'] = "ERROR";
                             $reponse['MESSAGE'] = "some thing went wrong may be The cnic already exist";

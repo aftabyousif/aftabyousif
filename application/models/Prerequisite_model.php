@@ -40,6 +40,20 @@ class Prerequisite_model extends CI_Model
 		$this->legacy_db->where("mp.MINOR_MAPPING_ID=$minor_mapping_id");
 		return($this->legacy_db->get()->result_array());
 	}
+    function getPrerequisiteByMinorMappingIdList ($minor_mapping_id)
+    {
+        $this->legacy_db = $this->load->database('admission_db',true);
+//		print_r($adm_con);
+        $this->legacy_db->select('*');
+        $this->legacy_db->from('`prerequisite`');
+
+
+        //$minor_mapping_id = array('5', '6');
+        $this->legacy_db->or_where_in('MINOR_MAPPING_ID', $minor_mapping_id);
+        $result = $this->legacy_db->get()->result_array();
+
+        return($result);
+    }
 
 	function DeletePrerequisite($prerequisite_id)
 	{

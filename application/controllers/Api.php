@@ -5,7 +5,7 @@
  * Date: 7/12/2020
  * Time: 12:28 PM
  */
-
+//header("Access-Control-Allow-Origin: *");
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 

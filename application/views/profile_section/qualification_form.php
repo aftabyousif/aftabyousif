@@ -22,10 +22,22 @@
                     <option value="0">--Choose--</option>
                     <?php
 
+
+
+                    $bachelor = array(2,3);
+                    $master_id = array(2,3,4,5);
+                    if($program_type_id==1){
+                        $in_array = $bachelor;
+                    }else if($program_type_id==2){
+                        $in_array = $master_id;
+                    }
+
                     foreach ($degree_program as $degree) {
                         $select = "";
+                        if(in_array($degree['DEGREE_ID'], $in_array)){
+                            echo "<option value='{$degree['DEGREE_ID']}' $select >{$degree['DEGREE_TITLE']}</option>";
+                        }
 
-                        echo "<option value='{$degree['DEGREE_ID']}' $select >{$degree['DEGREE_TITLE']}</option>";
                     }
                     ?>
 
@@ -61,7 +73,7 @@
                         echo "<option value='{$INSTITUTE['INSTITUTE_ID']}' $select >{$INSTITUTE['INSTITUTE_NAME']}</option>";
                     }
                     ?>
-                    <option value="-1">--OTHER--</option>
+<!--                    <option value="-2">--OTHER--</option>-->
                 </select>
                 <div id="add_new_org">
                     <input id="org_name" type="text" class="form-control allow-string-number-special" placeholder="Type missing institute name and add it"/> <button class="btn btn-warning" onclick="addOrg()">Add</button>
@@ -89,25 +101,39 @@
 
     </div>
     <div class="row">
-        <div class="col-md-2">
-
+<!--        <div class="col-md-2">-->
+<!---->
+<!--            <div class="top-margin">-->
+<!--                <label for="exampleInput1" class="bmd-label-floating"><div style="color:black">Check if Result Not Declare</div></label><br>-->
+<!--                <input type="checkbox" onclick="checkIsDeclare()" style="width: 25px;height:25px;" id="result_not_declare" name="result_not_declare">-->
+<!--            </div>-->
+<!--        </div>-->
+<!---->
+<!--        <div class="col-md-4">-->
+<!---->
+<!--            <div class="top-margin">-->
+<!--                <label for="exampleInput1" class="bmd-label-floating">Result Declaration/Completion Date-->
+<!--                    <span class="text-danger">* &nbsp;<small>dd/mm/yyyy</small></span></label>-->
+<!--                <div class="form-group data-custon-pick" id="data_2">-->
+<!--                    <div class="input-group date">-->
+<!--                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>-->
+<!--                        <input type="text" id="RESULT_DATE"  name="RESULT_DATE" class="form-control" value="" readonly>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!---->
+<!--            </div>-->
+<!--        </div>-->
+        <div class="col-md-6">
             <div class="top-margin">
-                <label for="exampleInput1" class="bmd-label-floating"><div style="color:black">Check if Result Not Declare</div></label><br>
-                <input type="checkbox" onclick="checkIsDeclare()" style="width: 25px;height:25px;" id="result_not_declare" name="result_not_declare">
-            </div>
-        </div>
+                <label for="exampleInput1" class="bmd-label-floating">Passing Year
+                    <span class="text-danger">*</span><div class="text-info" id="PASSING_YEAR_MSG"></div></label>
+                <br>
+                <select   id="PASSING_YEAR" class="js-example-basic-single form-control "  name="PASSING_YEAR">
 
-        <div class="col-md-4">
+                    <option value="0">--Choose--</option>
 
-            <div class="top-margin">
-                <label for="exampleInput1" class="bmd-label-floating">Result Declaration/Completion Date
-                    <span class="text-danger">* &nbsp;<small>dd/mm/yyyy</small></span></label>
-                <div class="form-group data-custon-pick" id="data_2">
-                    <div class="input-group date">
-                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                        <input type="text" id="RESULT_DATE"  name="RESULT_DATE" class="form-control" value="" readonly>
-                    </div>
-                </div>
+
+                </select>
 
             </div>
         </div>
@@ -126,38 +152,38 @@
 
     </div>
 
-    <div class="row">
-        <div class="col-md-6">
-
-            <div class="top-margin">
-                <label for="exampleInput1" class="bmd-label-floating">Start Date
-                    <span class="text-danger">* &nbsp;<small>dd/mm/yyyy</small></span></label>
-
-                <div class="form-group data-custon-pick" id="data_2">
-                    <div class="input-group date">
-                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                        <input type="text" id="START_DATE"  name="START_DATE" class="form-control" value="" readonly>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-        <div class="col-md-6">
-
-            <div class="top-margin">
-                <label for="exampleInput1" class="bmd-label-floating">End Date
-                    <span class="text-danger">* &nbsp;<small>dd/mm/yyyy</small></span></label>
-                <div class="form-group data-custon-pick" id="data_2">
-                    <div class="input-group date">
-                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                        <input type="text" id="END_DATE"  name="END_DATE" class="form-control" value="" readonly>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-    </div>
+<!--    <div class="row">-->
+<!--        <div class="col-md-6">-->
+<!---->
+<!--            <div class="top-margin">-->
+<!--                <label for="exampleInput1" class="bmd-label-floating">Start Date-->
+<!--                    <span class="text-danger">* &nbsp;<small>dd/mm/yyyy</small></span></label>-->
+<!---->
+<!--                <div class="form-group data-custon-pick" id="data_2">-->
+<!--                    <div class="input-group date">-->
+<!--                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>-->
+<!--                        <input type="text" id="START_DATE"  name="START_DATE" class="form-control" value="" readonly>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!---->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="col-md-6">-->
+<!---->
+<!--            <div class="top-margin">-->
+<!--                <label for="exampleInput1" class="bmd-label-floating">End Date-->
+<!--                    <span class="text-danger">* &nbsp;<small>dd/mm/yyyy</small></span></label>-->
+<!--                <div class="form-group data-custon-pick" id="data_2">-->
+<!--                    <div class="input-group date">-->
+<!--                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>-->
+<!--                        <input type="text" id="END_DATE"  name="END_DATE" class="form-control" value="" readonly>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!---->
+<!--            </div>-->
+<!--        </div>-->
+<!---->
+<!--    </div>-->
     <div class="row">
         <div class="col-md-6">
             <div class="top-margin">
@@ -234,7 +260,8 @@
                     <span class="text-danger">* &nbsp;</span></label>
                 <select class="form-control" name="out_of" id="out_of">
                     <?php
-                    $out_ofs = array("4","5","6","10","20","100");
+                    //$out_ofs = array("4","5","6","10","20","100");
+                    $out_ofs = array("100");
                     foreach($out_ofs as $out_of){
                         echo "<option>$out_of</option>";
                     }

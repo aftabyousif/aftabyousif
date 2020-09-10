@@ -16,6 +16,22 @@ class Administration extends CI_Model
 		$this->legacy_db->select('PROG_LIST_ID, PROGRAM_TITLE, REMARKS');
 		return $this->legacy_db->get('program_list')->result_array();
 	}
+    function getProgramByTypeID ($program_type_id)
+    {
+        $this->legacy_db = $this->load->database('admission_db',true);
+//		print_r($adm_con);
+        $this->legacy_db->select('PROG_LIST_ID, PROGRAM_TITLE, REMARKS');
+        $this->legacy_db->where('PROGRAM_TYPE_ID',$program_type_id);
+        return $this->legacy_db->get('program_list')->result_array();
+    }
+	
+	function getCategory ()
+    {
+        $this->legacy_db = $this->load->database('admission_db',true);
+//		print_r($adm_con);
+        $this->legacy_db->select('FORM_CATEGORY_ID, FORM_CATEGORY_NAME, REMARKS');
+        return $this->legacy_db->get('form_category')->result_array();
+    }
 
 	function shifts ()
 	{
@@ -75,6 +91,7 @@ class Administration extends CI_Model
 
 		return $this->legacy_db->get()->result_array();
 	}
+
 	function ignoreMappedPrograms ($shift_id)
 	{
 		$this->legacy_db = $this->load->database('admission_db',true);
@@ -87,6 +104,7 @@ class Administration extends CI_Model
 
 		return($this->legacy_db->get()->result_array());
 	}
+
 	function DeleteMappedPrograms_model($shift_id,$prog_id)
 	{
 		$this->legacy_db = $this->load->database('admission_db',true);
@@ -121,6 +139,7 @@ class Administration extends CI_Model
 //		return($this->legacy_db->last_query());
 		return($this->legacy_db->get()->result_array());
 	}
+
 	function DeleteMappedCategory($category_id)
 	{
 		$prev_record = $this->MappedCategory(0,$category_id);
@@ -134,6 +153,7 @@ class Administration extends CI_Model
 		}
 		else return false;
 	}
+
 	function MinorMapping ($minor_mapping_id)
 	{
 		$this->legacy_db = $this->load->database('admission_db',true);
@@ -143,6 +163,7 @@ class Administration extends CI_Model
 		$this->legacy_db->where("MINOR_MAPPING_ID=$minor_mapping_id");
 		return($this->legacy_db->get()->result_array());
 	}
+
 	function getMinorsByDiscipline_id ($discipline_id)
 	{
 		$this->legacy_db = $this->load->database('admission_db',true);
@@ -152,6 +173,7 @@ class Administration extends CI_Model
 		$this->legacy_db->where("DISCIPLINE_ID=$discipline_id");
 		return($this->legacy_db->get()->result_array());
 	}
+
 	function DeleteMinorSubject($minor_mapping_id)
 	{
 		$prev_record = $this->MinorMapping($minor_mapping_id);

@@ -327,6 +327,7 @@ function uploadProfileImage($image,$id,$name){
     //return "../../eprotal_resource/images/applicants/$dir/$image_name";
     return $path;
 }
+
 function uploadImage($image,$id,$name){
 
     $post_image = $image['name'];

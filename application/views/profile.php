@@ -15,7 +15,7 @@ $readonly ="";
     ?>
     var csrfName="<?=$res['csrfName']?>";
     var csrfHash="<?=$res['csrfHash']?>";
-
+    var is_next = false;
     function callAjax(url,set_id,msg_id="alert_msg_for_ajax_call"){
         jQuery.ajax({
             url:url ,
@@ -40,10 +40,10 @@ $readonly ="";
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
             <div class="product-payment-inner-st">
                 <ul id="myTabedu1" class="tab-review-design">
-                    <li class="active"><a href="#basic_information">Basic Information</a></li>
-                    <li class=""><a href="#education"> Education Information</a></li>
-					<li class=""><a href="#experiances"> Experience</a></li>
-                    <li class=""><a href="#documents"> Additional Documents</a></li>
+                    <li class="active"><a  id="basic_information_tab" href="#basic_information">Basic Information</a></li>
+                    <li class=""><a id="education_tab" href="#education"> Education Information</a></li>
+<!--					<li class=""><a id="experiances_tab" href="#experiances"> Experience</a></li>-->
+                    <li class=""><a id="documents_tab" href="#documents"> Additional Documents</a></li>
                 </ul>
 
                 <div id="myTabContent" class="tab-content custom-product-edit">
@@ -56,9 +56,9 @@ $readonly ="";
                     <div class="product-tab-list tab-pane fade" id="documents">
                         <?php   require_once "profile_section/document_form.php";?>
                     </div>
-                    <div class="product-tab-list tab-pane fade" id="experiances">
-                        <?php   require_once "profile_section/experiances.php";?>
-                    </div>
+<!--                    <div class="product-tab-list tab-pane fade" id="experiances">-->
+<!--                        --><?php //  require_once "profile_section/experiances.php";?>
+<!--                    </div>-->
                 </div>
                 <div id="alert_msg_for_ajax_call"></div>
                 </div>
@@ -67,7 +67,15 @@ $readonly ="";
 </div>
 
 <script>
-
+<?php
+        if($user['STATUS']=='C'){
+            ?>
+$('input').attr({"disabled":true});
+$('select').attr({"disabled":true});
+$('textarea').attr({"disabled":true});
+        <?php
+        }
+?>
 	$(document).ready(function () {
 
 		function profile_guideline() {
@@ -84,7 +92,12 @@ $readonly ="";
 
 			alertMsg('Form Filling Guidelines',msg);
 		}
-		profile_guideline();
+		<?php
+        if(isset($_SESSION['ALERT_MSG'])){}else{
+            echo "profile_guideline();";
+        }
+		?>
+
 	});
     function callAjax(url,set_id,msg_id="alert_msg_for_ajax_call"){
         jQuery.ajax({
@@ -104,14 +117,16 @@ $readonly ="";
         });
     }
     $('#add_qulification').click(function (event) {
-		event.preventDefault();
+        event.preventDefault();
+        let program_type_id = <?=$application['PROGRAM_TYPE_ID']?$application['PROGRAM_TYPE_ID']:0 ?>;
 
-		callAjax("<?=base_url()?>Candidate/apiGetAddQualificationForm", "qulification_form_view");
-		$('.js-example-basic-single').select2();
-		$('.select2').attr('style', 'width:100%');
-		$('.disab').hide();
+        callAjax("<?=base_url()?>Candidate/apiGetAddQualificationForm?program_type_id="+program_type_id,"qulification_form_view");
+        $('.js-example-basic-single').select2();
+        $('.select2').attr('style','width:100%');
+        $('.disab').hide();
 
-	});
+
+    });
 
     $( '.img-table-certificate' ).click(function() {
         alertImage('Image',$(this).attr('src'));
@@ -120,9 +135,9 @@ $readonly ="";
     function getQualification(){
         callAjax("<?=base_url()?>Candidate/apiGetQualificationList","qulification_table_view");
     }
-    function editQulification(id){
-
-        callAjax("<?=base_url()?>Candidate/apiGetEditQualificationForm?qualification_id="+id,'qulification_form_view');
+    function editQualification(id){
+        let program_type_id = <?=$application['PROGRAM_TYPE_ID']?$application['PROGRAM_TYPE_ID']:0 ?>;
+        callAjax("<?=base_url()?>Candidate/apiGetEditQualificationForm?qualification_id="+id+"&program_type_id="+program_type_id,'qulification_form_view');
         $('.js-example-basic-single').select2();
         $('.select2').attr('style','width:100%');
         $('.disab').hide();
@@ -178,5 +193,30 @@ $readonly ="";
         }
     }
 		getQualification();
+
+    function next_tab(id) {
+        if(id=="education_tab"){
+            <?php
+            if($user['STATUS']!='C'){
+                ?>
+            is_next = true;
+            $('#base_profile_form').submit();
+            <?php
+            }else{
+                ?>
+            $('#'+id).click();
+            <?php
+            }
+            ?>
+
+
+        }else{
+            $('#'+id).click();
+        }
+
+    }
+    function check_validtion_of_data(){
+        window.location.href = "<?=base_url()?>form/check_validation";
+    }
 </script>
 

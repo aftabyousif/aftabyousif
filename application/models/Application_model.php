@@ -8,6 +8,8 @@ class Application_model extends CI_Model
         parent::__construct();
         //		$CI =& get_instance();
         $this->load->model('log_model');
+        $this->load->model('User_model');
+        $this->load->model('Api_qualification_model');
     }//function
 
 
@@ -265,11 +267,88 @@ class Application_model extends CI_Model
 
     }
 
+    function updateApplicationById($id,$formArray){
+        //load loging model
+        $this->load->model('log_model');
+        $this->legacy_db = $this->load->database("admission_db",true);
+        $this->legacy_db->where('APPLICATION_ID',$id);
+        $this->legacy_db->where('USER_ID',$formArray['USER_ID']);
+        $PRE_RECORD =  $this->legacy_db->get('applications')->row_array();
+
+        $this->legacy_db->trans_begin();
+        $this->legacy_db->where('APPLICATION_ID',$id);
+        $this->legacy_db->update('applications',$formArray);
+
+        //this code is use for loging
+        $QUERY = $this->legacy_db->last_query();
+
+        if($this->legacy_db->affected_rows() ==1){
+            $this->legacy_db->trans_commit();
+            //this code is use for loging
+            $this->legacy_db->where('APPLICATION_ID',$id);
+            $CURRENT_RECORD =  $this->legacy_db->get('applications')->row_array();
+            $this->log_model->create_log($id,$id,$PRE_RECORD,$CURRENT_RECORD,"UPDATE_APPLICATION",'applications',12,$formArray['USER_ID']);
+            $this->log_model->itsc_log("UPDATE_APPLICATION","SUCCESS",$QUERY,'CANDIDATE',$formArray['USER_ID'],$CURRENT_RECORD,$PRE_RECORD,$id,'applications');
+
+            return 1;
+        }elseif($this->legacy_db->affected_rows() ==0){
+            $this->legacy_db->trans_commit();
+
+            //this code is use for loging
+            $this->legacy_db->where('APPLICATION_ID',$id);
+            $CURRENT_RECORD =  $this->legacy_db->get('applications')->row_array();
+            $this->log_model->create_log($id,$id,$PRE_RECORD,$CURRENT_RECORD,"UPDATE_APPLICATION",'applications',12,$formArray['USER_ID']);
+            $this->log_model->itsc_log("UPDATE_APPLICATION","SUCCESS",$QUERY,'CANDIDATE',$formArray['USER_ID'],$CURRENT_RECORD,$PRE_RECORD,$id,'applications');
+
+            return 0;
+        }else{
+            $this->legacy_db->trans_rollback();
+
+            //this code is use for loging
+            $this->legacy_db->where('APPLICATION_ID',$id);
+            $CURRENT_RECORD =  $this->legacy_db->get('applications')->row_array();
+            $this->log_model->create_log($id,$id,$PRE_RECORD,$CURRENT_RECORD,"UPDATE_APPLICATION",'applications',12,$formArray['USER_ID']);
+            $this->log_model->itsc_log("UPDATE_APPLICATION","FAILED",$QUERY,'CANDIDATE',$formArray['USER_ID'],$CURRENT_RECORD,$PRE_RECORD,$id,'applications');
+
+            return -1;
+        }
+
+    }
+
+
+    function lock_form($APPLICATION_ID,$user_fulldata){
+        $user_id = $user_fulldata['users_reg']['USER_ID'];
+        $form_array = array('STATUS'=>'C');
+        $this->User_model->updateUserById($user_id,$form_array);
+
+        foreach ($user_fulldata['qualifications'] as $qual){
+            $form_array = array('STATUS'=>'1',"USER_ID"=>$user_id);
+            $this->Api_qualification_model->updateQualification($qual['QUALIFICATION_ID'],$form_array);
+        }
+        $user_fulldata = $this->User_model->getUserFullDetailById($user_id);
+
+        $user_json = json_encode($user_fulldata);
+        $date = date('Y-m-d H:i:s');
+        $form_array = array(
+            "USER_ID"=>$user_id,
+            "FORM_DATA"=>$user_json,
+            "IS_SUBMITTED"=>'Y',
+            "SUBMISSION_DATE"=>$date,
+            "STATUS_ID"=>2
+        );
+
+        $this->updateApplicationById($APPLICATION_ID ,$form_array);
+
+
+        //$APPLICATION_ID,$user_fulldata
+    }
+
     function getApplicationByUserIdAndAdmissionSessionId($user_id,$admission_session_id)
     {
         $this->legacy_db = $this->load->database("admission_db",true);
 
         $this->legacy_db->where("USER_ID",$user_id);
+        $this->legacy_db->select('*,a.REMARKS');
         $this->legacy_db->from('applications a');
         $this->legacy_db->join("`admission_session` ass","ass.`ADMISSION_SESSION_ID` = a.`ADMISSION_SESSION_ID`");
         $this->legacy_db->join("`campus` c","ass.`CAMPUS_ID` = c.`CAMPUS_ID`");
@@ -281,10 +360,12 @@ class Application_model extends CI_Model
     function getApplicationByAdmissionSessionId($admission_session_id)
     {
         $this->legacy_db = $this->load->database("admission_db",true);
+        $this->legacy_db->select('*,a.REMARKS');
         $this->legacy_db->from('applications a');
         $this->legacy_db->join("`admission_session` ass","ass.`ADMISSION_SESSION_ID` = a.`ADMISSION_SESSION_ID`");
         $this->legacy_db->join("`campus` c","ass.`CAMPUS_ID` = c.`CAMPUS_ID`");
         $this->legacy_db->join("`program_type` pt","ass.`PROGRAM_TYPE_ID` = pt.`PROGRAM_TYPE_ID`");
+        $this->legacy_db->join("`application_status` aps","aps.`STATUS_ID` = a.`STATUS_ID`","LEFT");
         $this->legacy_db->where("ADMISSION_SESSION_ID",$admission_session_id);
         return $this->legacy_db->get()->result_array();
 
@@ -292,12 +373,14 @@ class Application_model extends CI_Model
     function getApplicationByUserId($user_id)
     {
         $this->legacy_db = $this->load->database("admission_db",true);
+        $this->legacy_db->select('*,a.REMARKS');
         $this->legacy_db->from('applications a');
         $this->legacy_db->join("`admission_session` ass","ass.`ADMISSION_SESSION_ID` = a.`ADMISSION_SESSION_ID`");
         $this->legacy_db->join("`sessions` ss","ass.`SESSION_ID` = ss.`SESSION_ID`");
         $this->legacy_db->join("`campus` c","ass.`CAMPUS_ID` = c.`CAMPUS_ID`");
         $this->legacy_db->join("`form_challan` fc","a.`APPLICATION_ID` = fc.`APPLICATION_ID`");
         $this->legacy_db->join("`program_type` pt","ass.`PROGRAM_TYPE_ID` = pt.`PROGRAM_TYPE_ID`");
+        $this->legacy_db->join("`application_status` aps","aps.`STATUS_ID` = a.`STATUS_ID`","LEFT");
         $this->legacy_db->where("a.USER_ID",$user_id);
         return $this->legacy_db->get()->result_array();
 
@@ -305,12 +388,13 @@ class Application_model extends CI_Model
     function getApplicationByUserAndApplicationId($user_id,$application_id)
     {
         $this->legacy_db = $this->load->database("admission_db",true);
-        $this->legacy_db->select('*');
+        $this->legacy_db->select('*,a.REMARKS');
         $this->legacy_db->from('applications a');
         $this->legacy_db->join("`admission_session` ass","ass.`ADMISSION_SESSION_ID` = a.`ADMISSION_SESSION_ID`");
         $this->legacy_db->join("`campus` c","ass.`CAMPUS_ID` = c.`CAMPUS_ID`");
         $this->legacy_db->join("`form_challan` fc","a.`APPLICATION_ID` = fc.`APPLICATION_ID`");
         $this->legacy_db->join("`program_type` pt","ass.`PROGRAM_TYPE_ID` = pt.`PROGRAM_TYPE_ID`");
+        $this->legacy_db->join("`application_status` aps","aps.`STATUS_ID` = a.`STATUS_ID`","LEFT");
         $this->legacy_db->where("a.USER_ID",$user_id);
         $this->legacy_db->where("a.APPLICATION_ID",$application_id);
         return $this->legacy_db->get()->row_array();
@@ -400,5 +484,7 @@ class Application_model extends CI_Model
         }
 
     }
+
+
 
 }

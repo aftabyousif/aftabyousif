@@ -25,6 +25,7 @@ class Form extends CI_Controller
 		$this->load->model("Admission_session_model");
 		$this->load->model("Application_model");
 		$this->load->model("User_model");
+		$this->load->model("Prerequisite_model");
 	}
 
 	public function announcement ()
@@ -48,27 +49,66 @@ class Form extends CI_Controller
 
         $next_page =urldecode($next_page);
         $next_page = base64_decode($next_page);
-        if($this->session->has_userdata('APPLICATION_ID')) {
+        if($this->session->has_userdata('APPLICATION_ID')){
             $APPLICATION_ID = $this->session->userdata('APPLICATION_ID');
-            $user = $this->user;
-            $user_id = $user['USER_ID'];
+            $user = $this->session->userdata($this->SessionName);
+            //prePrint($user);
+            $user_fulldata = $this->User_model->getUserFullDetailById($user['USER_ID']);
 
-            $user_data = $this->User_model->getUserFullDetailById($user_id);
-            prePrint($user_data);
-            $data['user'] = $user_data['users_reg'];
-            $data['qualifications'] = $user_data['qualifications'];
+            $data['user'] = $user_fulldata;
+            $data['APPLICATION_ID'] = $APPLICATION_ID;
+            $application = $this->Application_model->getApplicationByUserAndApplicationId($user['USER_ID'], $APPLICATION_ID);
+
+            if ($application) {
+
+                $bank = $this->Admission_session_model->getBankInformationByBranchId($application['BRANCH_ID']);
+                //$bank = $this->Admission_session_model;
+                $data['user'] = $user_fulldata['users_reg'];
+                $data['qualifications'] = $user_fulldata['qualifications'];
+                $data['guardian'] = $user_fulldata['guardian'];
+                $data['next_page'] = $next_page;
+                $data['application'] = $application;
+                $data['bank'] = $bank;
 
 
-            $this->load->view('include/header', $data);
+                $this->load->view('include/header', $data);
 //		$this->load->view('include/preloder');
 //		$this->load->view('include/side_bar');
 //		$this->load->view('include/nav',$data);
-            $this->load->view('form_review', $data);
+                $this->load->view('form_review', $data);
 //		$this->load->view('include/footer_area');
-            $this->load->view('include/footer');
+                $this->load->view('include/footer');
+
+            }else{
+                echo "Application Id not found";
+            }
         }else{
             echo "Application Id not found";
         }
+//        if($this->session->has_userdata('APPLICATION_ID')) {
+//            $APPLICATION_ID = $this->session->userdata('APPLICATION_ID');
+//
+//            $user = $this->user;
+//            $user_id = $user['USER_ID'];
+//
+//            $user_data = $this->User_model->getUserFullDetailById($user_id);
+//            //prePrint($user_data);
+//            $data['user'] = $user_data['users_reg'];
+//            $data['qualifications'] = $user_data['qualifications'];
+//            $data['guardian'] = $user_data['guardian'];
+//            $data['next_page'] = $next_page;
+//
+//
+//            $this->load->view('include/header', $data);
+////		$this->load->view('include/preloder');
+////		$this->load->view('include/side_bar');
+////		$this->load->view('include/nav',$data);
+//            $this->load->view('form_review', $data);
+////		$this->load->view('include/footer_area');
+//            $this->load->view('include/footer');
+//        }else{
+//            echo "Application Id not found";
+//        }
 
 
 	}
@@ -204,7 +244,10 @@ class Form extends CI_Controller
                     }
 
 
-                    $row = array('CHALLAN_NO' => $application['FORM_CHALLAN_ID'],
+                    $row = array(
+                        'CNIC_NO' => $user['CNIC_NO'],
+                        'APPLICATION_ID' => $application['APPLICATION_ID'],
+                        'CHALLAN_NO' => $application['FORM_CHALLAN_ID'],
                         "FIRST_NAME" => $user['FIRST_NAME'],
                         "CANDIDATE_SURNAME" => $user['LAST_NAME'],
                         "CANDIDATE_FNAME" => $user['FNAME'],
@@ -321,7 +364,11 @@ class Form extends CI_Controller
                 $CHALLAN_PAID_DATE = $application['CHALLAN_DATE'];
                 $CHALLAN_AMOUNT = $application['PAID_AMOUNT'];
                 $BRANCH_ID = $application['BRANCH_ID'];
+                if($application['IS_SUBMITTED']=="N"){
 
+                }else{
+                    $error.="<div class='text-danger'>Your Form has been Submitted thats why you can't change the challan information</div>";
+                }
                    // $valid_upto = getDateCustomeView($application['ADMISSION_END_DATE'], 'd-m-Y');
 
 
@@ -625,6 +672,7 @@ class Form extends CI_Controller
                             $data['minors'] = $result;
                             $data['DISCIPLINE_ID'] = $valid_qualification['DISCIPLINE_ID'];
                             $data['applicantsMinors'] = $this->Application_model->getApplicantsMinorsByUserIdAndDisciplineID($user['USER_ID'],$valid_qualification['DISCIPLINE_ID']);
+                            $data['PROGRAM_TYPE_ID'] =$application['PROGRAM_TYPE_ID'];
                            // $data['roll_no'] = $user['USER_ID'];
                             $this->load->view('include/header', $data);
                             $this->load->view('include/preloder');
@@ -655,6 +703,120 @@ class Form extends CI_Controller
         }
     }
 
+    public function select_program(){
+
+        if($this->session->has_userdata('APPLICATION_ID')) {
+            $APPLICATION_ID = $this->session->userdata('APPLICATION_ID');
+
+            $user = $this->session->userdata($this->SessionName);
+            $user = $this->User_model->getUserById($user['USER_ID']);
+
+            $data['user'] = $user;
+            $data['APPLICATION_ID'] = $APPLICATION_ID;
+            $application = $this->Application_model->getApplicationByUserAndApplicationId($user['USER_ID'], $APPLICATION_ID);
+
+            if ($application) {
+
+                $form_data = $this->User_model->getUserFullDetailById($user['USER_ID']);
+
+                $degree_list = array(
+                    'BACHELOR'=>array('PROGRAM_TYPE_ID'=>1,'DEGREE_ID'=>3),
+                    'MASTER'=>array('PROGRAM_TYPE_ID'=>2,'DEGREE_ID'=>4)
+                );
+
+                //$form_data = json_decode($application['FORM_DATA'],true);
+                $bool = false;
+                $valid_qualification = null;
+                if($application['PROGRAM_TYPE_ID']==$degree_list['BACHELOR']['PROGRAM_TYPE_ID']){
+                    // echo "bach";
+                    foreach ($form_data['qualifications'] as $qualification){
+                        if($qualification['DEGREE_ID'] ==$degree_list['BACHELOR']['DEGREE_ID']){
+                            $bool  = true;
+                            $valid_qualification = $qualification;
+                            break;
+                        }
+                    }
+
+
+                }else if($application['PROGRAM_TYPE_ID']==$degree_list['MASTER']['PROGRAM_TYPE_ID']){
+                    //echo "master";
+                    //4
+                    // prePrint($form_data['qualifications']);
+                    foreach ($form_data['qualifications'] as $qualification){
+                        if($qualification['DEGREE_ID'] ==$degree_list['MASTER']['DEGREE_ID']){
+                            $bool  = true;
+                            $valid_qualification = $qualification;
+                            break;
+                        }
+                    }
+                }
+                //$from_data = json_encode($from_data);
+
+
+                $form_fees = $this->Admission_session_model->getFormFeesBySessionAndCampusId($application['SESSION_ID'], $application['CAMPUS_ID']);
+
+                if ($form_fees) {
+                    $valid_upto = getDateCustomeView($application['ADMISSION_END_DATE'], 'd-m-Y');
+
+                    if ($application['ADMISSION_END_DATE'] < date('Y-m-d')) {
+                        exit("Sorry your challan is expired..");
+                    }
+
+
+                    $data['profile_url'] = base_url() . $this->profile;
+//                    $data['is_valid_qualification'] = $bool;
+//                    $data['form_data'] = $form_data;
+                    //$data['application'] = $application;
+                    if($bool&&$valid_qualification!=null){
+
+                      //  $result = $this->Application_model->getMinorMappingByDisciplineId($valid_qualification['DISCIPLINE_ID']);
+
+
+                      
+                            $data['DISCIPLINE_ID'] = $valid_qualification['DISCIPLINE_ID'];
+
+                            $applicantsMinors = $this->Application_model->getApplicantsMinorsByUserIdAndDisciplineID($user['USER_ID'],$valid_qualification['DISCIPLINE_ID']);
+                            $minorMappingIds  = array();
+                            foreach ($applicantsMinors as $applicantsMinor)
+                            {
+                                $minorMappingIds[]=$applicantsMinor['MINOR_MAPPING_ID'];
+                            }
+                            $valid_program_list = $this->Prerequisite_model->getPrerequisiteByMinorMappingIdList($minorMappingIds);
+                            $program_list = $this->Administration->getProgramByTypeID($application['PROGRAM_TYPE_ID']);
+                            $data['VALID_PROGRAM_LIST'] =$valid_program_list;
+                            $data['PROGRAM_LIST'] =$program_list;
+                            $data['PROGRAM_TYPE_ID'] =$application['PROGRAM_TYPE_ID'];
+                       //     prePrint($valid_program_list);
+                       // prePrint($program_list);
+//                            exit();
+                            // $data['roll_no'] = $user['USER_ID'];
+                            $this->load->view('include/header', $data);
+                            $this->load->view('include/preloder');
+                            $this->load->view('include/side_bar', $data);
+                            $this->load->view('include/nav', $data);
+                            $this->load->view('select_program', $data);
+                            $this->load->view('include/footer_area', $data);
+                            $this->load->view('include/footer', $data);
+
+                    }else{
+                        echo "Invalid Degree Please must add appropriate degree";
+                    }
+                    // prePrint($application);
+
+
+
+                } else {
+                    echo "fees not found";
+                }
+
+            } else {
+                echo "this application id is not associate with you";
+            }
+        }else{
+            echo "Application Id Not Found";
+        }
+    }
+
     public function set_application_id($APPLICATION_ID,$url){
         $APPLICATION_ID = base64_decode(urldecode($APPLICATION_ID));
 	    $this->session->set_userdata('APPLICATION_ID', $APPLICATION_ID);
@@ -663,7 +825,320 @@ class Form extends CI_Controller
         exit();
     }
 
+    public function lock_form(){
+        if($this->session->has_userdata('APPLICATION_ID')){
+            $APPLICATION_ID = $this->session->userdata('APPLICATION_ID');
+            $user = $this->session->userdata($this->SessionName);
+            //prePrint($user);
+            $user_fulldata = $this->User_model->getUserFullDetailById($user['USER_ID']);
 
+            $data['user'] = $user_fulldata;
+            $data['APPLICATION_ID'] = $APPLICATION_ID;
+            $application = $this->Application_model->getApplicationByUserAndApplicationId($user['USER_ID'], $APPLICATION_ID);
+
+
+            if ($application) {
+
+                //prePrint($application);
+                if($application['IS_SUBMITTED']) {
+
+
+                    $error = $this->isValidProfileInformation($user_fulldata, $application);
+
+
+                    //prePrint($error);
+                    if ($error == "") {
+                        if ($application['PAID'] == 'N' && isValidData($application['CHALLAN_IMAGE'])) {
+
+                            $this->Application_model->lock_form($APPLICATION_ID, $user_fulldata);
+                            echo "Your form has been submited...!";
+
+                        } else {
+                            $error .= "<div class='text-danger'>Challan image not found</div>";
+                        }
+
+
+                    } else {
+                        $alert = array('MSG' => $error, 'TYPE' => 'ERROR');
+                        $this->session->set_flashdata('ALERT_MSG', $alert);
+                        redirect(base_url() . "form/upload_application_challan");
+                        //prePrint($error);
+                    }
+                }else{
+                    echo "Your form Already submited...!";
+                }
+
+
+            }else{
+                $alert = array('MSG'=>"<div class='text-danger'>Application Not found </div>",'TYPE'=>'ERROR');
+                $this->session->set_flashdata('ALERT_MSG',$alert);
+                redirect(base_url()."form/announcement");
+            }
+        }
+        else {
+            redirect(base_url() . "login");
+        }
+    }
+
+    public function check_validation_and_challan(){
+        if($this->session->has_userdata('APPLICATION_ID')){
+            $APPLICATION_ID = $this->session->userdata('APPLICATION_ID');
+            $user = $this->session->userdata($this->SessionName);
+            //prePrint($user);
+            $user_fulldata = $this->User_model->getUserFullDetailById($user['USER_ID']);
+
+            $data['user'] = $user_fulldata;
+            $data['APPLICATION_ID'] = $APPLICATION_ID;
+            $application = $this->Application_model->getApplicationByUserAndApplicationId($user['USER_ID'], $APPLICATION_ID);
+
+            if ($application) {
+
+                //prePrint($application);
+
+                $error = $this->isValidProfileInformation($user_fulldata,$application);
+
+
+                //prePrint($error);
+                if($error==""){
+                    if($application['PAID']=='N'&&isValidData($application['CHALLAN_IMAGE'])){
+                        $next_page = "lock_form";
+                        $next_page = base64_encode($next_page);
+                        $next_page =urlencode($next_page);
+
+                        redirect(base_url() . "form/review/$next_page");
+                    }else{
+                        $error.="<div class='text-danger'>Bank Branchnch not found</div>";
+                        $error.="<div class='text-danger'>Challan image not found</div>";
+                        $alert = array('MSG'=>$error,'TYPE'=>'ERROR');
+                        $this->session->set_flashdata('ALERT_MSG',$alert);
+                        redirect(base_url()."form/upload_application_challan");
+                    }
+
+
+                }else{
+                    $alert = array('MSG'=>$error,'TYPE'=>'ERROR');
+                    $this->session->set_flashdata('ALERT_MSG',$alert);
+                    redirect(base_url()."form/upload_application_challan");
+                    //prePrint($error);
+                }
+
+
+            }else{
+                $alert = array('MSG'=>"<div class='text-danger'>Application Not found </div>",'TYPE'=>'ERROR');
+                $this->session->set_flashdata('ALERT_MSG',$alert);
+                redirect(base_url()."form/announcement");
+            }
+        }else {
+            redirect(base_url() . "login");
+        }
+    }
+
+    public function check_validation(){
+            if($this->session->has_userdata('APPLICATION_ID')){
+                $APPLICATION_ID = $this->session->userdata('APPLICATION_ID');
+                $user = $this->session->userdata($this->SessionName);
+                //prePrint($user);
+                $user_fulldata = $this->User_model->getUserFullDetailById($user['USER_ID']);
+
+                $data['user'] = $user_fulldata;
+                $data['APPLICATION_ID'] = $APPLICATION_ID;
+                $application = $this->Application_model->getApplicationByUserAndApplicationId($user['USER_ID'], $APPLICATION_ID);
+
+                if ($application) {
+
+                    //prePrint($application);
+
+                    $error = $this->isValidProfileInformation($user_fulldata,$application);
+
+
+//                   prePrint($error);
+//                   exit();
+                   if($error==""){
+                       $next_page = "upload_application_challan";
+
+                       $next_page = base64_encode($next_page);
+                       $next_page =urlencode($next_page);
+                       redirect(base_url() . "form/review/$next_page");
+                       //redirect(base_url() . "form/");
+
+                   }else{
+                       $alert = array('MSG'=>$error,'TYPE'=>'ERROR');
+                       $this->session->set_flashdata('ALERT_MSG',$alert);
+                       redirect(base_url()."candidate/profile");
+                      // prePrint($error);
+                   }
+
+
+                }
+            }else {
+                redirect(base_url() . "login");
+            }
+    }
+
+    public function dashboard(){
+        if($this->session->has_userdata('APPLICATION_ID')){
+            $APPLICATION_ID = $this->session->userdata('APPLICATION_ID');
+            $user = $this->session->userdata($this->SessionName);
+            //prePrint($user);
+            $user_fulldata = $this->User_model->getUserFullDetailById($user['USER_ID']);
+            $data['profile_url'] = base_url().$this->profile;
+            $data['user'] = $user_fulldata;
+            $data['APPLICATION_ID'] = $APPLICATION_ID;
+            $application = $this->Application_model->getApplicationByUserAndApplicationId($user['USER_ID'], $APPLICATION_ID);
+            $data['user_application_list'] = $this->Application_model->getApplicationByUserId($user['USER_ID']);
+
+            if ($application) {
+
+//                $error = $this->isValidProfileInformation($user_fulldata,$application);
+//               if($error==""){
+//                   $data['basic_profile'] = 100;
+//               }else{
+//                   substr_count($error, '<div>', 3);
+//               }
+                    //prePrint($application);
+                    $this->load->view('include/header',$data);
+                $this->load->view('include/preloder');
+                $this->load->view('include/side_bar',$data);
+                $this->load->view('include/nav',$data);
+                $this->load->view('dashboard',$data);
+                $this->load->view('include/footer_area',$data);
+                $this->load->view('include/footer',$data);
+
+
+            }else{
+                $alert = array('MSG'=>"<div class='text-danger'>Application Not found </div>",'TYPE'=>'ERROR');
+                $this->session->set_flashdata('ALERT_MSG',$alert);
+                redirect(base_url()."form/announcement");
+            }
+        }
+        else {
+            redirect(base_url() . "login");
+        }
+    }
+
+    private function getValidationArray($application){
+        $must_provide = "Must Be Provided";
+        $must_select = "Must Be Provided";
+        $must_upload = "Must Upload";
+
+        $qualification = array();
+        if($application['PROGRAM_TYPE_ID']==1){
+        $qualification =  $bachelor = array(2,3);
+        $qualification_error_msg =  $bachelor_error_msg = array("Matriculation Degree Missing Must add","Intermediate Degree Missing Must add");
+
+        }else if($application['PROGRAM_TYPE_ID']==2){
+            $qualification =  $master_id = array(2,3,4);
+            $qualification_error_msg =  $master_error_msg = array("Matriculation Degree Missing Must add","Intermediate Degree Missing Must add","Bachelor 14 Year / BA / BSC / BCOM Degree Missing Must add");
+        }
+
+        $validation_array=array(
+                "users_reg" =>array(
+                    "FIRST_NAME"=>array("regex"=>"[A-Za-z]{2}","error_msg"=>"Full Name $must_provide as per Matriculation"),
+                    "LAST_NAME"=>array("regex"=>"[A-Za-z]{2}","error_msg"=>"Surname $must_provide"),
+                    "FNAME"=>array("regex"=>"[A-Za-z]{2}","error_msg"=>"Father $must_provide"),
+                    "GENDER"=>array("regex"=>"[A-Za-z]{1}","error_msg"=>"Gender $must_select"),
+                    "MOBILE_NO"=>array("regex"=>"[0-9]{10}","error_msg"=>"Mobile Number $must_provide"),
+                    "HOME_ADDRESS"=>array("regex"=>"[A-Za-z0-9\-\\,.]+","error_msg"=>"Home Address $must_provide"),
+                    "PERMANENT_ADDRESS"=>array("regex"=>"[A-Za-z0-9\-\\,.]+","error_msg"=>"Parmanent Address $must_provide"),
+                    "DATE_OF_BIRTH"=>array("regex"=>"[a-zA-Z]|\d|[^a-zA-Z\d]","error_msg"=>"Date of Birth $must_provide"),
+                    "BLOOD_GROUP"=>array("regex"=>"^(A|B|AB|O)[+-]$","error_msg"=>"Blood Group $must_select"),
+                    "MOBILE_CODE"=>array("regex"=>"[0-9]{4}","error_msg"=>"Mobile $must_select"),
+                    "COUNTRY_ID"=>array("regex"=>"[0-9]","error_msg"=>"Country $must_select"),
+                    "PROVINCE_ID"=>array("regex"=>"[0-9]","error_msg"=>"Province $must_select"),
+                    "DISTRICT_ID"=>array("regex"=>"[0-9]","error_msg"=>"District $must_select"),
+                    "PROFILE_IMAGE"=>array("regex"=>"[a-zA-Z]|\d|[^a-zA-Z\d]","error_msg"=>"Profile Image $must_upload"),
+                    "DOMICILE_IMAGE"=>array("regex"=>"[a-zA-Z]|\d|[^a-zA-Z\d]","error_msg"=>"Domicile Image $must_upload"),
+                    "DOMICILE_FORM_C_IMAGE"=>array("regex"=>"[a-zA-Z]|\d|[^a-zA-Z\d]","error_msg"=>"Domicile Form C Image $must_upload"),
+                    "EMAIL"=>array("regex"=>"^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$","error_msg"=>"Email $must_provide"),
+                    "RELIGION"=>array("regex"=>"[A-Za-z]{2}","error_msg"=>"Religion $must_provide"),
+                    "U_R"=>array("regex"=>"^\w{1}$","error_msg"=>"Area $must_select"),
+
+                ),
+                "CNIC"=>array(
+                    "CNIC_NO"=>array("regex"=>"[0-9]{13}","error_msg"=>"CNIC No $must_provide"),
+                    "CNIC_FRONT_IMAGE"=>array("regex"=>"[a-zA-Z]|\d|[^a-zA-Z\d]","error_msg"=>"CNIC Front / B-Form Image $must_upload"),
+                    "CNIC_BACK_IMAGE"=>array("regex"=>"[a-zA-Z]|\d|[^a-zA-Z\d]","error_msg"=>"CNIC Back / B-Form  Image $must_upload"),
+
+                ),
+                "PASSPORT"=>array(
+                    "PASSPORT_NO"=>array("regex"=>"[0-9]{13}","error_msg"=>"Passport No $must_provide"),
+                    "PASSPORT_FRONT_IMAGE"=>array("regex"=>"[a-zA-Z]|\d|[^a-zA-Z\d]","error_msg"=>"Passport Front Image $must_upload"),
+                    "PASSPORT_BACK_IMAGE"=>array("regex"=>"[a-zA-Z]|\d|[^a-zA-Z\d]","error_msg"=>"Passport Back / B-Form Image $must_upload"),
+                ),
+                "guardian"=>array(
+                    "FIRST_NAME"=>array("regex"=>"[A-Za-z]{2}","error_msg"=>"Guardian Name $must_provide"),
+                    "RELATIONSHIP"=>array("regex"=>"[A-Za-z]{2}","error_msg"=>"Relationship Name $must_select"),
+                    "MOBILE_CODE"=>array("regex"=>"[0-9]{4}","error_msg"=>"Guardian Mobile Code $must_select"),
+                    "MOBILE_NO"=>array("regex"=>"[0-9]{10}","error_msg"=>"Guardian Mobile Number $must_provide"),
+                    "HOME_ADDRESS"=>array("regex"=>"[A-Za-z0-9\-\\,.]+","error_msg"=>"Home Address $must_provide"),
+                ),
+                "qualifications"=>array(
+                    "DEGREE_ID" =>$qualification,
+                    "DEGREE_ID_MSG" =>$qualification_error_msg
+                )
+            );
+            return $validation_array;
+    }
+
+    private function isValidProfileInformation($user_fulldata,$application){
+        //calling private method get validationArray
+        $validation_array = $this->getValidationArray($application);
+
+        $user_reg_validation = $validation_array['users_reg'];
+        $guardian_validation = $validation_array['guardian'];
+        $qualifications_validation = $validation_array['qualifications'];
+        $qualification_error_msg = $validation_array['qualifications']['DEGREE_ID_MSG'];
+
+        $users_reg = $user_fulldata['users_reg'];
+        $guardian = $user_fulldata['guardian'];
+        $qualifications = $user_fulldata['qualifications'];
+
+
+        if($users_reg['IS_CNIC_PASS']=='P'){
+            $user_reg_validation = array_merge($user_reg_validation,$validation_array['PASSPORT']);
+        }else{
+            $user_reg_validation = array_merge($user_reg_validation,$validation_array['CNIC']);
+        }
+
+        $error = "";
+        foreach($user_reg_validation as $column=>$value){
+
+
+            if(preg_match("/".$value['regex']."/", $users_reg[$column])){
+
+            }else{
+                $error.="<div class='text-danger'>{$value['error_msg']}</div>";
+
+            }
+        }
+
+        foreach($guardian_validation as $column=>$value){
+
+
+            if(preg_match("/".$value['regex']."/", $guardian[$column])){
+
+            }else{
+                $error.="<div class='text-danger'>{$value['error_msg']}</div>";
+            }
+        }
+        foreach($qualifications as $qual){
+
+            foreach($qualifications_validation['DEGREE_ID'] as $k=>$val){
+                if($qual['DEGREE_ID']==$val){
+                    unset($qualifications_validation['DEGREE_ID'][$k]);
+                    unset($qualification_error_msg[$k]);
+
+                    break;
+                }
+            }
+        }
+        foreach ($qualification_error_msg as $error_msg){
+            $error.="<div class='text-danger'>{$error_msg}</div>";
+        }
+        return $error;
+        //prePrint($qualification_error_msg);
+
+    }
     private function upload_image($index_name,$image_name,$max_size = 50,$path = '../eportal_resource/images/applicants_profile_image/',$con_array=array())
     {
 

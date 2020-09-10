@@ -1,11 +1,15 @@
 <div id = "min-height" class="container-fluid" style="padding:30px">
     <div class="row">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
             <div class="row">
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     <div class="review-content-section">
                         <div id="dropzone1" class="pro-ad">
                             <div class="card">
+                                <div class="card-header">
+                                    <h1>Upload Paid Challan For <?=ucwords(strtolower($application['PROGRAM_TITLE']))?> Program in <?=ucwords(strtolower($application['NAME']))?></h1>
+                                </div>
                                 <div class="card-body">
                                     <?php
                                     $hidden = array("APPLICATION_ID"=>$APPLICATION_ID);
@@ -13,9 +17,16 @@
                                     ?>
 
                             <!--                                        <form action="/upload" class="dropzone dropzone-custom needsclick add-professors dz-clickable" id="demo1-upload" novalidate="novalidate">-->
-                            <?=form_open(base_url('form/challan_upload_handler'), ' enctype="multipart/form-data" class="dropzone dropzone-custom needsclick add-professors dz-clickable" id="challan_form "',$hidden);?>
+
+                            <?php
+                            if($application['IS_SUBMITTED']=="N"){
+                                echo form_open(base_url('form/challan_upload_handler'), ' enctype="multipart/form-data" class="dropzone dropzone-custom needsclick add-professors dz-clickable" id="challan_form "',$hidden);
+                            }
+
+                            ?>
 
                             <div class="row">
+
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <div class="form-group">
                                         <label for="exampleInput1" class="bmd-label-floating">Bank Branch
@@ -40,40 +51,50 @@
                                 </div>
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <div class="form-group">
+                                        <label for="exampleInput1" class="bmd-label-floating">Challan Paid Date
+                                            <span class="text-danger">* &nbsp;<small>dd/mm/yyyy</small></span></label>
+                                        <div class="form-group data-custon-pick" id="data_2">
+                                            <div class="input-group date">
+                                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                <?php
+                                                if($application['CHALLAN_DATE']){
+                                                    $date = getDateForView($application['CHALLAN_DATE']);
+                                                }else{
+                                                    $date = date('d/m/Y');
+                                                }
+
+                                                ?>
+                                                <input  type="text" id="CHALLAN_PAID_DATE"  name="CHALLAN_PAID_DATE" class="form-control"  value="<?=$date?>" readonly>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                    <div class="form-group">
                                         <label for="exampleInput1" class="bmd-label-floating">Challan Number
                                             <span class="text-danger">*</span>
                                             <span class="text-danger" id="CHALLAN_NO_VIEW_MSG"></span>
                                         </label>
-                                        <input  type="text" id="CHALLAN_NO" class="form-control allow-number" placeholder="CHALLAN NO" name="CHALLAN_NO" value="<?=($application['PAID']=='N'||$application['PAID']=='Y')?$application['FORM_CHALLAN_ID']:'';?>">
+                                        <input  readonly value ="<?=$application['FORM_CHALLAN_ID']?>"type="text" id="CHALLAN_NO" class="form-control allow-number" placeholder="CHALLAN NO" name="CHALLAN_NO" value="<?=($application['PAID']=='N'||$application['PAID']=='Y')?$application['FORM_CHALLAN_ID']:'';?>">
 
 
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row">
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <div class="form-group">
                                         <label for="exampleInput1" class="bmd-label-floating">Challan Amount
                                             <span class="text-danger">*</span>
                                             <span class="text-danger" id="CHALLAN_AMOUNT_VIEW_MSG"></span>
                                         </label>
-                                        <input  type="text" id="CHALLAN_AMOUNT" class="form-control allow-number" placeholder="CHALLAN AMOUNT" name="CHALLAN_AMOUNT" value="<?=$application['PAID_AMOUNT']?>" >
+                                        <input readonly type="text"  value =" <?=$application['CHALLAN_AMOUNT']?>" id="CHALLAN_AMOUNT" class="form-control allow-number" placeholder="CHALLAN AMOUNT" name="CHALLAN_AMOUNT" value="<?=$application['PAID_AMOUNT']?>" >
 
 
                                     </div>
                                 </div>
-                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                    <div class="form-group">
-                                        <label for="exampleInput1" class="bmd-label-floating">Challan Paid Date
-                                            <span class="text-danger">* &nbsp;<small>dd/mm/yyyy</small></span></label>
-                                        <div class="form-group data-custon-pick" id="data_2">
-                                            <div class="input-group date">
-                                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                                <input  type="text" id="CHALLAN_PAID_DATE"  name="CHALLAN_PAID_DATE" class="form-control"  value="<?=getDateForView($application['CHALLAN_DATE'])?>" readonly>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+
                             </div>
                             <div class="row">
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
@@ -104,15 +125,32 @@
                                     <div class="row">
                                         <div class="col-lg-4">
                                         </div>
+                                        <?php
+                                    if($application['IS_SUBMITTED']=="N") {
+                                        ?>
                                         <div class="col-lg-4">
                                             <div class="payment-adress">
-                                                <button type="submit" class="btn btn-primary btn-lg waves-effect waves-light">Save</button>
+                                                <button type="submit"
+                                                        class="btn btn-primary btn-lg waves-effect waves-light">Save
+                                                </button>
                                             </div>
                                         </div>
+                                        <?php
+                                    }
+                                        ?>
+                                        <div class="col-lg-2">
+                                            <div class="">
+                                                <button type="button" class="btn btn-success btn-lg "  onclick = "check_validtion_of_challan()" >Next</button>
+                                            </div>
+                                        </div>
+
                                     </div>
+                                    <?php
+                                    if($application['IS_SUBMITTED']=="N"){
+                                    echo "</form>";
+                                    }
+                                    ?>
 
-
-                            </form>
                                 </div>
                             </div>
                         </div>
@@ -144,9 +182,17 @@
     $( '.img-table-certificate' ).click(function() {
         alertImage('Image',$(this).attr('src'));
     });
+    function check_validtion_of_challan(){
+        window.location.href = "<?=base_url()?>form/check_validation_and_challan";
+    }
 </script>
 <style>
     .select2-container--default .select2-results__option[aria-disabled=true] {
         color: #f90000;
+    }
+    .btn-success {
+        color: #fff;
+        background-color: #5cb85c;
+        border-color: #4cae4c;
     }
 </style>

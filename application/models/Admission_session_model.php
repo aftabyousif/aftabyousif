@@ -51,6 +51,11 @@ class Admission_session_model extends CI_Model
             return $this->legacy_db->get('bank_information')->result_array();
         }
 
+        function getBankInformationByBranchId($branch_id){
+            $this->legacy_db = $this->load->database("admission_db",true);
+            $this->legacy_db->where('BRANCH_ID',$branch_id);
+            return $this->legacy_db->get('bank_information')->row_array();
+        }
 
 
 }

@@ -246,7 +246,7 @@ function myFunction($copy, $x,$pdf,$record,$roll_no)
     $pdf->SetFont('Times','B',10);
     $x1 = $pdf->getX();
     $y = $pdf->getY();
-    $pdf->MultiCell(40,5,"Admission Kit and Pre-Entry Test Fee for the Academic Year 2019",1,"J");
+    $pdf->MultiCell(40,5,"Admission Processing Fee For The Academic Year 2021",1,"J");
     $pdf->SetXY($x1+40, $y);
     $pdf->Cell(25,15,"Rs. ".number_format($total_amount,2),1,"","R",false);
     $height = $height+20;
@@ -263,7 +263,7 @@ function myFunction($copy, $x,$pdf,$record,$roll_no)
     $pdf->MultiCell(64,4,"                               IMPORTANT NOTE:
          The criteria for promotion to next higher classes shall be according to the rules and regulations of the University.The provisional admission to next higher class is allowed on the basis of data provided / submitted by the candidate him/herself. In case any applicant submitted / provided wrong information in admission form (detected at any stage), his/her admission shall be cancelled.The University of Sindh reserves the right to rectify any error / omission detected at any stage.",1,"L",false);
 
-    $data = strtoupper($rollNo). "~" . $challan_no . "~" . $candidate_id. "~" . $total_amount . "~" . $valid_upto . "~" . $account_no . "~" . $current_date;
+    $data = $candidate_id. "~" . $challan_no . "~" . $candidate_id. "~" . $total_amount . "~" . $valid_upto . "~" . $account_no . "~" . $current_date;
     //$result=str_pad($data, 10, "0", STR_PAD_LEFT);
 
 
