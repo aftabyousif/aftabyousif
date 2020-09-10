@@ -200,7 +200,6 @@ document.getElementById('min-height').style="padding:30px;min-height:"+(window.i
             $('#alert_btn').click();
 
         }
-
  $('.preloader').fadeOut(700);
     </script>
     <?php

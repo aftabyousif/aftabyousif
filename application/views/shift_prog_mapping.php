@@ -21,7 +21,7 @@
 		<?=form_open('mapping/save_shift_program_mapping')?>
 <!--		<form id="form" action="save_shift_program_mapping" method="post" class="wizard-big">-->
 		<div class="row">
-			<div class="col-md-6">
+			<div class="col-md-3">
 				<label>Shift</label>
 				<select name="shift" id="shift" onchange="loadMappedPrograms()" class="form-control">
 					<option value=""></option>
@@ -35,6 +35,23 @@
 					unset($shifts);
 					unset($shift_key);
 					unset($shift_value);
+					?>
+				</select>
+			</div>
+			<div class="col-md-3">
+				<label>Program Type</label>
+				<select name="program_type" id="program_type" onchange="loadMappedPrograms()" class="form-control">
+					<option value=""></option>
+					<?php
+					foreach ($program_types as $program_type_key=>$program_type_value)
+					{
+						?>
+						<option value=<?=$program_type_value['PROGRAM_TYPE_ID']?>><?=$program_type_value['PROGRAM_TITLE']?></option>";
+						<?php
+					}
+					unset($program_type);
+					unset($program_type_key);
+					unset($program_type_value);
 					?>
 				</select>
 			</div>
@@ -88,6 +105,7 @@
 						 <th>PROG ID</th>
 						 <th>SHIFT ID</th>
 						 <th>PROGRAM TITLE</th>
+						 <th>DEGREE TITLE</th>
 						 <th>SHIFT</th>
 						 <th>REMARKS</th>
 						 <th>ACTION</th>
@@ -175,14 +193,18 @@
 	function loadMappedPrograms (){
 
 		let shift_id = $("#shift").val();
+		let program_type = $("#program_type").val();
 		// alert(shift_id);
 			if (shift_id === "" || shift_id === 0 || shift_id == null || isNaN(shift_id))
 				shift_id = 0;
+		if (program_type === "" || program_type === 0 || program_type == null || isNaN(program_type))
+			program_type = 0;
+
 		$("#table_data").empty();
 		$.ajax({
 			url:'<?=base_url()?>mapping/getMappedPrograms',
 			method: 'POST',
-			data: {shift_id:shift_id,csrf_name:csrf_hash},
+			data: {shift_id:shift_id,program_type:program_type,csrf_name:csrf_hash},
 			dataType: 'json',
 			success: function(response){
 				// console.log(response);
@@ -198,6 +220,7 @@
 					tr+= "<td>"+value['PROG_ID']+"</td>";
 					tr+= "<td>"+value['SHIFT_ID']+"</td>";
 					tr+= "<td>"+value['PROGRAM_TITLE']+"</td>";
+					tr+= "<td>"+value['DEGREE_TITLE']+"</td>";
 					tr+= "<td>"+value['SHIFT_NAME']+"</td>";
 					tr+= "<td>"+remarks+"</td>";
 					// tr+= "<td>-</td>";

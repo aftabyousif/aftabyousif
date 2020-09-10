@@ -12,7 +12,7 @@ require_once  APPPATH.'controllers/AdminLogin.php';
 class Mapping extends AdminLogin
 {
 //	private $SessionName = 'ADMIN_LOGIN_FOR_ADMISSION';
-
+	private $script_name = "";
 	public function __construct()
 	{
 		parent::__construct();
@@ -21,27 +21,39 @@ class Mapping extends AdminLogin
 		$this->load->model('log_model');
 		$this->load->model('Api_qualification_model');
 //		$this->load->library('javascript');
+		$self = $_SERVER['PHP_SELF'];
+		$self = explode('index.php/',$self);
+		$this->script_name = $self[1];
 		$this->verify_login();
 	}
 
 	 public function shift_program_mapping ()
 	{
-
 		$user = $this->session->userdata($this->SessionName);
+		$user_role = $this->session->userdata($this->user_role);
+		$user_id = $user['USER_ID'];
+		$role_id = $user_role['ROLE_ID'];
+
+		$side_bar_data = $this->Configuration_model->side_bar_data($user_id,$role_id);
+		$this->verify_path($this->script_name,$side_bar_data);
 
 		$data['user'] = $user;
-//		$data['user'] =
 		$data['profile_url'] = '';
 
-		$programs = $this->Administration->programs();
-		$shifts	= $this->Administration->shifts();
+		$programs 		= $this->Administration->programs();
+		$shifts			= $this->Administration->shifts();
+		$program_types 	= $this->Administration->programTypes ();
+
 
 		$data['programs'] = $programs;
 		$data['shifts'] = $shifts;
+		$data['side_bar_values'] = $side_bar_data;
+		$data['script_name'] = $this->script_name;
+		$data['program_types'] = $program_types;
 
 		$this->load->view('include/header',$data);
 		$this->load->view('include/preloder');
-		$this->load->view('include/side_bar');
+		$this->load->view('include/side_bar',$data);
 		$this->load->view('include/nav',$data);
 		$this->load->view('shift_prog_mapping',$data);
 		$this->load->view('include/footer_area');
@@ -50,19 +62,27 @@ class Mapping extends AdminLogin
 	}
 	public function category_management ()
 	{
-		$data['user'] = '';
-		$data['user'] = '';
+		$user = $this->session->userdata($this->SessionName);
+		$user_role = $this->session->userdata($this->user_role);
+		$user_id = $user['USER_ID'];
+		$role_id = $user_role['ROLE_ID'];
+		$side_bar_data = $this->Configuration_model->side_bar_data($user_id,$role_id);
+		$this->verify_path($this->script_name,$side_bar_data);
+
+		$data['user'] = $user;
 		$data['profile_url'] = '';
 
 		$category_type = $this->Administration->category_type();
+
 //		$shifts	= $this->Administration->shifts();
 
 		$data['category_type'] = $category_type;
-//		$data['shifts'] = $shifts;
+		$data['side_bar_values'] = $side_bar_data;
+		$data['script_name'] = $this->script_name;
 
 		$this->load->view('include/header',$data);
 //		$this->load->view('include/preloder');
-		$this->load->view('include/side_bar');
+		$this->load->view('include/side_bar',$data);
 		$this->load->view('include/nav',$data);
 		$this->load->view('display_category',$data);
 		$this->load->view('include/footer_area');
@@ -96,6 +116,7 @@ class Mapping extends AdminLogin
 	{
 			$this->form_validation->set_rules('selected_programs[]','Programs are required','required');
 			$this->form_validation->set_rules('shift','Shift is required','trim|required');
+			$this->form_validation->set_rules('program_type','program type is required','trim|required');
 
 			if (!$this->form_validation->run())
 			{
@@ -105,13 +126,16 @@ class Mapping extends AdminLogin
 			{
 				$shift_id = $this->input->post('shift');
 				$selected_programs = $this->input->post('selected_programs[]');
+				$program_type = $this->input->post('program_type');
+
 				$mega_array = array();
 				foreach ($selected_programs as $key=>$value)
 				{
 					$prog_id = $value;
 					$record = array(
 						'PROG_LIST_ID'=>html_escape($prog_id),
-						'SHIFT_ID'=>html_escape($shift_id)
+						'SHIFT_ID'=>html_escape($shift_id),
+						'PROGRAM_TYPE_ID'=>html_escape($program_type)
 					);
 					array_push($mega_array,$record);
 				}//foreach
@@ -133,11 +157,13 @@ class Mapping extends AdminLogin
 	{
 //		echo json_encode('hello');
 		$this->form_validation->set_rules('shift_id','shift is required','required|trim');
+		$this->form_validation->set_rules('program_type','program is required','required|trim');
 		if ($this->form_validation->run())
 		{
 			$shift_id = $this->input->post("shift_id");
+			$program_type = $this->input->post("program_type");
 
-			$record = $this->Administration->getMappedPrograms($shift_id);
+			$record = $this->Administration->getMappedPrograms($shift_id,$program_type);
 			echo json_encode($record);
 		}//if
 	}//function
