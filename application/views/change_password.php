@@ -7,12 +7,12 @@
             <div class="col-md-6">
 
                 <div class="calender-inner">
-                    <h3>Change  Password Rule</h3>
+                    <h3>Password Rule</h3>
                     <div class="row">
-                        <div class='text-danger'>At least one digit ...!</div>
-                        <div class='text-danger'>At least one lowercase character ...!</div>
-                        <div class='text-danger'>At least one uppercase character ...!</div>
-                        <div class='text-danger'>At least one special character ...!</div>
+                        <!--<div class='text-danger'>At least one digit ...!</div>-->
+                        <!--<div class='text-danger'>At least one lowercase character ...!</div>-->
+                        <!--<div class='text-danger'>At least one uppercase character ...!</div>-->
+                        <!--<div class='text-danger'>At least one special character ...!</div>-->
                         <div class='text-danger'>At least 8 characters in length, but no more than 50 ...!</div>
                     </div>
 

@@ -55,6 +55,22 @@
 					?>
 				</select>
 			</div>
+			<div class="col-md-3">
+				<label>Campus</label>
+				<select name="campus_id" id="campus_id" onchange="loadMappedPrograms()" class="form-control">
+				
+					<?php
+					foreach ($campus as $camp)
+					{
+						?>
+						<option value=<?=$camp['CAMPUS_ID']?>><?=$camp['NAME']?></option>";
+						<?php
+					}
+				
+					?>
+				</select>
+			</div>
+		
 		</div>
 		<br>
 		<div class="row">
@@ -129,8 +145,8 @@
 <script type="text/javascript">
 
 	function DeleteProgram (prog_id,shift_id){
-
-		if (shift_id === "" || shift_id === 0 || shift_id == null || isNaN(shift_id) || prog_id === "" || prog_id === 0 || prog_id == null || isNaN(prog_id))
+        	let campus_id = $("#campus_id").val();    
+		if (campus_id === "" || campus_id === 0 || campus_id == null || isNaN(campus_id) ||shift_id === "" || shift_id === 0 || shift_id == null || isNaN(shift_id) || prog_id === "" || prog_id === 0 || prog_id == null || isNaN(prog_id))
 			return;
 
 		if (confirm("Do you want to delete?") === false)
@@ -140,7 +156,7 @@
 		$.ajax({
 			url:'<?=base_url()?>mapping/DeleteMappedPrograms',
 			method: 'POST',
-			data: {shift_id:shift_id,prog_id:prog_id,csrf_name:csrf_hash},
+			data: {shift_id:shift_id,prog_id:prog_id,campus_id:campus_id,csrf_name:csrf_hash},
 			dataType: 'json',
 			// success: function(response){
 			// 	console.log(response);
@@ -165,16 +181,20 @@
 	function ignoreMappedPrograms (){
 
 		let shift_id = $("#shift").val();
+		let campus_id = $("#campus_id").val();
 		// alert(shift_id);
 		$("#selected_programs").html('')
 		if (shift_id === "" || shift_id === 0 || shift_id == null || isNaN(shift_id))
 			return;
+			
+		if (campus_id === "" || campus_id === 0 || campus_id == null || isNaN(campus_id))
+		return;
 		// $("#selected_programs").empty();
 
 		$.ajax({
 			url:'<?=base_url()?>mapping/ignoreMappedPrograms',
 			method: 'POST',
-			data: {shift_id:shift_id,csrf_name:csrf_hash},
+			data: {shift_id:shift_id,campus_id:campus_id,csrf_name:csrf_hash},
 			dataType: 'json',
 			success: function(response){
 				// console.log(response);
@@ -194,17 +214,21 @@
 
 		let shift_id = $("#shift").val();
 		let program_type = $("#program_type").val();
+		let campus_id = $("#campus_id").val();
 		// alert(shift_id);
 			if (shift_id === "" || shift_id === 0 || shift_id == null || isNaN(shift_id))
 				shift_id = 0;
 		if (program_type === "" || program_type === 0 || program_type == null || isNaN(program_type))
 			program_type = 0;
+		
+		if (campus_id === "" || campus_id === 0 || campus_id == null || isNaN(campus_id))
+			campus_id = 0;
 
 		$("#table_data").empty();
 		$.ajax({
 			url:'<?=base_url()?>mapping/getMappedPrograms',
 			method: 'POST',
-			data: {shift_id:shift_id,program_type:program_type,csrf_name:csrf_hash},
+			data: {shift_id:shift_id,program_type:program_type,campus_id:campus_id,csrf_name:csrf_hash},
 			dataType: 'json',
 			success: function(response){
 				// console.log(response);
@@ -228,6 +252,7 @@
 					tr+="</tr>";
 					$("#table_data").append(tr);
 				});
+				ignoreMappedPrograms();
 			}
 		});
 	}

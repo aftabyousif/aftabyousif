@@ -4,7 +4,7 @@
 		<div class="container-fluid">
 			<div class="sparkline10-hd">
 				<div class="main-sparkline10-hd text-center bg-warning">
-					<h1>Add Edit Prerequisite</h1>
+					<h1>Add / Update / Delete  Prerequisite</h1>
 				</div>
 			</div>
 
@@ -45,9 +45,6 @@
 
 				<div class="col-lg-4 col-md-4">
 					<label>Discipline</label>
-					<?php
-					//					print_r($degree_programs);
-					?>
 					<select name="discipline_id" id="discipline_id" onchange="loadMappedMinors()" required class="form-control">
 						<option value=""></option>
 					</select>
@@ -62,31 +59,40 @@
 					</div>
 				</div>
 			</div>
-			<br>
+<!--			<br>-->
 			<div class="row">
+
+				<div class="col-lg-2 col-md-2">
+					<div class="form-group">
+						<label>Program Type</label>
+						<select id="program_type" name="program_type" class="form-control" onchange="getProgramByProgramType()">
+<!--							<option></option>-->
+							<?php
+							foreach ($program_types as $program_type)
+							{
+								?>
+								<option value=<?=$program_type['PROGRAM_TYPE_ID']?>><?=$program_type['PROGRAM_TITLE']?></option>";
+								<?php
+							}
+							unset($program_type);
+							unset($program_types);
+							?>
+						</select>
+					</div>
+				</div>
+
 				<div class="col-lg-4 col-md-4">
 					<div class="form-group">
 						<label>Program of Study</label>
-						<select id="study_program" name="study_program" class="form-control">
+						<select id="study_program" name="study_program[]" class="form-control" size="7" multiple="multiple">
 						<option></option>
-							<?php
-							foreach ($program_list as $program_list_key=>$program_list_value)
-							{
-								?>
-								<option value=<?=$program_list_value['PROG_LIST_ID']?>><?=$program_list_value['PROGRAM_TITLE']?></option>";
-								<?php
-							}
-							unset($program_list);
-							unset($program_list_keyy);
-							unset($program_list_value);
-							?>
 						</select>
 					</div>
 				</div>
 				<div class="col-lg-4 col-md-4">
 					<div class="form-group">
 						<label>Remarks</label>
-						<input type="text" id="remarks" name="remarks" class="form-control" />
+						<textarea id="remarks" name="remarks" class="form-control"></textarea>
 					</div>
 				</div>
 				<div class="btn-group-sm">
@@ -97,29 +103,31 @@
 			</form>
 			<br/>
 			<div class="row">
-				<div class="col-md-12 col-sm-12 col-lg-12 col-xs-12"
-				<div class="table-responsive">
-					<table class="table">
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+					<table  class="table">
 						<thead>
 						<th>S.No</th>
 						<th>Minor Mapping ID</th>
 						<th>Discipline ID</th>
 						<th>Prog List ID</th>
 						<th>Prerequisite ID</th>
-						<th>Subject Title</th>
-<!--						<th>Discipline Name</th>-->
 						<th>Program of Study</th>
+						<th>Subject Title</th>
 						<th>Remarks</th>
 						<th>Action</th>
 						</thead>
+
 						<tbody id="table_data">
 						</tbody>
+
 					</table>
+
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-</div>
+
 
 <?php $CI =& get_instance(); ?>
 <script>
@@ -192,8 +200,8 @@
 			success: function(response){
 				// console.log(response);
 				let i=0;
-				let dropOption= "<option></option>";
-				$("#subject_id").append(dropOption);
+				// let dropOption= "<option></option>";
+				// $("#subject_id").append(dropOption);
 				$.each(response, function (index,value) {
 					i++;
 					var DISCIPLINE_ID 		= value['DISCIPLINE_ID'];
@@ -211,6 +219,7 @@
 					let dropOption= "<option value="+MINOR_MAPPING_ID+">"+SUBJECT_TITLE+"</option>";
 					$("#subject_id").append(dropOption);
 				});
+				LoadPrerequisite ();
 			}
 		});
 	}
@@ -290,8 +299,8 @@
 					tr+= "<td>"+DISCIPLINE_ID+"</td>";
 					tr+= "<td>"+PROG_LIST_ID+"</td>";
 					tr+= "<td>"+PREREQUISITE_ID+"</td>";
-					tr+= "<td>"+SUBJECT_TITLE+"</td>";
 					tr+= "<td>"+PROGRAM_TITLE+"</td>";
+					tr+= "<td>"+SUBJECT_TITLE+"</td>";
 					tr+= "<td>"+REMARKS+"</td>";
 
 					tr+= "<td><a href='javascript:void(0)' onclick=DeletePrerequisite("+PREREQUISITE_ID+");>Delete</a>";
@@ -308,5 +317,35 @@
 	$(document).ready(function () {
 		// loadMappedMinors ();
 		// LoadPrerequisite ();
+		getProgramByProgramType ();
 	});
+
+	function getProgramByProgramType (){
+
+		let program_type = $("#program_type").val();
+		// alert(shift_id);
+		$("#study_program").html('');
+		if (program_type === "" || program_type === 0 || program_type == null || isNaN(program_type))
+			return;
+		$("#study_program").empty();
+
+		$.ajax({
+			url:'<?=base_url()?>mapping/getProgramByProgramTypeID',
+			method: 'POST',
+			data: {program_type:program_type,csrf_name:csrf_hash},
+			dataType: 'json',
+			success: function(response){
+				// console.log(response);
+				let i=0;
+				$.each(response, function (index,value) {
+					// i++;
+					// if (value['REMARKS'] == null)
+					// 	var remarks = '';
+					let option="";
+					option+= "<option value='"+value['PROG_ID']+"'>"+value['PROGRAM_TITLE']+"</option>";
+					$("#study_program").append(option);
+				});
+			}
+		});
+	}
 </script>

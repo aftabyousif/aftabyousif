@@ -43,7 +43,7 @@
                             </div>
 
                             <div class="col-12">
-                                <button type="submit" id="register" name='login' class="btn btn-primary btn-lg">login</button>
+                                <button type="submit" id="login" name='login' class="btn btn-primary btn-lg">login</button>
                             </div>
 
                             <div class="col-12 top-margin" >

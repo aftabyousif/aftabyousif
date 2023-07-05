@@ -1,0 +1,1190 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Kashif Shaikh
+ * Date: 12/15/2020
+ * Time: 1:57 PM
+ */
+
+
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+require_once  APPPATH.'controllers/AdminLogin.php';
+class SelectionList extends AdminLogin
+{
+    private $script_name = "";
+    private $pre_requiste_list = null;
+    private $pre_req_log = null;
+    // private $commerce_list=array();
+
+    //getIndexOfObjectInList($assoc_array,$key,$value)
+    //findObjectinList($assoc_array,$key,$value)
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        set_time_limit(1500);
+        ini_set('memory_limit', '-1');
+
+        $this->load->model('Administration');
+        $this->load->model('log_model');
+        $this->load->model('Api_qualification_model');
+        $this->load->model('Api_location_model');
+        $this->load->model('User_model');
+        $this->load->model('Application_model');
+        $this->load->model('Admission_session_model');
+        $this->load->model('TestResult_model');
+        $this->load->model('MeritList_model');
+        $this->load->model('Prerequisite_model');
+//		$this->load->library('javascript');
+        $self = $_SERVER['PHP_SELF'];
+        $self = explode('index.php/', $self);
+        $this->script_name = $self[1];
+        $this->verify_login();
+        $this->pre_req_log = fopen("error_log_for_prereq.csv", "w") or die("Unable to open file!");
+
+        //echo "yes";
+    }
+    public function generateList(){
+		//set_time_limit(60*60*4);
+        //ini_set('max_execution_time', -1);
+        $TEST_ID = 1;//general test
+        $LAT_TEST_ID = 3;//LAT test
+        $campus_id = 1;//main campus
+        $shift_id = 1;//morning
+        $session_id = 1;//2021
+        $prog_type_id = 1;//bachelor
+        $first_merit_list = 1;
+        $this->pre_requiste_list = $this->Prerequisite_model->getPrerequisiteByProgramTypeId($prog_type_id);
+
+        $campus_jurisdiction_list = $this->Administration->getMappedCampusJurisdiction($campus_id);
+
+        $discipline_seat_distribution = $this->MeritList_model->getSeatDistribution($campus_id,$shift_id,$session_id,$prog_type_id);
+
+    // prePrint($discipline_seat_distribution);
+    // exit();
+        //$all_candidate_results = $this->TestResult_model->getTestResultAndCPNbyTestIdAndCampusId($TEST_ID,$campus_id,$shift_id);
+        $all_candidate_results = $this->TestResult_model->getListOfStudentByTestIdAndCampusIdAndShiftId($TEST_ID,$campus_id,$shift_id);
+        $all_candidate_results_sort = quicksort($all_candidate_results,'CPN',"DESC");
+        prePrint("ALL STUDENT " . count($all_candidate_results_sort));
+
+        /*
+        $lat_all_candidate_results = $this->TestResult_model->getTestResultAndCPNbyTestIdAndCampusId($LAT_TEST_ID,$campus_id);
+        $lat_all_candidate_results_sort = quicksort($lat_all_candidate_results,'CPN',"DESC");
+        prePrint("LAW STUDENT " . count($lat_all_candidate_results_sort));
+        // exit();
+
+        $llb_seats_index = getIndexOfObjectInList($discipline_seat_distribution,'PROG_LIST_ID',LLB_PROG_LIST_ID);
+        $llb_seats_distribution = array(&$discipline_seat_distribution[$llb_seats_index]);
+
+        $llb_selected_candidate = array();
+        $llb_not_selected_candidat = array();
+        $this->getDepartmentMeritList($lat_all_candidate_results_sort,$llb_seats_distribution,$llb_selected_candidate,$llb_not_selected_candidat,$campus_jurisdiction_list);*/
+
+        //prePrint(count($llb_selected_candidate));
+        //prePrint(count($llb_not_selected_candidat));
+        $llb_seats_index = getIndexOfObjectInList($discipline_seat_distribution,'PROG_LIST_ID',LLB_PROG_LIST_ID);
+        $selected_candidate = array();
+        $not_selected_candidat = array();
+        $seats_distribution_except_llb = array();
+
+        for ($i=0;$i<count($discipline_seat_distribution);$i++){
+            if($llb_seats_index!=$i){
+                $seats_distribution_except_llb[$i]=&$discipline_seat_distribution[$i];
+                // array_push($seats_distribution_except_llb,$discipline_seat_distribution[$i]);
+            }
+
+        }
+
+        //prePrint($seats_distribution_except_llb);
+
+        $this->getDepartmentMeritList($all_candidate_results_sort,$seats_distribution_except_llb,$selected_candidate,$not_selected_candidat,$campus_jurisdiction_list);
+
+        //prePrint($selected_candidate);
+		//exit();
+
+        $myfile  = fopen("MERIT_LIST.csv",'w+');
+        $txt = "CARD_ID,APPLICATION_ID,CPN,USER_ID,CNIC_NO,FIRST_NAME,LAST_NAME,FNAME,GENDER,U_R,DISTRICT_NAME,CATEGORY_NAME,PROGRAM_TITLE,CHOICE_NO,CAMPUS_NAME,PROG_LIST_ID\n";
+        fwrite($myfile, $txt);
+        $form_array = array();
+        foreach ($selected_candidate as $candidate){
+           //prePrint($candidate);
+           // exit();
+            $candidate_info = $candidate['candidate'];
+            $form_data = json_decode($candidate_info['FORM_DATA'],true);
+
+            $users_reg = $form_data['users_reg'];
+
+            $FIRST_NAME =  $users_reg['FIRST_NAME'];
+            $LAST_NAME =  $users_reg['LAST_NAME'];
+            $F_NAME =  $users_reg['FNAME'];
+            $CNIC_NO =  $users_reg['CNIC_NO'];
+            $GENDER =  $users_reg['GENDER'];
+            $U_R =  $users_reg['U_R'];
+            $DISTRICT_NAME =  $users_reg['DISTRICT_NAME'];
+            $CATEGORY_NAME = $candidate['CATEGORY']['CATEGORY_NAME'];
+            $PROGRAM_TITLE = $candidate['CATEGORY']['PROGRAM_TITLE'];
+            $CAMPUS_NAME = $candidate['CATEGORY']['NAME'];
+            $PROG_LIST_ID = $candidate['CATEGORY']['PROG_LIST_ID'];
+            $CATEGORY_ID = $candidate['CATEGORY']['CATEGORY_ID'];
+            $APPLICATION_ID = $candidate['APPLICATION_ID'];
+            $USER_ID = $candidate['USER_ID'];
+            $CPN = $candidate_info['CPN'];
+            $DETAIL_CPN = $candidate_info['DETAIL_CPN'];
+            $CARD_ID = $candidate_info['CARD_ID'];
+            $ADMISSION_SESSION_ID = $candidate_info['ADMISSION_SESSION_ID'];
+            $CHOICE_NO = $candidate['CHOICE_NO'];
+            $DISTRICT_ID =  $users_reg['DISTRICT_ID'];
+           // $CATEGORY_ID = $candidate['CATEGORY_ID'];
+            $txt = "$CARD_ID,$APPLICATION_ID,$CPN,$USER_ID,$CNIC_NO,\"$FIRST_NAME\",\"$LAST_NAME\",\"$F_NAME\",$GENDER,$U_R,\"$DISTRICT_NAME\",\"$CATEGORY_NAME\",\"$PROGRAM_TITLE\",$CHOICE_NO,\"$CAMPUS_NAME\",$PROG_LIST_ID\n";
+
+
+
+            $DETAIL_CPN = "";
+            $list = array(
+                "APPLICATION_ID"=>$APPLICATION_ID,
+                "TEST_ID"=>$TEST_ID,
+                "SHIFT_ID"=>$shift_id,
+                "SESSION_ID"=>$session_id,
+                "USER_ID"=>$USER_ID,
+                "CNIC_NO"=>$CNIC_NO,
+                "FIRST_NAME"=>$FIRST_NAME,
+                "LAST_NAME"=>$LAST_NAME,
+                "FNAME"=>$F_NAME,
+                "GENDER"=>$GENDER,
+                "U_R"=>$U_R,
+                "DISTRICT_NAME"=>$DISTRICT_NAME,
+                "CATEGORY_NAME"=>$CATEGORY_NAME,
+                "PROGRAM_TITLE"=>$PROGRAM_TITLE,
+                "CHOICE_NO"=>$CHOICE_NO,
+                "CAMPUS_NAME"=>$CAMPUS_NAME,
+                "PROG_LIST_ID"=>$PROG_LIST_ID,
+                "CATEGORY_ID"=>$CATEGORY_ID,
+                "CARD_ID"=>$CARD_ID,
+                "ADMISSION_SESSION_ID"=>$ADMISSION_SESSION_ID,
+                "LIST_NO"=>$first_merit_list,
+                "DETAIL_CPN"=>$DETAIL_CPN,
+                "CPN"=>$CPN,
+				"ACTIVE"=>1,
+				"DISTRICT_ID"=>$DISTRICT_ID
+            );
+            $form_array[] = $list;
+            fwrite($myfile, $txt);
+        }
+        fclose($myfile);
+
+       // prePrint($form_array);
+        $query_result = $this->MeritList_model->addList($form_array);
+        prePrint(count($selected_candidate));
+        if($query_result){
+            echo "<h1>Successfully Insert record</h1>";
+        }else{
+            echo "<h1>Something went wrong in insert</h1>";
+        }
+
+
+
+
+
+
+
+
+
+
+    }
+    private function checkPreRequsite($choice_prog_list_id,$form_data){
+
+        // $txt = "John Doe\n";
+        $myfile =  $this->pre_req_log;
+
+        if($this->pre_requiste_list!=null){
+            $prerequiste_list = $this->pre_requiste_list;
+            foreach($prerequiste_list  as $prerequiste){
+            	$program_title = $prerequiste['PROGRAM_TITLE'];
+                if($prerequiste['PROG_LIST_ID']==$choice_prog_list_id){
+
+                    if(isset($form_data['applicants_minors'])){
+                        $applicants_minors =  $form_data['applicants_minors'];
+                    }else{
+                        $txt =  "applicant minor not found,".$form_data['users_reg']['CNIC_NO']."\n";
+                        fwrite($myfile, $txt);
+
+                        return false;
+                    }
+                    if(isset($form_data['qualifications'])){
+                        $qualifications =  $form_data['qualifications'];
+                    }else{
+                        $txt =  "applicant qualification not found,".$form_data['users_reg']['CNIC_NO']."\n";
+                        fwrite($myfile, $txt);
+                        return false;
+                    }
+                    //$qualifications =  $form_data['qualifications'];
+                    foreach ($applicants_minors as $applicants_minor){
+                        if($applicants_minor['MINOR_MAPPING_ID']==$prerequiste['MINOR_MAPPING_ID']){
+                            $discipline_id = $applicants_minor['DISCIPLINE_ID'];
+                            $pre_per =  $prerequiste['PRE_REQ_PER'];
+                            $qual = findObjectinList($qualifications,'DISCIPLINE_ID',$discipline_id);
+                            if($qual){
+                                $percentage =$qual['OBTAINED_MARKS']/$qual['TOTAL_MARKS']*100;
+                                if($pre_per<=$percentage){
+                                    return true;
+                                }else{
+                                    // prePrint($prerequiste);
+                                    //prePrint($applicants_minor);
+                                    $txt = "low percentage,".$form_data['users_reg']['CNIC_NO'].",PROG LIST ID $choice_prog_list_id,$program_title\n";
+                                    fwrite($myfile, $txt);
+                                    return false;
+                                }
+                            }
+                            else{
+                                //prePrint($form_data);
+                                //prePrint($qualifications);
+                                $txt = "Applicant given qualification not found ,".$form_data['users_reg']['CNIC_NO'].",DISCIPLINE ID $discipline_id,PROG LIST ID $choice_prog_list_id,$program_title\n";
+                                fwrite($myfile, $txt);
+//                                $create_new_file = fopen("user_data/".$form_data['users_reg']['CNIC_NO'].".txt","+a");
+//
+//                                fwrite($create_new_file, json_encode($form_data));
+//                                fwrite($create_new_file, json_encode($prerequiste));
+//                                fclose($create_new_file);
+
+                                // return false;
+                            }
+                        }
+                    }
+                }
+            }
+        }else{
+
+            $txt ="Prerequiste loading failed from database,".$form_data['users_reg']['CNIC_NO']."\n";
+            fwrite($myfile, $txt);
+            exit();
+            return false;
+        }
+        $txt  = "Prerequiste Not found at the last decision,".$form_data['users_reg']['CNIC_NO']."\n";
+        fwrite($myfile, $txt);
+        return false;
+    }
+
+    public function getDepartmentMeritList(&$all_candidate_results,&$discipline_seat_distribution,&$selected_candidate,&$not_selected_candidate,$campus_jurisdiction_list,$campus_id=1){
+        // prePrint($discipline_seat_distribution);
+        // exit();
+        // $first_merit_list = array();
+        //$first_merit_list_quota = array();
+        $error_log_seat_distribution= fopen("error_log_seat_distribution.csv", "w") or die("Unable to open file!");
+        foreach ($all_candidate_results as $i => $candidate ){
+			//prePrint($candidate);
+//			exit();
+
+            $CARD_ID = $candidate['CARD_ID'];
+            $CPN = $candidate['CPN'];
+            $APPLICATION_ID = $candidate['APPLICATION_ID'];
+
+
+            $form_data = json_decode($candidate['FORM_DATA'],true);
+            $users_reg = $form_data['users_reg'];
+            $qualifications = $form_data['qualifications'];
+            $DISTRICT_ID = $users_reg['DISTRICT_ID'];
+            $PROVINCE_ID = $users_reg['PROVINCE_ID'];
+            $FIRST_NAME = $users_reg['FIRST_NAME'];
+            $GENDER = $users_reg['GENDER'];
+            $U_R = $users_reg['U_R'];
+            $CNIC_NO = $users_reg['CNIC_NO'];
+
+
+            if(isset($candidate['applicants_minors'])&&isset($candidate['application_choices'])&&isset($candidate['application_category'])) {
+                $applicants_minors = $form_data['applicants_minors']=$candidate['applicants_minors'];
+                $application_choices = $form_data['application_choices']=$candidate['application_choices'];
+                $application_category = $form_data['application_category']=$candidate['application_category'];
+            }
+            else{
+                echo $candidate['APPLICATION_ID'].",";
+                $application_category = array();
+                $applicants_minors = array();
+                $application_choices = array();
+            }
+
+            $is_seat_allot = false;
+            $is_self_selected = false;
+            foreach ($application_choices as $choice) {
+                $choice_prog_list_id = $choice['PROG_LIST_ID'];
+                $CHOICE_NO = $choice['CHOICE_NO'];
+
+                if(!$this->checkPreRequsite($choice_prog_list_id,$form_data)){
+                    // break;
+                    continue;
+                }
+
+                //find the index of program in discipline_seat_distributionm
+                $choice_prog_list_index = getIndexOfObjectInList($discipline_seat_distribution,'PROG_LIST_ID',$choice_prog_list_id);
+                if($choice_prog_list_index<0){
+                    //prePrint($choice);
+                    //echo "$CHOICE_NO -> NOT FOUND INDEX<br>";
+                    ///$myfile = $this->pre_req_log;
+                    $txt = "Seat Distribution not found ,$CNIC_NO,$choice_prog_list_id\n";
+                    fwrite($error_log_seat_distribution, $txt);
+                    continue;
+                    //exit("NOT FOUND INDEX");
+                }
+                $CATEGORIES =  &$discipline_seat_distribution[$choice_prog_list_index]['CATEGORIES'];
+
+
+                if ($PROVINCE_ID == SINDH_PROVINCE_ID) {
+                    if ($DISTRICT_ID == KARACHI_DISTRICT_ID && $campus_id != 4) {
+
+                        //prePrint("KARACHI DITRCIT");
+                        //prePrint("$CARD_ID --> $FIRST_NAME --> $APPLICATION_ID");
+
+                        $is_seat_allot = false;
+                        //find the index of karachi reserved quota in categories
+                        $j= getIndexOfObjectInList($CATEGORIES,'CATEGORY_ID',KARACHI_RESERVED_QUOTA);
+                        if($j>=0){
+                            if ($CATEGORIES[$j]['TOTAL_SEATS_REMAINING'] > 0) {
+
+                                $CATEGORIES[$j]['TOTAL_SEATS_REMAINING']--;
+
+                                $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'],  "PROG_LIST_ID" => $choice_prog_list_id,"CHOICE_NO"=>$CHOICE_NO,"CATEGORY" => $CATEGORIES[$j]);
+                                array_push($selected_candidate, $object);
+                                $is_seat_allot = true;
+                                //break;
+                            }
+                        }
+                        if (count($application_category) > 1 && $is_seat_allot == false) {
+                            foreach ($application_category as $category) {
+
+                                if ($category['FORM_CATEGORY_ID'] == SU_AFFILATED_EMP_FORM_CATEGORY_ID) {
+
+                                    $j= getIndexOfObjectInList($CATEGORIES,'CATEGORY_ID',SUE_AFFILIATED_QUOTA);
+                                    if($j>=0){
+                                        if ($CATEGORIES[$j]['TOTAL_SEATS_REMAINING'] > 0) {
+
+                                            $CATEGORIES[$j]['TOTAL_SEATS_REMAINING']--;
+
+                                            $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'],  "PROG_LIST_ID" => $choice_prog_list_id,"CHOICE_NO"=>$CHOICE_NO,"CATEGORY" => $CATEGORIES[$j]);
+                                            array_push($selected_candidate, $object);
+                                            $is_seat_allot = true;
+                                            //break;
+                                        }
+                                    }
+
+                                }
+                                else if ($category['FORM_CATEGORY_ID'] == SU_EMP_FORM_CATEGORY_ID) {
+                                    $j= getIndexOfObjectInList($CATEGORIES,'CATEGORY_ID',SUE_QUOTA);
+                                    if($j>=0){
+                                        if ($CATEGORIES[$j]['TOTAL_SEATS_REMAINING'] > 0) {
+
+                                            $CATEGORIES[$j]['TOTAL_SEATS_REMAINING']--;
+
+                                            $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'],  "PROG_LIST_ID" => $choice_prog_list_id,"CHOICE_NO"=>$CHOICE_NO,"CATEGORY" => $CATEGORIES[$j]);
+                                            array_push($selected_candidate, $object);
+                                            $is_seat_allot = true;
+                                            //break;
+                                        }
+                                    }
+
+                                }
+
+                                if ($is_seat_allot) {
+                                    break;
+                                }
+
+                            }
+                        }
+                        if (count($application_category) > 1 && $is_seat_allot == false && $is_self_selected == false) {
+                            foreach ($application_category as $category) {
+
+                                if ($category['FORM_CATEGORY_ID'] == SELF_FINANCE_FORM_CATEGORY_ID) {
+
+                                    $j = getIndexOfObjectInList($CATEGORIES, 'CATEGORY_ID', SELF_FINANCE);
+                                    if ($j >= 0) {
+                                        if ($CATEGORIES[$j]['TOTAL_SEATS_REMAINING'] > 0) {
+
+                                            $CATEGORIES[$j]['TOTAL_SEATS_REMAINING']--;
+
+                                            $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'], "PROG_LIST_ID" => $choice_prog_list_id, "CHOICE_NO" => $CHOICE_NO, "CATEGORY" => $CATEGORIES[$j]);
+                                            array_push($selected_candidate, $object);
+                                            $is_self_selected = true;
+                                            break;
+                                        }
+                                    }
+
+
+                                }
+                            }
+
+                            if ($is_seat_allot) {
+                                // $merit_count_el++;
+                            } else {
+                                //$merit_countN_nel++;
+                            }
+                        }
+
+
+
+                    }
+                    else {
+
+                        $campus_jurisdiction_obj = findObjectinList($campus_jurisdiction_list,'DISTRICT_ID',$DISTRICT_ID);
+                        if ($campus_jurisdiction_obj) {
+                            //echo "$i--3,";
+                            if ($campus_jurisdiction_obj['IS_JURISDICTION'] == "Y") {
+                                //echo "$i--4,";
+                                $is_seat_allot = false;
+                                //find the index of GENERAL_MERIT_JUR  quota in categories
+                                $j= getIndexOfObjectInList($CATEGORIES,'CATEGORY_ID',GENERAL_MERIT_JUR);
+                                if($j>=0){
+                                    if($discipline_seat_distribution[$choice_prog_list_index]['IS_QUOTA'] == 'Y'){
+                                        $DISTRICT_QUOTA = &$discipline_seat_distribution[$choice_prog_list_index]['DISTRICT_QUOTA'];
+                                        //$district_index = $this->getDistrictIdIndex($DISTRICT_QUOTA,$DISTRICT_ID);
+                                        //find the index of DISTRICT Id in DISCIPLINE SEAT DISTRIBUTION if it is  quota
+                                        $district_index= getIndexOfObjectInList($DISTRICT_QUOTA,'DISTRICT_ID',$DISTRICT_ID);
+                                        if($district_index>=0){
+                                            if($DISTRICT_QUOTA[$district_index]['RURAL_SEATS']==0&&$DISTRICT_QUOTA[$district_index]['URBAN_SEATS']==0){
+
+                                                if ($DISTRICT_QUOTA[$district_index]['TOTAL_SEATS_REMAINING'] > 0) {
+                                                    //    echo "$i--3--$j,";
+                                                    $DISTRICT_QUOTA[$district_index]['TOTAL_SEATS_REMAINING']--;
+                                                    // prePrint(  $CATEGORIES[$j]['PROGRAM_TITLE']);
+                                                    //prePrint(  $CATEGORIES[$j]['CATEGORY_NAME']);
+                                                    $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'], "PROG_LIST_ID" => $choice_prog_list_id,"CHOICE_NO"=>$CHOICE_NO,"CATEGORY" => $CATEGORIES[$j]);
+                                                    array_push($selected_candidate, $object);
+                                                    $is_seat_allot = true;
+                                                    //  break;
+                                                }
+
+                                            }
+                                            else{
+
+                                                if($U_R=='R'){
+                                                    if ($DISTRICT_QUOTA[$district_index]['RURAL_SEATS_REMAINING'] > 0 && $DISTRICT_QUOTA[$district_index]['TOTAL_SEATS_REMAINING'] > 0) {
+                                                        //    echo "$i--3--$j,";
+                                                        $DISTRICT_QUOTA[$district_index]['RURAL_SEATS_REMAINING']--;
+                                                        $DISTRICT_QUOTA[$district_index]['TOTAL_SEATS_REMAINING']--;
+                                                        // prePrint(  $CATEGORIES[$j]['PROGRAM_TITLE']);
+                                                        //prePrint(  $CATEGORIES[$j]['CATEGORY_NAME']);
+                                                        $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'], "PROG_LIST_ID" => $choice_prog_list_id,"CHOICE_NO"=>$CHOICE_NO,"CATEGORY" => $CATEGORIES[$j]);
+                                                        array_push($selected_candidate, $object);
+                                                        $is_seat_allot = true;
+                                                        //break;
+                                                    }
+                                                }else if($U_R=='U'){
+                                                    if ($DISTRICT_QUOTA[$district_index]['URBAN_SEATS_REMAINING'] > 0 && $DISTRICT_QUOTA[$district_index]['TOTAL_SEATS_REMAINING'] > 0) {
+                                                        //    echo "$i--3--$j,";
+                                                        $DISTRICT_QUOTA[$district_index]['URBAN_SEATS_REMAINING']--;
+                                                        $DISTRICT_QUOTA[$district_index]['TOTAL_SEATS_REMAINING']--;
+                                                        // prePrint(  $CATEGORIES[$j]['PROGRAM_TITLE']);
+                                                        //prePrint(  $CATEGORIES[$j]['CATEGORY_NAME']);
+                                                        $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'], "PROG_LIST_ID" => $choice_prog_list_id,"CHOICE_NO"=>$CHOICE_NO,"CATEGORY" => $CATEGORIES[$j]);
+                                                        array_push($selected_candidate, $object);
+                                                        $is_seat_allot = true;
+                                                        //break;
+                                                    }
+
+                                                }else{
+                                                    echo "AREA NOT FOUND URBAN/RURAL";
+                                                }
+
+
+                                            }
+
+                                        }
+                                        else{
+                                            echo "District Not Found";
+                                        }
+                                    }
+                                    else {
+                                        if ($CATEGORIES[$j]['TOTAL_SEATS_REMAINING'] > 0) {
+                                            //    echo "$i--3--$j,";
+                                            $CATEGORIES[$j]['TOTAL_SEATS_REMAINING']--;
+                                            // prePrint(  $CATEGORIES[$j]['PROGRAM_TITLE']);
+                                            //prePrint(  $CATEGORIES[$j]['CATEGORY_NAME']);
+                                            $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'], "PROG_LIST_ID" => $choice_prog_list_id,"CHOICE_NO"=>$CHOICE_NO,"CATEGORY" => $CATEGORIES[$j]);
+                                            array_push($selected_candidate, $object);
+                                            $is_seat_allot = true;
+                                            //break;
+                                        }else{
+                                            // prePrint($CATEGORIES);
+                                            //prePrint($CATEGORIES[$j]['TOTAL_SEATS_REMAINING']);
+                                        }
+                                    }
+                                }
+
+
+                                if ($is_seat_allot) {
+                                    // $merit_count_el++;
+                                }
+                                else {
+                                    if ($GENDER == 'F') {
+                                        $is_seat_allot = false;
+                                        //find the index of FEMALE_QUOTA_JUR  quota in categories
+                                        $j = getIndexOfObjectInList($CATEGORIES, 'CATEGORY_ID', FEMALE_QUOTA_JUR);
+                                        if ($j >= 0) {
+                                            if ($CATEGORIES[$j]['TOTAL_SEATS_REMAINING'] > 0) {
+
+                                                $CATEGORIES[$j]['TOTAL_SEATS_REMAINING']--;
+
+                                                $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'], "PROG_LIST_ID" => $choice_prog_list_id, "CHOICE_NO" => $CHOICE_NO, "CATEGORY" => $CATEGORIES[$j]);
+                                                array_push($selected_candidate, $object);
+                                                $is_seat_allot = true;
+                                                //break;
+                                            }
+                                        }
+
+
+                                    }
+                                    if (count($application_category) > 1 && $is_seat_allot == false) {
+                                        foreach ($application_category as $category) {
+
+                                            if ($category['FORM_CATEGORY_ID'] == DISABLED_QUOTA_FORM_CATEGORY_ID) {
+                                                $j = getIndexOfObjectInList($CATEGORIES, 'CATEGORY_ID', DISABLE_PERSONS_QUOTA);
+                                                if ($j >= 0) {
+                                                    if ($CATEGORIES[$j]['TOTAL_SEATS_REMAINING'] > 0) {
+
+                                                        $CATEGORIES[$j]['TOTAL_SEATS_REMAINING']--;
+
+                                                        $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'], "PROG_LIST_ID" => $choice_prog_list_id, "CHOICE_NO" => $CHOICE_NO, "CATEGORY" => $CATEGORIES[$j]);
+                                                        array_push($selected_candidate, $object);
+                                                        $is_seat_allot = true;
+                                                        //break;
+                                                    }
+                                                }
+
+
+                                            }
+                                            else if ($category['FORM_CATEGORY_ID'] == SU_AFFILATED_EMP_FORM_CATEGORY_ID) {
+
+                                                $j = getIndexOfObjectInList($CATEGORIES, 'CATEGORY_ID', SUE_AFFILIATED_QUOTA);
+                                                if ($j >= 0) {
+                                                    if ($CATEGORIES[$j]['TOTAL_SEATS_REMAINING'] > 0) {
+
+                                                        $CATEGORIES[$j]['TOTAL_SEATS_REMAINING']--;
+
+                                                        $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'], "PROG_LIST_ID" => $choice_prog_list_id, "CHOICE_NO" => $CHOICE_NO, "CATEGORY" => $CATEGORIES[$j]);
+                                                        array_push($selected_candidate, $object);
+                                                        $is_seat_allot = true;
+                                                        //break;
+                                                    }
+                                                }
+
+                                            } else if ($category['FORM_CATEGORY_ID'] == SU_EMP_FORM_CATEGORY_ID) {
+                                                $j = getIndexOfObjectInList($CATEGORIES, 'CATEGORY_ID', SUE_QUOTA);
+                                                if ($j >= 0) {
+                                                    if ($CATEGORIES[$j]['TOTAL_SEATS_REMAINING'] > 0) {
+
+                                                        $CATEGORIES[$j]['TOTAL_SEATS_REMAINING']--;
+
+                                                        $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'], "PROG_LIST_ID" => $choice_prog_list_id, "CHOICE_NO" => $CHOICE_NO, "CATEGORY" => $CATEGORIES[$j]);
+                                                        array_push($selected_candidate, $object);
+                                                        $is_seat_allot = true;
+                                                        //break;
+                                                    }
+                                                }
+
+                                            }
+
+
+                                            if ($is_seat_allot) {
+                                                break;
+                                            }
+
+                                        }
+                                    }
+
+                                    $j= getIndexOfObjectInList($CATEGORIES,'CATEGORY_ID',COMMERCE_QUOTA);
+                                    if($j>=0&&isset($discipline_seat_distribution[$choice_prog_list_index]['COMMERCE_QUOTA'])){
+                                        if($is_seat_allot==false){
+                                            $qual = findObjectinList($qualifications,'DISCIPLINE_ID',PRE_COMMERCE_DISCIPLINE_ID);
+                                            if($qual){
+                                                if($GENDER == 'F' && $U_R=='R'){
+                                                    if ($CATEGORIES[$j]['TOTAL_SEATS_REMAINING'] > 0 &&$discipline_seat_distribution[$choice_prog_list_index]['COMMERCE_QUOTA']['RURAL_F']>0) {
+                                                        $CATEGORIES[$j]['TOTAL_SEATS_REMAINING']--;
+                                                        $discipline_seat_distribution[$choice_prog_list_index]['COMMERCE_QUOTA']['RURAL_F']--;
+                                                        $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'], "PROG_LIST_ID" => $choice_prog_list_id, "CHOICE_NO" => $CHOICE_NO, "CATEGORY" => $CATEGORIES[$j]);
+                                                        array_push($selected_candidate, $object);
+                                                        $is_seat_allot = true;
+                                                    }
+                                                }else if($GENDER == 'M' && $U_R=='R'){
+                                                    if ($CATEGORIES[$j]['TOTAL_SEATS_REMAINING'] > 0 &&$discipline_seat_distribution[$choice_prog_list_index]['COMMERCE_QUOTA']['RURAL_M']>0) {
+                                                        $CATEGORIES[$j]['TOTAL_SEATS_REMAINING']--;
+                                                        $discipline_seat_distribution[$choice_prog_list_index]['COMMERCE_QUOTA']['RURAL_M']--;
+                                                        $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'], "PROG_LIST_ID" => $choice_prog_list_id, "CHOICE_NO" => $CHOICE_NO, "CATEGORY" => $CATEGORIES[$j]);
+                                                        array_push($selected_candidate, $object);
+                                                        $is_seat_allot = true;
+                                                    }
+                                                }
+                                                else if($GENDER == 'M' && $U_R=='U'){
+                                                    if ($CATEGORIES[$j]['TOTAL_SEATS_REMAINING'] > 0 &&$discipline_seat_distribution[$choice_prog_list_index]['COMMERCE_QUOTA']['URBAN_M']>0) {
+                                                        $CATEGORIES[$j]['TOTAL_SEATS_REMAINING']--;
+                                                        $discipline_seat_distribution[$choice_prog_list_index]['COMMERCE_QUOTA']['URBAN_M']--;
+                                                        $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'], "PROG_LIST_ID" => $choice_prog_list_id, "CHOICE_NO" => $CHOICE_NO, "CATEGORY" => $CATEGORIES[$j]);
+                                                        array_push($selected_candidate, $object);
+                                                        $is_seat_allot = true;
+                                                    }
+                                                }
+                                                else if($GENDER == 'F' && $U_R=='U'){
+                                                    if ($CATEGORIES[$j]['TOTAL_SEATS_REMAINING'] > 0 &&$discipline_seat_distribution[$choice_prog_list_index]['COMMERCE_QUOTA']['URBAN_F']>0) {
+                                                        $CATEGORIES[$j]['TOTAL_SEATS_REMAINING']--;
+                                                        $discipline_seat_distribution[$choice_prog_list_index]['COMMERCE_QUOTA']['URBAN_F']--;
+                                                        $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'], "PROG_LIST_ID" => $choice_prog_list_id, "CHOICE_NO" => $CHOICE_NO, "CATEGORY" => $CATEGORIES[$j]);
+                                                        array_push($selected_candidate, $object);
+                                                        $is_seat_allot = true;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+
+
+                                    if (count($application_category) > 1 && $is_seat_allot == false && $is_self_selected == false) {
+                                        foreach ($application_category as $category) {
+
+                                            if ($category['FORM_CATEGORY_ID'] == SELF_FINANCE_FORM_CATEGORY_ID) {
+
+                                                $j = getIndexOfObjectInList($CATEGORIES, 'CATEGORY_ID', SELF_FINANCE);
+                                                if ($j >= 0) {
+                                                    if ($CATEGORIES[$j]['TOTAL_SEATS_REMAINING'] > 0) {
+
+                                                        $CATEGORIES[$j]['TOTAL_SEATS_REMAINING']--;
+
+                                                        $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'], "PROG_LIST_ID" => $choice_prog_list_id, "CHOICE_NO" => $CHOICE_NO, "CATEGORY" => $CATEGORIES[$j]);
+                                                        array_push($selected_candidate, $object);
+                                                        $is_self_selected = true;
+                                                        break;
+                                                    }
+                                                }
+
+
+                                            }
+                                        }
+
+                                        if ($is_seat_allot) {
+                                            // $merit_count_el++;
+                                        } else {
+                                            //$merit_countN_nel++;
+                                        }
+                                    }
+
+                                }
+                            }
+                            else {
+                                //prePrint("OUTJUR");
+                                //echo $CPN;
+                                $is_seat_allot = false;
+                                //find the index of GENERAL_MERIT_JUR  quota in categories
+                                $j= getIndexOfObjectInList($CATEGORIES,'CATEGORY_ID',GENERAL_MERIT_OUT_JUR);
+                                if($j>=0){
+                                    if($discipline_seat_distribution[$choice_prog_list_index]['IS_QUOTA'] == 'Y'){
+                                        $DISTRICT_QUOTA = &$discipline_seat_distribution[$choice_prog_list_index]['DISTRICT_QUOTA'];
+                                        //$district_index = $this->getDistrictIdIndex($DISTRICT_QUOTA,$DISTRICT_ID);
+                                        //find the index of DISTRICT Id in DISCIPLINE SEAT DISTRIBUTION if it is  quota
+                                        $district_index= getIndexOfObjectInList($DISTRICT_QUOTA,'DISTRICT_ID',$DISTRICT_ID);
+                                        if($district_index>=0){
+                                            if($DISTRICT_QUOTA[$district_index]['RURAL_SEATS']==0&&$DISTRICT_QUOTA[$district_index]['URBAN_SEATS']==0){
+
+                                                if ($DISTRICT_QUOTA[$district_index]['TOTAL_SEATS_REMAINING'] > 0) {
+                                                    //    echo "$i--3--$j,";
+                                                    $DISTRICT_QUOTA[$district_index]['TOTAL_SEATS_REMAINING']--;
+                                                    // prePrint(  $CATEGORIES[$j]['PROGRAM_TITLE']);
+                                                    //prePrint(  $CATEGORIES[$j]['CATEGORY_NAME']);
+                                                    $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'], "PROG_LIST_ID" => $choice_prog_list_id,"CHOICE_NO"=>$CHOICE_NO,"CATEGORY" => $CATEGORIES[$j]);
+                                                    array_push($selected_candidate, $object);
+                                                    $is_seat_allot = true;
+                                                    //  break;
+                                                }
+
+                                            }
+                                            else{
+
+                                                if($U_R=='R'){
+                                                    if ($DISTRICT_QUOTA[$district_index]['RURAL_SEATS_REMAINING'] > 0 && $DISTRICT_QUOTA[$district_index]['TOTAL_SEATS_REMAINING'] > 0) {
+                                                        //    echo "$i--3--$j,";
+                                                        $DISTRICT_QUOTA[$district_index]['RURAL_SEATS_REMAINING']--;
+                                                        $DISTRICT_QUOTA[$district_index]['TOTAL_SEATS_REMAINING']--;
+                                                        // prePrint(  $CATEGORIES[$j]['PROGRAM_TITLE']);
+                                                        //prePrint(  $CATEGORIES[$j]['CATEGORY_NAME']);
+                                                        $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'], "PROG_LIST_ID" => $choice_prog_list_id,"CHOICE_NO"=>$CHOICE_NO,"CATEGORY" => $CATEGORIES[$j]);
+                                                        array_push($selected_candidate, $object);
+                                                        $is_seat_allot = true;
+                                                        //break;
+                                                    }
+                                                }else if($U_R=='U'){
+                                                    if ($DISTRICT_QUOTA[$district_index]['URBAN_SEATS_REMAINING'] > 0 && $DISTRICT_QUOTA[$district_index]['TOTAL_SEATS_REMAINING'] > 0) {
+                                                        //    echo "$i--3--$j,";
+                                                        $DISTRICT_QUOTA[$district_index]['URBAN_SEATS_REMAINING']--;
+                                                        $DISTRICT_QUOTA[$district_index]['TOTAL_SEATS_REMAINING']--;
+                                                        // prePrint(  $CATEGORIES[$j]['PROGRAM_TITLE']);
+                                                        //prePrint(  $CATEGORIES[$j]['CATEGORY_NAME']);
+                                                        $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'], "PROG_LIST_ID" => $choice_prog_list_id,"CHOICE_NO"=>$CHOICE_NO,"CATEGORY" => $CATEGORIES[$j]);
+                                                        array_push($selected_candidate, $object);
+                                                        $is_seat_allot = true;
+                                                        //break;
+                                                    }
+
+                                                }else{
+                                                    echo "AREA NOT FOUND URBAN/RURAL";
+                                                }
+
+
+                                            }
+
+                                        }
+                                        else{
+                                            echo "District Not Found";
+                                        }
+                                    }
+                                    else {
+                                        if ($CATEGORIES[$j]['TOTAL_SEATS_REMAINING'] > 0) {
+                                            //    echo "$i--3--$j,";
+                                            $CATEGORIES[$j]['TOTAL_SEATS_REMAINING']--;
+                                            // prePrint(  $CATEGORIES[$j]['PROGRAM_TITLE']);
+                                            //prePrint(  $CATEGORIES[$j]['CATEGORY_NAME']);
+                                            $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'], "PROG_LIST_ID" => $choice_prog_list_id,"CHOICE_NO"=>$CHOICE_NO,"CATEGORY" => $CATEGORIES[$j]);
+                                            array_push($selected_candidate, $object);
+                                            $is_seat_allot = true;
+                                            //break;
+                                        }else{
+                                            // prePrint($CATEGORIES);
+                                            //prePrint($CATEGORIES[$j]['TOTAL_SEATS_REMAINING']);
+                                        }
+                                    }
+                                }
+
+                                if ($is_seat_allot) {
+                                    // $merit_count_el_oj++;
+                                } else {
+                                    //  echo $GENDER;
+                                    if ($GENDER == 'F') {
+                                        $is_seat_allot = false;
+                                        //find the index of FEMALE_QUOTA_JUR  quota in categories
+                                        $j= getIndexOfObjectInList($CATEGORIES,'CATEGORY_ID',FEMALE_QUOTA_OUT_JUR);
+                                        if($j>=0){
+                                            if ($CATEGORIES[$j]['TOTAL_SEATS_REMAINING'] > 0) {
+
+                                                $CATEGORIES[$j]['TOTAL_SEATS_REMAINING']--;
+
+                                                $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'],  "PROG_LIST_ID" => $choice_prog_list_id,"CHOICE_NO"=>$CHOICE_NO,"CATEGORY" => $CATEGORIES[$j]);
+                                                array_push($selected_candidate, $object);
+                                                $is_seat_allot = true;
+                                                //break;
+                                            }
+                                        }
+
+
+                                    }
+                                    if (count($application_category) > 1 && $is_seat_allot == false) {
+                                        foreach ($application_category as $category) {
+
+                                            if ($category['FORM_CATEGORY_ID'] == SPORT_FORM_CATEGORY_ID) {
+
+                                                $j= getIndexOfObjectInList($CATEGORIES,'CATEGORY_ID',SPORT_QUOTA);
+                                                if($j>=0){
+                                                    if ($CATEGORIES[$j]['TOTAL_SEATS_REMAINING'] > 0) {
+
+                                                        $CATEGORIES[$j]['TOTAL_SEATS_REMAINING']--;
+
+                                                        $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'],  "PROG_LIST_ID" => $choice_prog_list_id,"CHOICE_NO"=>$CHOICE_NO,"CATEGORY" => $CATEGORIES[$j]);
+                                                        array_push($selected_candidate, $object);
+                                                        $is_seat_allot = true;
+                                                        //break;
+                                                    }
+                                                }
+
+
+                                            } else if ($category['FORM_CATEGORY_ID'] == DISABLED_QUOTA_FORM_CATEGORY_ID) {
+                                                $j= getIndexOfObjectInList($CATEGORIES,'CATEGORY_ID',DISABLE_PERSONS_QUOTA);
+                                                if($j>=0){
+                                                    if ($CATEGORIES[$j]['TOTAL_SEATS_REMAINING'] > 0) {
+
+                                                        $CATEGORIES[$j]['TOTAL_SEATS_REMAINING']--;
+
+                                                        $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'],  "PROG_LIST_ID" => $choice_prog_list_id,"CHOICE_NO"=>$CHOICE_NO,"CATEGORY" => $CATEGORIES[$j]);
+                                                        array_push($selected_candidate, $object);
+                                                        $is_seat_allot = true;
+                                                        //break;
+                                                    }
+                                                }
+
+
+
+                                            } else if ($category['FORM_CATEGORY_ID'] == SU_AFFILATED_EMP_FORM_CATEGORY_ID) {
+
+                                                $j= getIndexOfObjectInList($CATEGORIES,'CATEGORY_ID',SUE_AFFILIATED_QUOTA);
+                                                if($j>=0){
+                                                    if ($CATEGORIES[$j]['TOTAL_SEATS_REMAINING'] > 0) {
+
+                                                        $CATEGORIES[$j]['TOTAL_SEATS_REMAINING']--;
+
+                                                        $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'],  "PROG_LIST_ID" => $choice_prog_list_id,"CHOICE_NO"=>$CHOICE_NO,"CATEGORY" => $CATEGORIES[$j]);
+                                                        array_push($selected_candidate, $object);
+                                                        $is_seat_allot = true;
+                                                        //break;
+                                                    }
+                                                }
+
+                                            }
+                                            else if ($category['FORM_CATEGORY_ID'] == SU_EMP_FORM_CATEGORY_ID) {
+                                                $j= getIndexOfObjectInList($CATEGORIES,'CATEGORY_ID',SUE_QUOTA);
+                                                if($j>=0){
+                                                    if ($CATEGORIES[$j]['TOTAL_SEATS_REMAINING'] > 0) {
+
+                                                        $CATEGORIES[$j]['TOTAL_SEATS_REMAINING']--;
+
+                                                        $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'],  "PROG_LIST_ID" => $choice_prog_list_id,"CHOICE_NO"=>$CHOICE_NO,"CATEGORY" => $CATEGORIES[$j]);
+                                                        array_push($selected_candidate, $object);
+                                                        $is_seat_allot = true;
+                                                        //break;
+                                                    }
+                                                }
+
+                                            }
+
+                                            if ($is_seat_allot) {
+                                                break;
+                                            }
+
+                                        }
+                                    }
+
+                                    $j= getIndexOfObjectInList($CATEGORIES,'CATEGORY_ID',COMMERCE_QUOTA);
+                                    if($j>=0&&isset($discipline_seat_distribution[$choice_prog_list_index]['COMMERCE_QUOTA'])){
+                                        if($is_seat_allot==false){
+                                            $qual = findObjectinList($qualifications,'DISCIPLINE_ID',PRE_COMMERCE_DISCIPLINE_ID);
+                                            if($qual){
+                                                if($GENDER == 'F' && $U_R=='R'){
+                                                    if ($CATEGORIES[$j]['TOTAL_SEATS_REMAINING'] > 0 &&$discipline_seat_distribution[$choice_prog_list_index]['COMMERCE_QUOTA']['RURAL_F']>0) {
+                                                        $CATEGORIES[$j]['TOTAL_SEATS_REMAINING']--;
+                                                        $discipline_seat_distribution[$choice_prog_list_index]['COMMERCE_QUOTA']['RURAL_F']--;
+                                                        $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'], "PROG_LIST_ID" => $choice_prog_list_id, "CHOICE_NO" => $CHOICE_NO, "CATEGORY" => $CATEGORIES[$j]);
+                                                        array_push($selected_candidate, $object);
+                                                        $is_seat_allot = true;
+                                                    }
+                                                }
+                                                else if($GENDER == 'M' && $U_R=='R'){
+                                                    if ($CATEGORIES[$j]['TOTAL_SEATS_REMAINING'] > 0 &&$discipline_seat_distribution[$choice_prog_list_index]['COMMERCE_QUOTA']['RURAL_M']>0) {
+                                                        $CATEGORIES[$j]['TOTAL_SEATS_REMAINING']--;
+                                                        $discipline_seat_distribution[$choice_prog_list_index]['COMMERCE_QUOTA']['RURAL_M']--;
+                                                        $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'], "PROG_LIST_ID" => $choice_prog_list_id, "CHOICE_NO" => $CHOICE_NO, "CATEGORY" => $CATEGORIES[$j]);
+                                                        array_push($selected_candidate, $object);
+                                                        $is_seat_allot = true;
+                                                    }
+                                                }
+                                                else if($GENDER == 'M' && $U_R=='U'){
+                                                    if ($CATEGORIES[$j]['TOTAL_SEATS_REMAINING'] > 0 &&$discipline_seat_distribution[$choice_prog_list_index]['COMMERCE_QUOTA']['URBAN_M']>0) {
+                                                        $CATEGORIES[$j]['TOTAL_SEATS_REMAINING']--;
+                                                        $discipline_seat_distribution[$choice_prog_list_index]['COMMERCE_QUOTA']['URBAN_M']--;
+                                                        $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'], "PROG_LIST_ID" => $choice_prog_list_id, "CHOICE_NO" => $CHOICE_NO, "CATEGORY" => $CATEGORIES[$j]);
+                                                        array_push($selected_candidate, $object);
+                                                        $is_seat_allot = true;
+                                                    }
+                                                }
+                                                else if($GENDER == 'F' && $U_R=='U'){
+                                                    if ($CATEGORIES[$j]['TOTAL_SEATS_REMAINING'] > 0 &&$discipline_seat_distribution[$choice_prog_list_index]['COMMERCE_QUOTA']['URBAN_F']>0) {
+                                                        $CATEGORIES[$j]['TOTAL_SEATS_REMAINING']--;
+                                                        $discipline_seat_distribution[$choice_prog_list_index]['COMMERCE_QUOTA']['URBAN_F']--;
+                                                        $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'], "PROG_LIST_ID" => $choice_prog_list_id, "CHOICE_NO" => $CHOICE_NO, "CATEGORY" => $CATEGORIES[$j]);
+                                                        array_push($selected_candidate, $object);
+                                                        $is_seat_allot = true;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    if (count($application_category) > 1 && $is_seat_allot == false&&$is_self_selected==false) {
+                                        foreach ($application_category as $category) {
+
+                                            if ($category['FORM_CATEGORY_ID'] == SELF_FINANCE_FORM_CATEGORY_ID) {
+
+                                                $j = getIndexOfObjectInList($CATEGORIES, 'CATEGORY_ID', SELF_FINANCE);
+                                                if ($j >= 0) {
+                                                    if ($CATEGORIES[$j]['TOTAL_SEATS_REMAINING'] > 0) {
+
+                                                        $CATEGORIES[$j]['TOTAL_SEATS_REMAINING']--;
+
+                                                        $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'], "PROG_LIST_ID" => $choice_prog_list_id, "CHOICE_NO" => $CHOICE_NO, "CATEGORY" => $CATEGORIES[$j]);
+                                                        array_push($selected_candidate, $object);
+                                                        $is_self_selected = true;
+                                                        break;
+                                                    }
+                                                }
+
+
+                                            }
+
+                                        }
+
+
+                                    }
+
+
+
+                                }
+
+                            }
+                        } else {
+                            exit("<h1>Jurisdiction Not Found</h1>");
+                        }
+
+
+                    }
+                }
+                else {
+                    // prePrint("OTHER PROVINCE");
+                    //  prePrint("$CARD_ID --> $FIRST_NAME --> $APPLICATION_ID");
+                    $is_seat_allot = false;
+                    //find the index of karachi reserved quota in categories
+
+                    if (count($application_category) > 1 && $is_seat_allot == false) {
+                        foreach ($application_category as $category) {
+
+                            if ($category['FORM_CATEGORY_ID'] == SU_AFFILATED_EMP_FORM_CATEGORY_ID) {
+
+                                $j= getIndexOfObjectInList($CATEGORIES,'CATEGORY_ID',SUE_AFFILIATED_QUOTA);
+                                if($j>=0){
+                                    if ($CATEGORIES[$j]['TOTAL_SEATS_REMAINING'] > 0) {
+
+                                        $CATEGORIES[$j]['TOTAL_SEATS_REMAINING']--;
+
+                                        $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'],  "PROG_LIST_ID" => $choice_prog_list_id,"CHOICE_NO"=>$CHOICE_NO,"CATEGORY" => $CATEGORIES[$j]);
+                                        array_push($selected_candidate, $object);
+                                        $is_seat_allot = true;
+                                        //break;
+                                    }
+                                }
+
+                            }
+                            else if ($category['FORM_CATEGORY_ID'] == SU_EMP_FORM_CATEGORY_ID) {
+                                $j= getIndexOfObjectInList($CATEGORIES,'CATEGORY_ID',SUE_QUOTA);
+                                if($j>=0){
+                                    if ($CATEGORIES[$j]['TOTAL_SEATS_REMAINING'] > 0) {
+
+                                        $CATEGORIES[$j]['TOTAL_SEATS_REMAINING']--;
+
+                                        $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'],  "PROG_LIST_ID" => $choice_prog_list_id,"CHOICE_NO"=>$CHOICE_NO,"CATEGORY" => $CATEGORIES[$j]);
+                                        array_push($selected_candidate, $object);
+                                        $is_seat_allot = true;
+                                        //break;
+                                    }
+                                }
+
+                            }
+
+                            if ($is_seat_allot) {
+                                break;
+                            }
+
+                        }
+                    }
+                    if (count($application_category) > 1 && $is_seat_allot == false && $is_self_selected == false) {
+
+                        $j= getIndexOfObjectInList($CATEGORIES,'CATEGORY_ID',OTHER_PROVINCES_SELF_FINANCE);
+                        if($j>=0){
+                            if ($CATEGORIES[$j]['TOTAL_SEATS_REMAINING'] > 0) {
+
+                                $CATEGORIES[$j]['TOTAL_SEATS_REMAINING']--;
+
+                                $object = array("candidate" => $candidate,"APPLICATION_ID"=>$candidate['APPLICATION_ID'],"USER_ID"=>$candidate['USER_ID'],  "PROG_LIST_ID" => $choice_prog_list_id,"CHOICE_NO"=>$CHOICE_NO,"CATEGORY" => $CATEGORIES[$j]);
+                                array_push($selected_candidate, $object);
+                                $is_self_selected = true;
+                                //break;
+                            }
+                        }
+
+
+                    }
+
+
+
+                }
+
+                if($is_seat_allot){
+                    break;
+                }
+            }
+            if($is_seat_allot==false&&$is_self_selected == false){
+                array_push($not_selected_candidate, $candidate);
+            }
+
+
+
+
+
+        }
+
+        fclose($error_log_seat_distribution);
+
+
+    }
+
+    function  insertApplicantMionors(){
+        // DELETE FROM applicants_minors WHERE application_id IN (SELECT application_id FROM applications WHERE status_id = 3 AND ADMISSION_SESSION_ID < 8)
+        //#DELETE FROM applicants_minors WHERE DISCIPLINE_ID <> 20
+       // exit();
+        set_time_limit(30000);
+        $minor_mapping = $this->Administration->getMinorMapping();
+        //for bachelor
+        for($i=1;$i<=7;$i++) {
+            $all_applications = $this->Application_model->getApplicationByAdmissionSessionIdAdmin($i);
+
+            $applicants_minnor_list = array();
+            foreach ($all_applications as $application) {
+                $form_data = json_decode($application['FORM_DATA'], true);
+                $qualifications = $form_data['qualifications'];
+                foreach ($qualifications as $qualification) {
+                    if ($qualification['DEGREE_ID'] == 3) {
+                        $discipline_id = $qualification['DISCIPLINE_ID'];
+                        $minor_object = findObjectinList($minor_mapping, 'DISCIPLINE_ID', $discipline_id);
+//                    prePrint();
+//                    prePrint($minor_object);
+                        $applicants_minnor = array(
+                            "APPLICATION_ID" => $application['APPLICATION_ID'],
+                            "DISCIPLINE_ID" => $discipline_id,
+                            "MINOR_MAPPING_ID" => $minor_object['MINOR_MAPPING_ID'],
+                            "USER_ID" => $application['USER_ID'],
+                            "ACTIVE" => 1
+                        );
+                        $applicants_minnor_list[] = $applicants_minnor;
+                        break;
+                    }
+                }
+                //$application['FORM_DATA'];
+            }
+            // prePrint($applicants_minnor_list);
+            $is_add = $this->Application_model->addApplicantsMinorsBatchAdmin($applicants_minnor_list);
+            if ($is_add) {
+                echo "<div class='text-success'>Successfully added </div>";
+                //success add
+            }
+        }
+        //for master
+        for($i=8;$i<=13;$i++) {
+            $all_applications = $this->Application_model->getApplicationByAdmissionSessionIdAdmin($i);
+
+            $applicants_minnor_list = array();
+            foreach ($all_applications as $application) {
+                $form_data = json_decode($application['FORM_DATA'], true);
+                $qualifications = $form_data['qualifications'];
+                if($qualifications[0]['DEGREE_ID']==10){
+                    $qualification = $qualifications[1];
+                }else{
+                    $qualification = $qualifications[0];
+                }
+                $discipline_id = $qualification['DISCIPLINE_ID'];
+                if($discipline_id==20){
+                    continue;
+                }
+                $minor_object = findObjectinList($minor_mapping, 'DISCIPLINE_ID', $discipline_id);
+//                    prePrint();
+//                    prePrint($minor_object);
+                $applicants_minnor = array(
+                    "APPLICATION_ID" => $application['APPLICATION_ID'],
+                    "DISCIPLINE_ID" => $discipline_id,
+                    "MINOR_MAPPING_ID" => $minor_object['MINOR_MAPPING_ID'],
+                    "USER_ID" => $application['USER_ID'],
+                    "ACTIVE" => 1
+                );
+                $applicants_minnor_list[] = $applicants_minnor;
+
+                //$application['FORM_DATA'];
+            }
+            // prePrint($applicants_minnor_list);
+            $is_add = $this->Application_model->addApplicantsMinorsBatchAdmin($applicants_minnor_list);
+            if ($is_add) {
+                echo "<div class='text-success'>Successfully added </div>";
+                //success add
+            }
+        }
+
+    }
+
+    function getallcurrentstudent(){
+        $all_applicants = $this->TestResult_model->getListOfStudentByTestIdAndCampusIdAndShiftId(1,1,1);
+        //prePrint($result);
+        foreach ($all_applicants as $k=>$result){
+
+            if($k>10){
+                break;
+            }
+            prePrint($result);
+
+        }
+    }
+
+    public function generate_second_merit_list(){
+        echo "second merit list";
+
+        $TEST_ID = 1;//general test
+        $LAT_TEST_ID = 3;//LAT test
+        $campus_id = 1;//main campus
+        $shift_id = 1;//morning
+        $session_id = 1;//2021
+        $prog_type_id = 1;//bachelor
+        $second_merit_list = 2;
+        $admission_session_id = 1;
+        $this->pre_requiste_list = $this->Prerequisite_model->getPrerequisiteByProgramTypeId($prog_type_id);
+
+        $campus_jurisdiction_list = $this->Administration->getMappedCampusJurisdiction($campus_id);
+
+        $discipline_seat_distribution = $this->MeritList_model->getSeatDistribution($campus_id,$shift_id,$session_id,$prog_type_id);
+        $all_selected_student = $this->MeritList_model-> getSelectedStudent($admission_session_id,$shift_id,$session_id,$prog_type_id);
+        //prePrint($discipline_seat_distribution[0]);
+        // prePrint($all_selected_student[0]);
+        foreach ($all_selected_student as $selected_student){
+          //  prePrint($selected_student);
+            $selected_student['PROG_LIST_ID'];
+            $selected_student['CATEGORY_ID'];
+            $GENDER = $selected_student['DISTRICT_ID'];
+            $U_R =  $selected_student['U_R'];
+            $index = getIndexOfObjectInList($discipline_seat_distribution,"PROG_LIST_ID",$selected_student['PROG_LIST_ID']);
+            //prePrint($discipline_seat_distribution[$index]);
+            //[IS_QUOTA] => N
+            $discipline_seat_distribution[$index]['CATEGORIES'];
+
+            if($discipline_seat_distribution[$index]['IS_QUOTA']=='Y'&& ($selected_student['CATEGORY_ID']==GENERAL_MERIT_JUR||$selected_student['CATEGORY_ID']==GENERAL_MERIT_OUT_JUR)){
+               $district_index =  getIndexOfObjectInList($discipline_seat_distribution[$index]['DISTRICT_QUOTA'],'DISTRICT_ID', $selected_student['DISTRICT_ID']);
+                if($discipline_seat_distribution[$index]['DISTRICT_QUOTA'][$district_index]['RURAL_SEATS']==0&&$discipline_seat_distribution[$index]['DISTRICT_QUOTA'][$district_index]['URBAN_SEATS']==0){
+                    $discipline_seat_distribution[$index]['DISTRICT_QUOTA'][$district_index]['TOTAL_SEATS_REMAINING']--;
+                }else{
+                    if($selected_student['U_R']=='R'){
+
+                        $discipline_seat_distribution[$index]['DISTRICT_QUOTA'][$district_index]['RURAL_SEATS_REMAINING']--;
+
+                    }else{
+                        $discipline_seat_distribution[$index]['DISTRICT_QUOTA'][$district_index]['URBAN_SEATS_REMAINING']--;
+                    }
+                    $discipline_seat_distribution[$index]['DISTRICT_QUOTA'][$district_index]['TOTAL_SEATS_REMAINING']--;
+                }
+
+            }else{
+                $cat_index = getIndexOfObjectInList($discipline_seat_distribution[$index]['CATEGORIES'],"CATEGORY_ID",$selected_student['CATEGORY_ID']);
+                $discipline_seat_distribution[$index]['CATEGORIES'][$cat_index]['TOTAL_SEATS_REMAINING']--;
+                if($selected_student['CATEGORY_ID']==COMMERCE_QUOTA){
+                    if($GENDER == 'F' && $U_R=='R'){
+                        $discipline_seat_distribution[$index]['COMMERCE_QUOTA']['RURAL_F']--;
+                    }
+                    else if($GENDER == 'M' && $U_R=='R'){
+                        $discipline_seat_distribution[$index]['COMMERCE_QUOTA']['RURAL_M']--;
+                    }
+                    else if($GENDER == 'M' && $U_R=='U'){
+                        $discipline_seat_distribution[$index]['COMMERCE_QUOTA']['URBAN_M']--;
+                    }
+                    else if($GENDER == 'F' && $U_R=='U'){
+                        $discipline_seat_distribution[$index]['COMMERCE_QUOTA']['URBAN_F']--;
+                    }
+                }
+            }
+
+
+
+            //prePrint($discipline_seat_distribution[$index]);
+            // exit();
+
+        }
+
+        prePrint($discipline_seat_distribution);
+
+
+    }
+}
+

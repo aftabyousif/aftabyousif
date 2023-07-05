@@ -4,7 +4,7 @@
                     <div class="col-md-6">
                         <div class="footer-copy-right" style="padding-left: 20px;text-align:left">
                            
-                            <p><a href="../public/developer_team.php">
+                            <p><a href="<?=base_url()?>developer">
               Developer Team
             </a></p>
                         

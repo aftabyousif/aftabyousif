@@ -28,6 +28,7 @@ class Configuration_model extends CI_model
 	function side_bar_data ($user_id,$role_id)
 	{
 		$rows = $this->get_privilages($user_id,$role_id);
+	//	prePrint($rows);
 		$dummy = array();
 		foreach ($rows as $p){
 //			print_r($p);

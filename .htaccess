@@ -1,5 +1,6 @@
 RewriteEngine on
-RewriteCond $1 !^(index\.php|assets|dash_assets|images|js|css|uploads|favicon.png)
+RewriteCond $1 !^(index\.php|assets|adms_assets|dash_assets|images|js|css|uploads|favicon.png|fee_import_log)
 RewriteCond %(REQUEST_FILENAME) !~f
 RewriteCond %(REQUEST_FILENAME) !~d
 RewriteRule ^(.*)$ ./index.php/$1 [L]
+

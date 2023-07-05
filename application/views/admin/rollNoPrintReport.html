@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Print Report</title>
+	<style type="text/css">
+		.table{
+
+			border: 1px solid black;
+			width: 100%;
+			border-collapse: collapse;
+
+		}
+		th, td {
+			border: 1px solid #dddddd;
+			text-align: left;
+			padding: 8px;
+		}
+		tr:nth-child(even) {
+			background-color: #dddddd;
+		}
+
+		header nav, footer {
+			display: none;
+		}
+		@media print {
+
+		}
+		@page {
+			margin: 0.5cm;
+			size: A4;
+		}
+		body {
+			font-family: "Times New Roman";
+			line-height: 1;
+		}
+		p a {
+			word-wrap: break-word;
+		}
+		@page :blank {
+			@top-center { content: "This page is intentionally left blank." }
+		}
+
+		/*@page:left{*/
+		/*	@bottom-left {*/
+		/*		content: "Page " counter(page) " of " counter(pages);*/
+		/*	}*/
+		/*}*/
+		#content{
+			display: table;
+		}
+		#pageNo{
+			display: table-footer-group;
+		}
+		#pageNo:after {
+			counter-increment: page;
+			content:"Page " counter(page);
+			left: 0;
+			top: 100%;
+			white-space: nowrap;
+			z-index: 20px;
+			-moz-border-radius: 5px;
+			-moz-box-shadow: 0px 0px 4px #222;
+			background-image: -moz-linear-gradient(top, #eeeeee, #cccccc);
+			background-image: -moz-linear-gradient(top, #eeeeee, #cccccc);
+		}
+		h2,h3{
+			text-align: center;
+			font-size: 14pt;
+			font-family: "JetBrains Mono Thin";
+		}
+		h4,p{
+			text-align: center;
+			font-size: 10pt;
+			font-weight: bold;
+		}
+
+	</style>
+</head>
+<body>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<script type="text/javascript">
+	var app = angular.module('MyChildApp', [])
+	app.controller('MyChildController', function ($scope, $window) {
+// 		console.log($window.Name)
+		let data = $window.Name;
+		// sessionStorage.setItem('data',data)
+		// data = sessionStorage.getItem('data');
+		$scope.PrintDate = new  Date();
+		$scope.CampusName   = data['CAMPUS_NAME'];
+		$scope.partName     = data['PART_NAME'];
+		$scope.shiftName    = data['SHIFT_NAME'];
+		$scope.year         = data['YEAR'];
+		$scope.deptData     = data['DATA'];
+        
+        if (data['CAMPUS_NAME'] == 'UNIVERSITY OF SINDH, JAMSHORO') {
+            $scope.CampusName   = 'ALLAMA I. I. KAZI CAMPUS, JAMSHORO';
+        } else {
+            $scope.CampusName   = data['CAMPUS_NAME'];
+        }
+// 		console.log(data['DATA']);
+	});
+</script>
+
+<div ng-app="MyChildApp" ng-controller="MyChildController">
+	<div id="content">
+
+		<div ng-repeat="dept in deptData track by $index" >
+			<span style="font-size: 11pt; text-align: right">Print Date: {{ PrintDate | date : "medium" }} </span>
+			<h2>DIRECTORATE OF ADMISSIONS, UNIVERSITY OF SINDH</h2>
+			<h3 ng-bind="CampusName"></h3>
+			<h4>ADMISSION LIST OF {{dept.PROGRAM_TITLE}} <span ng-bind="partName"></span>&nbsp;&nbsp;(<span ng-bind="shiftName"></span>)&nbsp;&nbsp;-&nbsp;&nbsp;BATCH YEAR <span ng-bind="year"></span></h4>
+		<div class="asset-inner">
+			<table class="table">
+				<thead>
+				<tr style="font-size: 9pt;text-align: center">
+					<th>S.NO</th>
+					<th>SEAT NO</th>
+					<th>NAME</th>
+					<th>FATHER'S NAME</th>
+					<th>SURNAME</th>
+<!--					<th>DISTRICT</th>-->
+<!--					<th>AREA</th>-->
+<!--					<th>CATEGORY</th>-->
+					<th>ROLL NO.</th>
+<!--					<th>AMOUNT</th>-->
+				</thead>
+				<tbody>
+				<tr ng-repeat="z in dept.STD_DATA  track by $index" style="font-size: 10pt; text-align: justify">
+					<td>{{ $index+1 }}</td>
+					<td>{{z.CARD_ID}}</td>
+					<td>{{z.FIRST_NAME}}</td>
+					<td>{{z.FNAME}}</td>
+					<td>{{z.LAST_NAME}}</td>
+<!--					<td>{{z.DISTRICT_NAME}}</td>-->
+<!--					<td>{{z.U_R}}</td>-->
+<!--					<td>{{z.CATEGORY_NAME}}</td>-->
+					<td>{{z.ROLL_NO}}</td>
+<!--					<td>{{z.PAID_AMOUNT}}</td>-->
+				</tr>
+				</tbody>
+			</table>
+			<p>THIS IS COMPUTER-GENERATED  REPORT AND IT DOES NOT REQUIRE ANY SIGNATURE.</p>
+			<P>THIS REPORT SHALL NOT BE INVALIDATED SOLELY ON THE GROUND THAT IT IS NOT SIGNED.</P>
+
+			<span style="font-size: 10pt; font-family: 'Times New Roman'"><b>NOTE:</b> THE UNIVERSITY OF SINDH RESERVES THE RIGHT TO CORRECT ANY ERROR/OMISSION DETECTED LATER ON, AND ALSO RESERVES THE RIGHT TO CANCEL ANY PROVISIONAL ADMISSION AT ANY TIME WITHOUT ISSUING NOTICE.</span>
+			<p style="font-size: 10pt; font-family: 'Times New Roman'">Developed By: Information Technology Services Centre, University of Sindh.</p>
+	</div>
+			<div style="page-break-before: always;"></div>
+	</div>
+
+</div>
+</div>
+
+</body>
+</html>

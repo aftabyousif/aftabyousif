@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Print Report</title>
+	<style type="text/css">
+		.table{
+
+			border: 1px solid black;
+			width: 100%;
+			border-collapse: collapse;
+		}
+		table, th, td {
+			border: 1px solid black;
+			padding: 6px;
+		}
+	</style>
+</head>
+<body>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<script type="text/javascript">
+	var app = angular.module('MyChildApp', [])
+	app.controller('MyChildController', function ($scope, $window) {
+		 console.log($window.Name)
+		let data = $window.Name;
+		// sessionStorage.setItem('data',data)
+		// data = sessionStorage.getItem('data');
+		$scope.PrintDate = new  Date();
+		$scope.CampusName = data['CAMPUS_NAME'];
+		$scope.TotalSeats = null;
+		$scope.FilledSeats = null;
+		$scope.VacantSeats = null;
+		$scope.ProgramTitle = data['PROGRAM_TITLE'];
+		let ProgramCategory = data['CATEGORY_TYPE'];
+		$scope.DisplayCategories = ProgramCategory
+			angular.forEach(ProgramCategory,function (categoryTypes){
+			angular.forEach(categoryTypes['CATEGORIES'],function (categories){
+				$scope.TotalSeats+=parseInt(categories['TOTAL_SEATS']);
+				$scope.FilledSeats+=parseInt(categories['FILLED_SEATS']);
+				$scope.VacantSeats+=parseInt(categories['VACANT_SEATS']);
+				// console.log(categories);
+			});
+		});
+	});
+</script>
+
+<div ng-app="MyChildApp" ng-controller="MyChildController">
+	<div>
+		<span style="font-size: 12pt; font-weight: bold">Print Date: {{ PrintDate | date : "medium" }} </span>
+		<h3 ng-bind="CampusName"></h3>
+		<h3 ng-bind="ProgramTitle"></h3>
+
+
+		<div class="asset-inner">
+			<table class="table">
+				<thead>
+				<tr style="font-size: 11pt;text-align: center">
+					<th>Category</th>
+					<th>Total Seats</th>
+					<th>Fill Seats</th>
+					<th>Vacant Seat</th>
+				</thead>
+				<tbody ng-repeat="x in DisplayCategories  track by $index">
+				<tr style="font-size: 11pt;text-align: center">
+					<th colspan="4" class="bg-info" style="text-align: center">{{x.CATEGORY_TYPE_NAME}}</th>
+				</tr>
+				<tr ng-repeat="z in x.CATEGORIES  track by $index" style="font-size: 11pt">
+					<td>{{z.CATEGORY_NAME}}</td>
+					<td ng-init="ALLSEATS+=z.TOTAL_SEATS">{{z.TOTAL_SEATS}}</td>
+					<td>{{z.FILLED_SEATS}}</td>
+					<td>{{z.VACANT_SEATS}}</td>
+				</tr>
+				</tbody>
+				<tr>
+					<th>TOTAL</th>
+					<th>{{TotalSeats}}</th>
+					<th>{{FilledSeats}}</th>
+					<th>{{VacantSeats}}</th>
+				</tr>
+			</table>
+		</div>
+	</div>
+<span ng-bind="Name"></span>
+</div>
+</body>
+</html>

@@ -9,12 +9,20 @@
 
 
 <div class="row">
+    
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="review-content-section">
+             <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="">
+                        <center><h4 >Educational Information</h4></center>
+                    </div>
+                </div>
+            </div>
             <div class="row">
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                    <div class="top-margin">
-                        <button class='btn btn-success btn-md btn-round disab' id="add_qulification""><i class='fa fa-plus'></i> Add</button>
+                    <div class="">
+                        <button class='btn btn-success btn-md btn-round disab' id="add_qulification"><i class='fa fa-plus'></i> Add New Qualification</button>
                     </div>
                 </div>
             </div>
@@ -37,7 +45,7 @@
                 </div>
                 <div class="col-lg-2">
                     <div class="payment-adress">
-                        <button type="button"onclick = "next_tab('documents_tab')" class="btn btn-primary btn-lg waves-effect waves-light">Next</button>
+                        <button  id="next_tab_btn" type="button"onclick = "check_validtion_of_data();" class="btn btn-primary btn-lg waves-effect waves-light">Next</button>
                     </div>
                 </div>
             </div>
@@ -344,13 +352,19 @@
                 last  = YEAR;
             }
             if(program_type_id==2 && degree_id==2){
-                last = YEAR-4;
+                last = YEAR-5;
             }
             if(program_type_id==2 && degree_id==3){
-                last  = YEAR-2;
+                last  = YEAR-3;
             }
             if(program_type_id==2 && degree_id==4){
-                last  = YEAR;
+                last  = YEAR-1;
+            }
+            if(program_type_id==2 && degree_id==5){
+                last  = YEAR-1;
+            }
+            if(program_type_id==2 && degree_id==6){
+                last  = YEAR-1;
             }
             let string="";
             for(let i=last;i>=1770;i--){

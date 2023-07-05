@@ -1,8 +1,24 @@
 <div id = "min-height" class="container-fluid" style="padding:30px">
     <div class="row">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-
+            <?php
+            
+           
+                                    
+            $url = base_url().'form/admission_form_challan';
+            ?>
+            <a target='_blank' href='<?=$url?>' class='btn btn-warning widget-btn-1 btn-lg'>Download Challan</a>
+            <li class="list-group-item list-group-item-warning" style="font-weight: bold"> Download your system generated Challan of Admission Processing Fee of Rs. <?=$application['CHALLAN_AMOUNT']?>/- which has to be paid in any HBL (Habib Bank Limited) branch throughout Pakistan.  </li>
             <div class="row">
+                <br>
+                 <?php
+                $data['application']=$application;
+                $data['users_reg']=$user;
+                $data['qualifications']=$qualifications;
+                $data['category']=$category;
+                $data['program_choice']=$program_choice;
+                show_progress_status($data);
+                ?>
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     <div class="review-content-section">
                         <div id="dropzone1" class="pro-ad">
@@ -61,6 +77,7 @@
                                                     $date = getDateForView($application['CHALLAN_DATE']);
                                                 }else{
                                                     $date = date('d/m/Y');
+                                                    $date="";
                                                 }
 
                                                 ?>
@@ -78,7 +95,7 @@
                                             <span class="text-danger">*</span>
                                             <span class="text-danger" id="CHALLAN_NO_VIEW_MSG"></span>
                                         </label>
-                                        <input  readonly value ="<?=$application['FORM_CHALLAN_ID']?>"type="text" id="CHALLAN_NO" class="form-control allow-number" placeholder="CHALLAN NO" name="CHALLAN_NO" value="<?=($application['PAID']=='N'||$application['PAID']=='Y')?$application['FORM_CHALLAN_ID']:'';?>">
+                                        <input  readonly value ="<?= $challan_no = ADMP_CODE.str_pad($application['FORM_CHALLAN_ID'], 7, "0", STR_PAD_LEFT);?>"type="text" id="CHALLAN_NO" class="form-control allow-number" placeholder="CHALLAN NO" name="CHALLAN_NO" value="<?=($application['PAID']=='N'||$application['PAID']=='Y')?$application['FORM_CHALLAN_ID']:'';?>">
 
 
                                     </div>
@@ -108,16 +125,16 @@
                                         $image_path = "";
                                         if($application['CHALLAN_IMAGE'] != ""){
 
-                                            $image_path_default = base_url().EXTRA_IMAGE_PATH.$application['CHALLAN_IMAGE'];
-                                            $image_path =base_url(). EXTRA_IMAGE_PATH.$application['CHALLAN_IMAGE'];
+                                            $image_path_default = itsc_url().EXTRA_IMAGE_PATH.$application['CHALLAN_IMAGE'];
+                                            $image_path = itsc_url(). EXTRA_IMAGE_PATH.$application['CHALLAN_IMAGE'];
 
                                         }
                                         ?>
 
                                         <img src="<?php echo $image_path_default; ?>" alt="CHALLAN IMAGE" id="challan-image-view"  class="img-table-certificate"  width="150px" height="150px" name="challan-image-view" >
-                                        <input type="file" name="challan_image" id="challan_image"   onchange="changeImage(this,'challan_image','challan-image-view',200)" accept=".jpg,.png,.jpeg" value="<?php echo $image_path; ?>">
+                                        <input type="file" name="challan_image" id="challan_image"   onchange="changeImage(this,'challan_image','challan-image-view',500)" accept=".jpg,.png,.jpeg" value="<?php echo $image_path; ?>">
                                         <input type="text" name="challan_image1" id="challan_image1" value="<?php echo $image_path; ?>" hidden>
-                                        <span class="text-danger">Make Sure Image must be clear Image size should be less than 200kb</span>
+                                        <span class="text-danger">Make Sure Image must be clear and Image size should be less than 500KB</span>
 
                                     </div>
                                 </div>
@@ -131,7 +148,7 @@
                                         <div class="col-lg-4">
                                             <div class="payment-adress">
                                                 <button type="submit"
-                                                        class="btn btn-primary btn-lg waves-effect waves-light">Save
+                                                       value="save"  name="action" class="btn btn-primary btn-lg waves-effect waves-light">Save
                                                 </button>
                                             </div>
                                         </div>
@@ -140,7 +157,7 @@
                                         ?>
                                         <div class="col-lg-2">
                                             <div class="">
-                                                <button type="button" class="btn btn-success btn-lg "  onclick = "check_validtion_of_challan()" >Next</button>
+                                                <button type="submit" name="action" class="btn btn-success btn-lg "  value="next"  >Save & Next</button>
                                             </div>
                                         </div>
 
@@ -183,7 +200,7 @@
         alertImage('Image',$(this).attr('src'));
     });
     function check_validtion_of_challan(){
-        window.location.href = "<?=base_url()?>form/check_validation_and_challan";
+      //  window.location.href = "<?=base_url()?>form/check_validation_and_challan";
     }
 </script>
 <style>

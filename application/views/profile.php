@@ -36,26 +36,38 @@ $readonly ="";
 
 </script>
 <div id = "min-height" class="container-fluid" style="padding:30px">
+     <br>
+                 <?php
+                $data['application']=$application;
+                $data['users_reg']=$user;
+                $data['qualifications']=$qualifications;
+                $data['category']=$category;
+                $data['program_choice']=$program_choice;
+                show_progress_status($data);
+                ?>
     <div class="row">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
             <div class="product-payment-inner-st">
                 <ul id="myTabedu1" class="tab-review-design">
                     <li class="active"><a  id="basic_information_tab" href="#basic_information">Basic Information</a></li>
-                    <li class=""><a id="education_tab" href="#education"> Education Information</a></li>
+                      <li class=""><a id="documents_tab" href="#documents"> Additional Documents</a></li>
+                    <!--<li class=""><a id="education_tab" href="#education"> Education Information</a></li>-->
 <!--					<li class=""><a id="experiances_tab" href="#experiances"> Experience</a></li>-->
-                    <li class=""><a id="documents_tab" href="#documents"> Additional Documents</a></li>
+                  
                 </ul>
 
                 <div id="myTabContent" class="tab-content custom-product-edit">
                     <div class="product-tab-list tab-pane fade active in" id="basic_information">
                     <?php   require_once "profile_section/basic_information.php";?>
                     </div>
-                    <div class="product-tab-list tab-pane fade" id="education">
-                        <?php   require_once "profile_section/qualification_information.php";?>
-                    </div>
                     <div class="product-tab-list tab-pane fade" id="documents">
                         <?php   require_once "profile_section/document_form.php";?>
                     </div>
+                    
+                    <!--<div class="product-tab-list tab-pane fade" id="education">-->
+                       <?php   //require_once "profile_section/qualification_information.php";?>
+                    <!--</div>-->
+                    
 <!--                    <div class="product-tab-list tab-pane fade" id="experiances">-->
 <!--                        --><?php //  require_once "profile_section/experiances.php";?>
 <!--                    </div>-->
@@ -83,17 +95,19 @@ $('textarea').attr({"disabled":true});
 			var msg="<ol style='font-size: 11pt' class='list-group'>";
 			msg+="<li class='list-group-item list-group-item-warning'>Fill your profile carefully once submitted can't be editable.</li>";
 			msg+="<li class='list-group-item'><span class='text-danger'>*</span> Marked fields are required, do not leave them blank.</li>";
-			msg+="<li class='list-group-item'>Your profile image must be passport size 120 x 159 pixels dimensions approximately and it must be in white background.</li>";
-			msg+="<li class='list-group-item'>All documents may not be greater than 500 KB.</li>";
-			msg+="<li class='list-group-item'><a href=''> <i class='fa fa-file-video-o'></i> Please watch this tutorial before filling / updating profile.</a></li>";
-			msg+="<li class='list-group-item'><a href=''> <i class='fa fa-file-video-o'></i> For more tutorials click here.</a></li>";
-			msg+="<li class='list-group-item'><i class='fa fa-connectdevelop'></i> If you have any trouble, Please email at itsc@usindh.edu.pk you will get reply within 24 to 48 hrs from Monday to Friday</li>";
+			msg+="<li class='list-group-item'>Your profile image must be passport size 120 x 159 pixels dimensions approximately and it must be in white background and must not be greater than 100 KB.</li>";
+			msg+="<li class='list-group-item'>Document must not be greater than 500 KB.</li>";
+// 			msg+="<li class='list-group-item'><a href=''> <i class='fa fa-file-video-o'></i> Please watch this tutorial before filling / updating profile.</a></li>";
+// 			msg+="<li class='list-group-item'><a href=''> <i class='fa fa-file-video-o'></i> For more tutorials click here.</a></li>";
+			msg+="<li class='list-group-item'><i class='fa fa-connectdevelop'></i> If you have any query please email Directorate of Admissions Help Desk at <b><em>admission@usindh.edu.pk</em></b>, you will get reply within 24 to 48 hrs (working days) or Contact on given numbers : <b>0229213166 - 0229213199 (during office Hours 9:00am to 5:00pm)</b></li>";
 			msg+="</ol>";
 
 			alertMsg('Form Filling Guidelines',msg);
 		}
 		<?php
-        if(isset($_SESSION['ALERT_MSG'])){}else{
+        if(isset($_SESSION['ALERT_MSG'])){
+            
+        }else{
             echo "profile_guideline();";
         }
 		?>
@@ -192,10 +206,11 @@ $('textarea').attr({"disabled":true});
             });
         }
     }
-		getQualification();
+		
+	getQualification();
 
     function next_tab(id) {
-        if(id=="education_tab"){
+        if(id!="education_tab"){
             <?php
             if($user['STATUS']!='C'){
                 ?>

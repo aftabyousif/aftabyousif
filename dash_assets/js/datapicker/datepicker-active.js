@@ -41,7 +41,8 @@
 	$('#data_5 .input-daterange').datepicker({
 		keyboardNavigation: false,
 		forceParse: false,
-		autoclose: true
+		autoclose: true,
+		format: "dd/mm/yyyy"
 	});
 
 })(jQuery);

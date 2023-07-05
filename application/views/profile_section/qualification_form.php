@@ -4,16 +4,20 @@
  * User: Kashif Shaikh
  * Date: 7/14/2020
  * Time: 10:28 PM
- */?>
+ */
+ $msg ="Applicants applying for Admissions to Bachelor Degree Programs for the academic year 2021, are advised to enter / fill result of HSC Part – I (Intermediate First Year) whether his/ her result of HSC Part – II (Inter) is already announced or still not announced.";
+ ?>
 
 <script src="<?=base_url()?>assets/js/input-validation.js"></script>
 
 <?=form_open('', 'id="qulification_form" onsubmit="event.preventDefault();"');?>
+    <!--<div class='text-danger'> <strong></strong></div>-->
+    <br>
     <div id="qul_form_msg"></div>
     <h3>Add Qualification</h3>
     <div class="row">
 
-        <div class="col-sm-6">
+        <div class="col-sm-4">
             <div class="top-margin">
                 <label for="exampleInput1" class="bmd-label-floating">Qualification / Degree / Certificate
                     <span class="text-danger">*</span></label>
@@ -25,7 +29,7 @@
 
 
                     $bachelor = array(2,3);
-                    $master_id = array(2,3,4,5);
+                    $master_id = array(2,3,4,5,6);
                     if($program_type_id==1){
                         $in_array = $bachelor;
                     }else if($program_type_id==2){
@@ -45,7 +49,7 @@
 
             </div>
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-4">
             <div class="top-margin">
                 <label for="exampleInput1" class="bmd-label-floating">Discipline / Subject / Group
                     <span class="text-danger">*</span></label>
@@ -56,9 +60,7 @@
 
             </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-6">
+           <div class="col-sm-4">
             <div class="top-margin">
                 <label for="exampleInput1" class="bmd-label-floating">Organization / University / Board
                     <span class="text-danger">*</span><div class="text-info" id="org_msg"></div></label>
@@ -80,22 +82,25 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-6">
-            <div class="top-margin" >
-                <label for="exampleInput1" class="bmd-label-floating">Institute / Department / School / College
-                    <span class="text-danger">*</span><div class="text-info" id="inst_msg"></div></label>
-                <br>
-                <select   id="INSTITUTE_ID" class="js-example-basic-single form-control " ONCHANGE="checkInstitute()" name="INSTITUTE_ID">
-                    <option value="0">--Choose--</option>
+    </div>
+    <div class="row">
+     
+        <!--<div class="col-sm-6">-->
+        <!--    <div class="top-margin" >-->
+        <!--        <label for="exampleInput1" class="bmd-label-floating">Institute / Department / School / College-->
+        <!--            <span class="text-danger">*</span><div class="text-info" id="inst_msg"></div></label>-->
+        <!--        <br>-->
+        <!--        <select   id="INSTITUTE_ID" class="js-example-basic-single form-control " ONCHANGE="checkInstitute()" name="INSTITUTE_ID">-->
+        <!--            <option value="0">--Choose--</option>-->
 
 
-                </select>
-                <div id="add_new_inst">
-                    <input id="institute_name" type="text" class="form-control allow-string-number-special" placeholder="Type missing institute name and add it"/> <button class="btn btn-warning" onclick="addInst()">Add</button>
-                </div>
-            </div>
+        <!--        </select>-->
+        <!--        <div id="add_new_inst">-->
+        <!--            <input id="institute_name" type="text" class="form-control allow-string-number-special" placeholder="Type missing institute name and add it"/> <button class="btn btn-warning" onclick="addInst()">Add</button>-->
+        <!--        </div>-->
+        <!--    </div>-->
 
-        </div>
+        <!--</div>-->
 
 
 
@@ -123,9 +128,9 @@
 <!---->
 <!--            </div>-->
 <!--        </div>-->
-        <div class="col-md-6">
+        <div class="col-md-2">
             <div class="top-margin">
-                <label for="exampleInput1" class="bmd-label-floating">Passing Year
+                <label for="exampleInput1" class="bmd-label-floating">Exam Year
                     <span class="text-danger">*</span><div class="text-info" id="PASSING_YEAR_MSG"></div></label>
                 <br>
                 <select   id="PASSING_YEAR" class="js-example-basic-single form-control "  name="PASSING_YEAR">
@@ -137,15 +142,15 @@
 
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-3">
             <div class="top-margin">
-                <label for="exampleInput1" class="bmd-label-floating">Roll No/ Seat No / Registration No
+                <label for="exampleInput1" class="bmd-label-floating">Roll No/ Seat No 
                     <span class="text-danger">*</span></label>
                 <input type="text"   id="ROLL_NO" class="form-control" name="ROLL_NO" value=""  >
 
 
             </div>
-        </div>
+       
 
 
 
@@ -184,8 +189,8 @@
 <!--        </div>-->
 <!---->
 <!--    </div>-->
-    <div class="row">
-        <div class="col-md-6">
+    
+        <div class="col-md-3">
             <div class="top-margin">
                 <label for="exampleInput1" class="bmd-label-floating">Total Marks
                     <span class="text-danger">*
@@ -197,7 +202,7 @@
 
             </div>
         </div>
-        <div class="col-md-5">
+        <div class="col-md-3">
             <div class="top-margin">
                 <label for="exampleInput1" class="bmd-label-floating">Obtained Marks
                     <span class="text-danger">* <small class="text-danger" id="view_obtained_mark_error">
@@ -217,61 +222,7 @@
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-2">
-            <div class="top-margin">
-                <div class="row">
-                    <input style="width:1.3em;height:1.3em;" type="radio" class=" mb-3" id="is_grade" name="check_grade" value="grade" checked>
-                    <label for="" style="font-size:17px"><small>Grade</small></label>
-                </div>
-                <div class="row">
-                    <input style="width:1.3em;height:1.3em;" type="radio" class=" mb-3" id="is_cgpa" name="check_grade" value="cgpa">
-                    <label for="" style="font-size:17px"><small>CGPA/Percentage</small></label>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 grade_view">
-
-            <div class="top-margin">
-                <label for="exampleInput1" class="bmd-label-floating">Grade
-                    <span class="text-danger">* &nbsp;</span></label>
-                <select class="form-control" name="grade" id="grade">
-                    <?php
-                    $grades = array("N/A","A+","A","B+","B","C","D","E");
-                    foreach($grades as $grade){
-                        echo "<option>$grade</option>";
-                    }
-                    ?>
-                </select>
-            </div>
-        </div>
-        <div class="col-md-2 cgpa_view">
-
-            <div class="top-margin">
-                <label for="exampleInput1" style="font-size: 1.1rem" class="bmd-label-floating">CGPA/ Percentage
-                    <span class="text-danger">* &nbsp;</span></label>
-                <input type="text"   id="cgpa" class="form-control allow_grade_cgpa" name="cgpa" value=""  >
-            </div>
-        </div>
-        <div class="col-md-2 cgpa_view">
-
-            <div class="top-margin">
-                <label for="exampleInput1" class="bmd-label-floating">Out of
-                    <span class="text-danger">* &nbsp;</span></label>
-                <select class="form-control" name="out_of" id="out_of">
-                    <?php
-                    //$out_ofs = array("4","5","6","10","20","100");
-                    $out_ofs = array("100");
-                    foreach($out_ofs as $out_of){
-                        echo "<option>$out_of</option>";
-                    }
-                    ?>
-                </select>
-            </div>
-        </div>
-
-
-    </div>
+    
     <hr>
     <div class="row">
         <div class="col-md-3">
@@ -289,14 +240,14 @@
                 <img src="<?php echo $image_path_default; ?>" alt="Marksheet/Transcript " class="img-table-certificate" id="marksheet-image-view" onclick="setImage()" width="150px" height="150px" name="marksheet-image-view" >
                 <input type="file" name="marksheet_image" id="marksheet_image" onchange="changeImage(this,'marksheet_image','marksheet-image-view',500)" accept=".jpg,.png,.jpeg">
                 <input type="text" name="marksheet_image1" id="marksheet_image1" value="<?php echo $image_path; ?>" hidden>
-                <span class="text-danger">Make Sure Image must be clear Image size should be less than 500kb</span>
+                <span class="text-danger">Make Sure Image must be clear and Image size should be less than 500KB</span>
 
             </div>
         </div>
         <div class="col-md-3">
             <div style="margin-top:35px">
 
-                <label for="exampleInput1" class="bmd-label-floating">Upload Pass/ Pakka Certificate
+                <label for="exampleInput1" class="bmd-label-floating">Upload Pass/ Pacca Certificate
                     <span class="text-danger">*</span>
                 </label>
                 <?php
@@ -308,23 +259,26 @@
                 <img src="<?php echo $image_path_default; ?>" alt="passcertificate " class="img-table-certificate" id="passcertificate-image-view" onclick="setImage()" width="150px" height="150px" name="passcertificate-image-view" >
                 <input type="file" name="passcertificate_image" id="passcertificate_image"                       onchange="changeImage(this,'passcertificate_image','passcertificate-image-view',500)" accept=".jpg,.png,.jpeg">
                 <input type="text" name="passcertificate_image1" id="passcertificate_image1" value="<?php echo $image_path; ?>" hidden>
-                <span class="text-danger">Make Sure Image must be clear Image size should be less than 500kb</span>
+                <span class="text-danger">Make Sure Image must be clear and Image size should be less than 500KB</span>
 
             </div>
         </div>
 
     </div>
     <div class="row">
-        <div class="col-md-3">
+      <div class="col-md-6"></div>
+        <div class="col-md-2">
+            <!--btn btn-info btn-md-->
             <div class="top-margin">
-                <button type="button" class="btn btn-info btn-md" onclick="saveQualification()">Save</button>
+                <button type="button" class="btn btn-info btn-md" onclick="saveQualification()">
+                    <i class='fa fa-save'> </i> Save</button>
             </div>
         </div>
         <div class="col-md-3">
             <div class="top-margin">
-                <button type="button" class="btn btn-danger btn-md" onclick="cancleQualificaion()">Cancle</button>
+                <button type="button" class="btn btn-danger btn-md" onclick="cancleQualificaion()"><i class='fa fa-close'> </i> Cancel</button>
             </div>
-        </div>
+            </div>
     </div>
 </form>
 <script>

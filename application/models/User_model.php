@@ -8,13 +8,47 @@
 
 class User_model extends CI_model
 {
-    function getUserFullDetailById($user_id){
+    function __construct()
+    {
+        parent::__construct();
+
+        $this->legacy_db = $this->load->database('admission_db',true);
+        
+    }
+
+    function getUserFullDetailById($user_id,$application_id){
         $user_reg  = $this->getUserById($user_id);
         if($user_reg){
-            $qual = $this->getQulificatinByUserId($user_id);
+            $qual = $this->getQulificatinByUserId($user_id,$application_id);
             //$expr = $this->getExperiancesByUserId($user_id);
             $gaurd = $this-> getGuardianByUserId($user_id);
             return array("users_reg"=>$user_reg,"qualifications"=>$qual,"guardian"=>$gaurd);
+        }else{
+            return false;
+        }
+
+    }
+    //this is method add on  5-nov-2020
+	//this method update on 08-02-2021 by yasir
+	function getUserFullDetailWithChoiceById($user_id,$application_id,$SHIFT_ID=1){
+        $this->load->model("Application_model");
+        $user_reg  = $this->getUserById($user_id);
+        if($user_reg){
+            $qual = $this->getQulificatinByUserId($user_id,$application_id);
+            //$expr = $this->getExperiancesByUserId($user_id);
+            $gaurd = $this-> getGuardianByUserId($user_id);
+            $applicant_choice = $this->Application_model->getChoiceByUserAndApplicationAndShiftId($user_id,$application_id,$SHIFT_ID);
+			$applicant_choice_evening = $this->Application_model->getChoiceByUserAndApplicationAndShiftId($user_id,$application_id,EVENING_SHIFT_ID);
+            $applicant_category = $this->Application_model->getApplicantCategory($application_id,$user_id);
+        
+            if(isset($qual[0])&&isset($qual[0]['DISCIPLINE_ID'])){
+                $discipline_id = $qual[0]['DISCIPLINE_ID'];
+            }else{
+                $discipline_id = 0;
+            }
+            $applicant_minor = $this->Application_model->getApplicantsMinorsByUserIdAndApplicationId($user_id,$application_id);
+
+            return array("users_reg"=>$user_reg,"qualifications"=>$qual,"guardian"=>$gaurd,"application_choices"=>$applicant_choice,"application_category"=>$applicant_category,"applicants_minors"=>$applicant_minor,"application_choices_evening"=>$applicant_choice_evening);
         }else{
             return false;
         }
@@ -40,8 +74,26 @@ class User_model extends CI_model
         return $user;
 
     }
-    
-	function getUserById($user_id){
+    function getUserByCnicLegacyDb($cnic){
+        $this->legacy_db->where('CNIC_NO',$cnic);
+        $user = $this->legacy_db->get('users_reg')->row_array();
+        return $user;
+
+    }
+    function getUserByUserIdLegacyDb($user_id){
+        $this->legacy_db->where('USER_ID',$user_id);
+        $user = $this->legacy_db->get('users_reg')->row_array();
+        return $user;
+
+    }
+    function getUserByPassportNo($passport_no){
+        $this->db->where('PASSPORT_NO',$passport_no);
+        $user = $this->db->get('users_reg')->row_array();
+        return $user;
+
+    }
+/*	function getUserById($user_id){
+	    $this->db->select("*,ur.REMARKS");
         $this->db->from("users_reg ur");
         $this->db->join('districts AS d', 'ur.DISTRICT_ID = d.DISTRICT_ID');
         $this->db->where('USER_ID',$user_id);
@@ -50,15 +102,59 @@ class User_model extends CI_model
         return $user;
 
     }
-	
+    
+*/
+//this is method updated 5-nov-2020
+    function getUserById($user_id){
+	    $this->db->select("*,ur.REMARKS");
+        $this->db->from("users_reg ur");
+        $this->db->join('districts AS d', 'ur.DISTRICT_ID = d.DISTRICT_ID');
+        $this->db->join('provinces AS p', 'p.PROVINCE_ID = d.PROVINCE_ID');
+        $this->db->join('countries AS c', 'c.COUNTRY_ID = p.COUNTRY_ID');
+        $this->db->where('USER_ID',$user_id);
+
+        $user = $this->db->get()->row_array();
+        return $user;
+
+    }
+    function getUserByIdForAdmin($user_id){
+	    $this->db->select("*,ur.REMARKS");
+        $this->db->from("users_reg ur");
+        // $this->db->join('districts AS d', 'ur.DISTRICT_ID = d.DISTRICT_ID');
+        // $this->db->join('provinces AS p', 'p.PROVINCE_ID = d.PROVINCE_ID');
+        // $this->db->join('countries AS c', 'c.COUNTRY_ID = p.COUNTRY_ID');
+        $this->db->where('USER_ID',$user_id);
+
+        $user = $this->db->get()->row_array();
+        return $user;
+
+    }
+    function getUserByIdWithProfilePhoto($user_id){
+	    $this->db->select("*,ur.REMARKS");
+        $this->db->from("users_reg ur");
+        $this->db->join('districts AS d', 'ur.DISTRICT_ID = d.DISTRICT_ID');
+        $this->db->join('provinces AS p', 'p.PROVINCE_ID = d.PROVINCE_ID');
+        $this->db->join('countries AS c', 'c.COUNTRY_ID = p.COUNTRY_ID');
+        $this->db->join('profile_photo AS pp', 'pp.USER_ID = ur.USER_ID');
+         
+         
+        $this->db->where('ur.USER_ID',$user_id);
+
+        $user = $this->db->get()->row_array();
+        //echo $this->db->last_query();
+        //exit();
+        return $user;
+
+    }
 	// JOIN QUERY TO GET USER ROLE FROM ROLE AND ROLE_RELATION TABLE
 	// SELECT r.`ROLE_NAME`,r.`ACTIVE`, rr.`USER_ID`, r.`KEYWORD` from role r, role_relation rr where rr.USER_ID=93774 AND r.ROLE_ID=rr.ROLE_ID
 	function getUserRoleByUserId($user_id){
+        $this->db = $this->load->database('admission_db',true);
 		$this->db->select('r.`ROLE_NAME`,r.`ACTIVE`, rr.`USER_ID`, r.`KEYWORD`');
 		$this->db->from('role_relation rr');
 		$this->db->join('role AS r', 'rr.ROLE_ID = r.ROLE_ID');
 		$this->db->where('rr.USER_ID',$user_id);
-		$this->db->where('r.KEYWORD','UG_A');
+		//$this->db->where('r.KEYWORD','UG_A');
         $this->db->where('r.ACTIVE','1');
 		$user = $this->db->get()->row_array();
         return $user;
@@ -75,19 +171,46 @@ class User_model extends CI_model
 		$this->legacy_db->join('role AS r', 'rr.ROLE_ID = r.ROLE_ID');
 		$this->legacy_db->where('rr.USER_ID',$user_id);
 //		$this->db->where('r.KEYWORD','UG_A');
-		$this->legacy_db->where('r.ACTIVE','1');
+		$this->legacy_db->where('rr.ACTIVE','1');
 		$user = $this->legacy_db->get()->result_array();
 		return $user;
 	}
 
-    function getQulificatinByUserId($user_id){
+    function getQulificatinByUserId($user_id,$application_id){
         $this->db->select('q.*,d.DEGREE_ID,p.DEGREE_TITLE,d.DISCIPLINE_NAME,i.INSTITUTE_NAME INSTITUTE,o.INSTITUTE_NAME ORGANIZATION');
         $this->db->from('qualifications q');
-        $this->db->join('institute AS i', 'q.INSTITUTE_ID = i.INSTITUTE_ID');
+        $this->db->join('institute AS i', 'q.INSTITUTE_ID = i.INSTITUTE_ID','LEFT');
         $this->db->join('institute AS o', 'q.ORGANIZATION_ID = o.INSTITUTE_ID');
         $this->db->join('discipline AS d', 'q.DISCIPLINE_ID = d.DISCIPLINE_ID');
         $this->db->join('degree_program AS p', 'd.DEGREE_ID = p.DEGREE_ID');
         $this->db->where('q.USER_ID',$user_id);
+        $this->db->where('q.ACTIVE',1);
+         $this->db->where('q.APPLICATION_ID',$application_id);
+        $this->db->order_by('p.DEGREE_ID', 'DESC');
+//        $this->db->select('*');
+//        $this->db->from('qualifications q');
+//        $this->db->join('institute AS i', 'q.INSTITUTE_ID = i.INSTITUTE_ID');
+//        $this->db->join('institute AS o', 'q.ORGANIZATION_ID = o.INSTITUTE_ID');
+//        $this->db->join('discipline AS d', 'q.DISCIPLINE_ID = d.DISCIPLINE_ID');
+//        $this->db->join('degree_program AS p', 'd.DEGREE_ID = p.DEGREE_ID');
+//        $this->db->where('q.USER_ID',$user_id);
+//        $this->db->where('q.ACTIVE',1);
+//        $this->db->order_by('p.DEGREE_ID', 'DESC');
+        $qulification_list = $this->db->get()->result_array();
+        return $qulification_list;
+
+    }
+    
+    function getQulificatinByUserID_DEGREE_ID($user_id,$degree_id,$application_id){
+        $this->db->select('q.*,d.DEGREE_ID,p.DEGREE_TITLE,d.DISCIPLINE_NAME,i.INSTITUTE_NAME INSTITUTE,o.INSTITUTE_NAME ORGANIZATION');
+        $this->db->from('qualifications q');
+        $this->db->join('institute AS i', 'q.INSTITUTE_ID = i.INSTITUTE_ID','LEFT');
+        $this->db->join('institute AS o', 'q.ORGANIZATION_ID = o.INSTITUTE_ID');
+        $this->db->join('discipline AS d', 'q.DISCIPLINE_ID = d.DISCIPLINE_ID');
+        $this->db->join('degree_program AS p', 'd.DEGREE_ID = p.DEGREE_ID');
+        $this->db->where('q.USER_ID',$user_id);
+        $this->db->where('d.DEGREE_ID',$degree_id);
+        $this->db->where('q.APPLICATION_ID',$application_id);
         $this->db->where('q.ACTIVE',1);
         $this->db->order_by('p.DEGREE_ID', 'DESC');
 //        $this->db->select('*');
@@ -103,6 +226,7 @@ class User_model extends CI_model
         return $qulification_list;
 
     }
+    
 	
     function getUserByPassport($passport){
         $this->db->where('PASSPORT_NO',$passport);
@@ -114,36 +238,48 @@ class User_model extends CI_model
 	function changePasswordByCNIC($cnic,$password){
 		$formArray = array('PASSWORD'=>$password);
 		$this->db->trans_begin();
+		$this->legacy_db->trans_begin();
 //		$this->db->where('PASSWORD',$curr_password);
 		$this->db->where('CNIC_NO',$cnic);
 		$this->db->update('users_reg',$formArray);
+		
+		$this->legacy_db->where('CNIC_NO',$cnic);
+		$this->legacy_db->update('users_reg',$formArray);
+		
+
 		if($this->db->affected_rows() ==1){
 			$this->db->trans_commit();
+			$this->legacy_db->trans_commit();
 			return true;
 		}else{
 			$this->db->trans_rollback();
+				$this->legacy_db->trans_rollback();
 			return false;
 		}
 	}
 
-    function changePassword($user_id,$curr_password,$password){
+    function resetPassword($user_id,$password){
         //load loging model
         $this->load->model('log_model');
         $this->db->where('USER_ID',$user_id);
         $PRE_RECORD =  $this->db->get('users_reg')->row_array();
 
 
-        $formArray = array('PASSWORD'=>$password);
+        $formArray = array('PASSWORD'=>$password,'PASSWORD_TOKEN'=>'');
         $this->db->trans_begin();
-        $this->db->where('PASSWORD',$curr_password);
+        $this->legacy_db->trans_begin();
+        // $this->db->where('PASSWORD',$curr_password);
         $this->db->where('USER_ID',$user_id);
         $this->db->update('users_reg',$formArray);
+          $this->legacy_db->where('USER_ID',$user_id);
+        $this->legacy_db->update('users_reg',$formArray);
 
         //this code is use for loging
         $QUERY = $this->db->last_query();
 
         if($this->db->affected_rows() ==1){
             $this->db->trans_commit();
+             $this->legacy_db->trans_commit();
             //this code is use for loging
             $this->db->where('USER_ID',$user_id);
             $CURRENT_RECORD =  $this->db->get('users_reg')->row_array();
@@ -153,6 +289,51 @@ class User_model extends CI_model
             return true;
         }else{
             $this->db->trans_rollback();
+             $this->legacy_db->trans_rollback();
+            //this code is use for loging
+            $this->db->where('USER_ID',$user_id);
+            $CURRENT_RECORD =  $this->db->get('users_reg')->row_array();
+            $this->log_model->create_log($user_id,$user_id,$PRE_RECORD,$CURRENT_RECORD,"CHANGE_PASSWORD_FAILED",'users_reg',24,$user_id);
+            $this->log_model->itsc_log("CHANGE_PASSWORD","FAILED",$QUERY,'CANDIDATE',$user_id,$CURRENT_RECORD,$PRE_RECORD,$user_id,'users_reg');
+
+            return false;
+        }
+
+    }
+    
+    function changePassword($user_id,$curr_password,$password){
+        //load loging model
+        $this->load->model('log_model');
+        $this->db->where('USER_ID',$user_id);
+        $PRE_RECORD =  $this->db->get('users_reg')->row_array();
+
+
+        $formArray = array('PASSWORD'=>$password);
+        $this->db->trans_begin();
+        $this->legacy_db->trans_begin();
+        $this->db->where('PASSWORD',$curr_password);
+        $this->db->where('USER_ID',$user_id);
+        $this->db->update('users_reg',$formArray);
+        $this->legacy_db->where('PASSWORD',$curr_password);
+        $this->legacy_db->where('USER_ID',$user_id);
+        $this->legacy_db->update('users_reg',$formArray);
+
+        //this code is use for loging
+        $QUERY = $this->db->last_query();
+
+        if($this->db->affected_rows() ==1){
+            $this->db->trans_commit();
+            $this->legacy_db->trans_commit();
+            //this code is use for loging
+            $this->db->where('USER_ID',$user_id);
+            $CURRENT_RECORD =  $this->db->get('users_reg')->row_array();
+            $this->log_model->create_log($user_id,$user_id,$PRE_RECORD,$CURRENT_RECORD,"CHANGE_PASSWORD_SUCCESS",'users_reg',24,$user_id);
+            $this->log_model->itsc_log("CHANGE_PASSWORD","SUCCESS",$QUERY,'CANDIDATE',$user_id,$CURRENT_RECORD,$PRE_RECORD,$user_id,'users_reg');
+
+            return true;
+        }else{
+            $this->db->trans_rollback();
+             $this->legacy_db->trans_rollback();
             //this code is use for loging
             $this->db->where('USER_ID',$user_id);
             $CURRENT_RECORD =  $this->db->get('users_reg')->row_array();
@@ -164,52 +345,133 @@ class User_model extends CI_model
 
     }
 
-    function updateUserById($user_id,$formArray){
+    function updateUserById($user_id,$formArray,$admin_id=0){
+         if($admin_id == 0){
+            $user_type='CANDIDATE';
+            $edititor_id=$user_id;
+        }else{
+            $user_type='ADMIN';
+            $edititor_id=$admin_id;
+        }
         //load loging model
         $this->load->model('log_model');
         $this->db->where('USER_ID',$user_id);
         $PRE_RECORD =  $this->db->get('users_reg')->row_array();
 
             $this->db->trans_begin();
-            $this->db->where('USER_ID',$user_id);
-            $this->db->update('users_reg',$formArray);
+        $this->legacy_db->trans_begin();
+        $this->db->where('USER_ID',$user_id);
+        $this->db->update('users_reg',$formArray);
+        $this->legacy_db->where('USER_ID',$user_id);
+        $this->legacy_db->update('users_reg',$formArray);
 
          //this code is use for loging
         $QUERY = $this->db->last_query();
 
-            if($this->db->affected_rows() ==1){
+            if($this->db->affected_rows() ==1&&$this->legacy_db->affected_rows() ==1){
                 $this->db->trans_commit();
+                $this->legacy_db->trans_commit();
                 //this code is use for loging
                 $this->db->where('USER_ID',$user_id);
                 $CURRENT_RECORD =  $this->db->get('users_reg')->row_array();
-                $this->log_model->create_log($user_id,$user_id,$PRE_RECORD,$CURRENT_RECORD,"UPDATE_USER_INFORMATION",'users_reg',12,$user_id);
-                $this->log_model->itsc_log("UPDATE_USER_INFORMATION","SUCCESS",$QUERY,'CANDIDATE',$user_id,$CURRENT_RECORD,$PRE_RECORD,$user_id,'users_reg');
+                $this->log_model->create_log($user_id,$user_id,$PRE_RECORD,$CURRENT_RECORD,"UPDATE_USER_INFORMATION",'users_reg',12,$edititor_id);
+                $this->log_model->itsc_log("UPDATE_USER_INFORMATION","SUCCESS",$QUERY,$user_type,$edititor_id,$CURRENT_RECORD,$PRE_RECORD,$user_id,'users_reg');
+
+                // $this->log_model->create_log($user_id,$user_id,$PRE_RECORD,$CURRENT_RECORD,"UPDATE_USER_INFORMATION",'users_reg',12,$user_id);
+                // $this->log_model->itsc_log("UPDATE_USER_INFORMATION","SUCCESS",$QUERY,'CANDIDATE',$user_id,$CURRENT_RECORD,$PRE_RECORD,$user_id,'users_reg');
 
                 return 1;
-            }elseif($this->db->affected_rows() ==0){
+            }elseif($this->db->affected_rows() ==0&&$this->legacy_db->affected_rows() ==0){
                 $this->db->trans_commit();
-
+                $this->legacy_db->trans_commit();
                 //this code is use for loging
                 $this->db->where('USER_ID',$user_id);
                 $CURRENT_RECORD =  $this->db->get('users_reg')->row_array();
-                $this->log_model->create_log($user_id,$user_id,$PRE_RECORD,$CURRENT_RECORD,"UPDATE_USER_INFORMATION",'users_reg',12,$user_id);
-                $this->log_model->itsc_log("UPDATE_USER_INFORMATION","SUCCESS",$QUERY,'CANDIDATE',$user_id,$CURRENT_RECORD,$PRE_RECORD,$user_id,'users_reg');
+                $this->log_model->create_log($user_id,$user_id,$PRE_RECORD,$CURRENT_RECORD,"UPDATE_USER_INFORMATION",'users_reg',12,$edititor_id);
+                $this->log_model->itsc_log("UPDATE_USER_INFORMATION","SUCCESS",$QUERY,$user_type,$edititor_id,$CURRENT_RECORD,$PRE_RECORD,$user_id,'users_reg');
+
+                // $this->log_model->create_log($user_id,$user_id,$PRE_RECORD,$CURRENT_RECORD,"UPDATE_USER_INFORMATION",'users_reg',12,$user_id);
+                // $this->log_model->itsc_log("UPDATE_USER_INFORMATION","SUCCESS",$QUERY,'CANDIDATE',$user_id,$CURRENT_RECORD,$PRE_RECORD,$user_id,'users_reg');
 
                 return 0;
             }else{
                 $this->db->trans_rollback();
-
+                $this->legacy_db->trans_rollback();
                 //this code is use for loging
                 $this->db->where('USER_ID',$user_id);
                 $CURRENT_RECORD =  $this->db->get('users_reg')->row_array();
-                $this->log_model->create_log($user_id,$user_id,$PRE_RECORD,$CURRENT_RECORD,"UPDATE_USER_INFORMATION",'users_reg',12,$user_id);
-                $this->log_model->itsc_log("UPDATE_USER_INFORMATION","FAILED",$QUERY,'CANDIDATE',$user_id,$CURRENT_RECORD,$PRE_RECORD,$user_id,'users_reg');
+                 $this->log_model->create_log($user_id,$user_id,$PRE_RECORD,$CURRENT_RECORD,"UPDATE_USER_INFORMATION",'users_reg',12,$edititor_id);
+                $this->log_model->itsc_log("UPDATE_USER_INFORMATION","FAILED",$QUERY,$user_type,$edititor_id,$CURRENT_RECORD,$PRE_RECORD,$user_id,'users_reg');
+
+                // $this->log_model->create_log($user_id,$user_id,$PRE_RECORD,$CURRENT_RECORD,"UPDATE_USER_INFORMATION",'users_reg',12,$user_id);
+                // $this->log_model->itsc_log("UPDATE_USER_INFORMATION","FAILED",$QUERY,'CANDIDATE',$user_id,$CURRENT_RECORD,$PRE_RECORD,$user_id,'users_reg');
 
                 return -1;
             }
 
     }
+   
+   function updateUserByIdLagecyDb($user_id,$formArray,$admin_id=0){
+         if($admin_id == 0){
+            $user_type='CANDIDATE';
+            $edititor_id=$user_id;
+        }else{
+            $user_type='ADMIN';
+            $edititor_id=$admin_id;
+        }
+        //load loging model
+        $this->load->model('log_model');
+        //$this->db->where('USER_ID',$user_id);
+        //$PRE_RECORD =  $this->db->get('users_reg')->row_array();
 
+        $this->legacy_db->trans_begin();
+      
+        $this->legacy_db->where('USER_ID',$user_id);
+        $this->legacy_db->update('users_reg',$formArray);
+
+         //this code is use for loging
+        //$QUERY = $this->db->last_query();
+
+            if($this->legacy_db->affected_rows() ==1){
+                //$this->db->trans_commit();
+                $this->legacy_db->trans_commit();
+                //this code is use for loging
+            //    $this->db->where('USER_ID',$user_id);
+             //   $CURRENT_RECORD =  $this->db->get('users_reg')->row_array();
+               // $this->log_model->create_log($user_id,$user_id,$PRE_RECORD,$CURRENT_RECORD,"UPDATE_USER_INFORMATION",'users_reg',12,$edititor_id);
+            //    $this->log_model->itsc_log("UPDATE_USER_INFORMATION","SUCCESS",$QUERY,$user_type,$edititor_id,$CURRENT_RECORD,$PRE_RECORD,$user_id,'users_reg');
+
+                // $this->log_model->create_log($user_id,$user_id,$PRE_RECORD,$CURRENT_RECORD,"UPDATE_USER_INFORMATION",'users_reg',12,$user_id);
+                // $this->log_model->itsc_log("UPDATE_USER_INFORMATION","SUCCESS",$QUERY,'CANDIDATE',$user_id,$CURRENT_RECORD,$PRE_RECORD,$user_id,'users_reg');
+
+                return 1;
+            }elseif($this->legacy_db->affected_rows() ==0){
+              //  $this->db->trans_commit();
+                $this->legacy_db->trans_commit();
+                //this code is use for loging
+                //$this->db->where('USER_ID',$user_id);
+               // $CURRENT_RECORD =  $this->db->get('users_reg')->row_array();
+             //   $this->log_model->create_log($user_id,$user_id,$PRE_RECORD,$CURRENT_RECORD,"UPDATE_USER_INFORMATION",'users_reg',12,$edititor_id);
+              //  $this->log_model->itsc_log("UPDATE_USER_INFORMATION","SUCCESS",$QUERY,$user_type,$edititor_id,$CURRENT_RECORD,$PRE_RECORD,$user_id,'users_reg');
+
+                // $this->log_model->create_log($user_id,$user_id,$PRE_RECORD,$CURRENT_RECORD,"UPDATE_USER_INFORMATION",'users_reg',12,$user_id);
+                // $this->log_model->itsc_log("UPDATE_USER_INFORMATION","SUCCESS",$QUERY,'CANDIDATE',$user_id,$CURRENT_RECORD,$PRE_RECORD,$user_id,'users_reg');
+
+                return 0;
+            }else{
+            //    $this->db->trans_rollback();
+                $this->legacy_db->trans_rollback();
+                //this code is use for loging
+                //$this->db->where('USER_ID',$user_id);
+                //$CURRENT_RECORD =  $this->db->get('users_reg')->row_array();
+                // $this->log_model->create_log($user_id,$user_id,$PRE_RECORD,$CURRENT_RECORD,"UPDATE_USER_INFORMATION",'users_reg',12,$edititor_id);
+                //$this->log_model->itsc_log("UPDATE_USER_INFORMATION","FAILED",$QUERY,$user_type,$edititor_id,$CURRENT_RECORD,$PRE_RECORD,$user_id,'users_reg');
+
+            
+                return -1;
+            }
+
+    }
     function getExperiancesByUserId($user_id){
 
         $this->db->where('USER_ID',$user_id);
@@ -298,7 +560,7 @@ class User_model extends CI_model
         }
     }
 
-    function addUser($form_array){
+    function addUser($form_array,$image=null){
 
         //load loging model
         $this->load->model('log_model');
@@ -310,25 +572,48 @@ class User_model extends CI_model
             //this code is use for loging
             $QUERY = $this->db->last_query();
             $id = $this->db->insert_id();
+            $form_array['USER_ID']=$id;
+               $res = $this->upload_image('profile_image', "profile_image_" . $id, $id);
+                    if ($res['STATUS'] === true) {
+                        $PROFILE_IMAGE = $res['IMAGE_NAME'];
 
-            if ($this->db->affected_rows() != 1) {
+                    } else {
+                        $error = "<div class='text-danger'>Error {$res['MESSAGE']}</div>";
+                        exit($error);
+                         return false;
+                    }
+             $form_array['PROFILE_IMAGE'] = $PROFILE_IMAGE;
+            
+            $this->legacy_db->trans_begin();
+            if($this->legacy_db->insert('users_reg', $form_array)) {
+                if ($this->db->affected_rows() != 1) {
+                    $this->db->trans_rollback();
+                    $this->legacy_db->trans_rollback();
+                    //this code is use for loging
+                    $this->log_model->create_log(0, $id, "", "", "ADD_USER_FAILED", 'users_reg', 11, $id);
+                    $this->log_model->itsc_log("ADD_USER", "FAILED", $QUERY, 'CANDIDATE', $id, "", "", $id, 'users_reg');
+
+                    return false;
+                } else {
+                    
+                    $this->updateUserById($id,$form_array);
+                    
+                    $this->db->trans_commit();
+                    $this->legacy_db->trans_commit();
+                    //this code is use for loging
+                    $this->db->where('USER_ID', $id);
+                    $CURRENT_RECORD = $this->db->get('users_reg')->row_array();
+                    $this->log_model->create_log(0, $id, "", $CURRENT_RECORD, "ADD_USER", 'users_reg', 11, $id);
+                    $this->log_model->itsc_log("ADD_USER", "SUCCESS", $QUERY, 'CANDIDATE', $id, $CURRENT_RECORD, "", $id, 'users_reg');
+
+                    return true;
+                }
+            }else{
                 $this->db->trans_rollback();
+                $this->legacy_db->trans_rollback();
+                $this->log_model->create_log(0, $id, "", "", "ADD_USER_FAILED", 'users_reg', 11, $id);
+                $this->log_model->itsc_log("ADD_USER", "FAILED", $QUERY, 'CANDIDATE', $id, "", "", $id, 'users_reg');
 
-                //this code is use for loging
-                $this->log_model->create_log(0,$id,"","","ADD_USER_FAILED",'users_reg',11,$id);
-                $this->log_model->itsc_log("ADD_USER","FAILED",$QUERY,'CANDIDATE',$id,"","",$id,'users_reg');
-
-                return false;
-            } else {
-                $this->db->trans_commit();
-
-                //this code is use for loging
-                $this->db->where('USER_ID',$id);
-                $CURRENT_RECORD =  $this->db->get('users_reg')->row_array();
-                $this->log_model->create_log(0,$id,"",$CURRENT_RECORD,"ADD_USER",'users_reg',11,$id);
-                $this->log_model->itsc_log("ADD_USER","SUCCESS",$QUERY,'CANDIDATE',$id,$CURRENT_RECORD,"",$id,'users_reg');
-
-                return true;
             }
 
         }
@@ -341,8 +626,52 @@ class User_model extends CI_model
         }
 
     }
-    function addFamilyInfo($form_array){
+    function addUserLegacyDb($form_array){
+          //load loging model
+        $this->load->model('log_model');
 
+            $this->legacy_db->trans_begin();
+            $id = $form_array['USER_ID'];
+            if($this->legacy_db->insert('users_reg', $form_array)) {
+                 $QUERY = $this->legacy_db->last_query();
+                if ($this->legacy_db->affected_rows() != 1) {
+                    $this->legacy_db->trans_rollback();
+                    //this code is use for loging
+                    $this->log_model->create_log(0, $id, "", "", "ADD_USER_FAILED", 'users_reg', 11, $id);
+                    $this->log_model->itsc_log("ADD_USER", "FAILED", $QUERY, 'CANDIDATE', $id, "", "", $id, 'users_reg');
+
+                    return false;
+                } else {
+                    
+                    $this->legacy_db->trans_commit();
+                    //this code is use for loging
+                    $this->legacy_db->where('USER_ID', $id);
+                    $CURRENT_RECORD = $this->legacy_db->get('users_reg')->row_array();
+                    $this->log_model->create_log(0, $id, "", $CURRENT_RECORD, "ADD_USER", 'users_reg', 11, $id);
+                    $this->log_model->itsc_log("ADD_USER", "SUCCESS", $QUERY, 'CANDIDATE', $id, $CURRENT_RECORD, "", $id, 'users_reg');
+
+                    return true;
+                }
+            }else{
+                $this->db->trans_rollback();
+                $this->legacy_db->trans_rollback();
+                $this->log_model->create_log(0, $id, "", "", "ADD_USER_FAILED", 'users_reg', 11, $id);
+                $this->log_model->itsc_log("ADD_USER", "FAILED", $QUERY, 'CANDIDATE', $id, "", "", $id, 'users_reg');
+
+            }
+
+        
+    }
+    function addFamilyInfo($form_array,$admin_id=0){
+        if($admin_id == 0){
+            $user_type='CANDIDATE';
+            $edititor_id=$form_array['USER_ID'];
+            $CODE = 11;
+        }else{
+            $user_type='ADMIN';
+            $edititor_id=$admin_id;
+            $CODE = 31;
+        }
         //load loging model
         $this->load->model('log_model');
 
@@ -358,8 +687,8 @@ class User_model extends CI_model
                 $this->db->trans_rollback();
 
                 //this code is use for loging
-                $this->log_model->create_log(0,$id,"","","ADD_FAMILY_INFO_FAILED",'family_info',11,$form_array['USER_ID']);
-                $this->log_model->itsc_log("ADD_FAMILY_INFO","FAILED",$QUERY,'CANDIDATE',$form_array['USER_ID'],"","",$id,'family_info');
+                $this->log_model->create_log(0,$id,"","","ADD_FAMILY_INFO_FAILED",'family_info',$CODE,$edititor_id);
+                $this->log_model->itsc_log("ADD_FAMILY_INFO","FAILED",$QUERY,$user_type,$edititor_id,"","",$id,'family_info');
 
                 return -1;
 
@@ -369,8 +698,8 @@ class User_model extends CI_model
                 //this code is use for loging
                 $this->db->where('USER_ID',$id);
                 $CURRENT_RECORD =  $this->db->get('family_info')->row_array();
-                $this->log_model->create_log(0,$id,"",$CURRENT_RECORD,"ADD_FAMILY_INFO",'family_info',11,$form_array['USER_ID']);
-                $this->log_model->itsc_log("ADD_FAMILY_INFO","SUCCESS",$QUERY,'CANDIDATE',$form_array['USER_ID'],$CURRENT_RECORD,"",$id,'family_info');
+                $this->log_model->create_log(0,$id,"",$CURRENT_RECORD,"ADD_FAMILY_INFO",'family_info',$CODE,$edititor_id);
+                $this->log_model->itsc_log("ADD_FAMILY_INFO","SUCCESS",$QUERY,$user_type,$edititor_id,$CURRENT_RECORD,"",$id,'family_info');
 
                 return 1;
             }
@@ -378,14 +707,23 @@ class User_model extends CI_model
         }
         else{
             //this code is use for loging
-            $this->log_model->create_log(0,0,"",$form_array,"ADD_FAMILY_INFO_FAILED",'family_info',11,$form_array['USER_ID']);
-            $this->log_model->itsc_log("ADD_FAMILY_INFO","FAILED","",'CANDIDATE',$form_array['USER_ID'],$form_array,"",0,'family_info');
+            $this->log_model->create_log(0,0,"",$form_array,"ADD_FAMILY_INFO_FAILED",'family_info',$CODE,$form_array['USER_ID']);
+            $this->log_model->itsc_log("ADD_FAMILY_INFO","FAILED","",$user_type,$edititor_id,$form_array,"",0,'family_info');
 
             return -1;
         }
 
     }
-    function updateFamilyInfoById($id,$formArray){
+    function updateFamilyInfoById($id,$formArray,$admin_id=0){
+        if($admin_id == 0){
+            $user_type='CANDIDATE';
+            $edititor_id=$formArray['USER_ID'];
+            $CODE = 12;
+        }else{
+            $user_type='ADMIN';
+            $edititor_id=$admin_id;
+            $CODE = 32;
+        }
         //load loging model
         $this->load->model('log_model');
         $this->db->where('FAMILY_INFO_ID',$id);
@@ -403,8 +741,8 @@ class User_model extends CI_model
             //this code is use for loging
             $this->db->where('FAMILY_INFO_ID',$id);
             $CURRENT_RECORD =  $this->db->get('family_info')->row_array();
-            $this->log_model->create_log($id,$id,$PRE_RECORD,$CURRENT_RECORD,"UPDATE_FAMILY_INFO",'family_info',12,$formArray['USER_ID']);
-            $this->log_model->itsc_log("UPDATE_FAMILY_INFO","SUCCESS",$QUERY,'CANDIDATE',$formArray['USER_ID'],$CURRENT_RECORD,$PRE_RECORD,$id,'family_info');
+            $this->log_model->create_log($id,$id,$PRE_RECORD,$CURRENT_RECORD,"UPDATE_FAMILY_INFO",'family_info',$CODE,$edititor_id);
+            $this->log_model->itsc_log("UPDATE_FAMILY_INFO","SUCCESS",$QUERY,$user_type,$edititor_id,$CURRENT_RECORD,$PRE_RECORD,$id,'family_info');
 
             return 1;
         }elseif($this->db->affected_rows() ==0){
@@ -413,8 +751,8 @@ class User_model extends CI_model
             //this code is use for loging
             $this->db->where('FAMILY_INFO_ID',$id);
             $CURRENT_RECORD =  $this->db->get('family_info')->row_array();
-            $this->log_model->create_log($id,$id,$PRE_RECORD,$CURRENT_RECORD,"UPDATE_FAMILY_INFO",'family_info',12,$formArray['USER_ID']);
-            $this->log_model->itsc_log("UPDATE_FAMILY_INFO","SUCCESS",$QUERY,'CANDIDATE',$formArray['USER_ID'],$CURRENT_RECORD,$PRE_RECORD,$id,'family_info');
+            $this->log_model->create_log($id,$id,$PRE_RECORD,$CURRENT_RECORD,"UPDATE_FAMILY_INFO",'family_info',$CODE,$edititor_id);
+            $this->log_model->itsc_log("UPDATE_FAMILY_INFO","SUCCESS",$QUERY,$user_type,$edititor_id,$CURRENT_RECORD,$PRE_RECORD,$id,'family_info');
 
             return 0;
         }else{
@@ -423,20 +761,20 @@ class User_model extends CI_model
             //this code is use for loging
             $this->db->where('FAMILY_INFO_ID',$id);
             $CURRENT_RECORD =  $this->db->get('family_info')->row_array();
-            $this->log_model->create_log($id,$id,$PRE_RECORD,$CURRENT_RECORD,"UPDATE_FAMILY_INFO",'family_info',12,$formArray['USER_ID']);
-            $this->log_model->itsc_log("UPDATE_FAMILY_INFO","FAILED",$QUERY,'CANDIDATE',$formArray['USER_ID'],$CURRENT_RECORD,$PRE_RECORD,$id,'family_info');
+            $this->log_model->create_log($id,$id,$PRE_RECORD,$CURRENT_RECORD,"UPDATE_FAMILY_INFO",'family_info',$CODE,$edititor_id);
+            $this->log_model->itsc_log("UPDATE_FAMILY_INFO","FAILED",$QUERY,$user_type,$edititor_id,$CURRENT_RECORD,$PRE_RECORD,$id,'family_info');
 
             return -1;
         }
 
     }
-    function saveGuardianByUserId($user_id,$formArray){
+    function saveGuardianByUserId($user_id,$formArray,$admin_id= 0){
 
         $family_info = $this->getGuardianByUserId($user_id);
         if($family_info){
-            return $this->updateFamilyInfoById($family_info['FAMILY_INFO_ID'],$formArray);
+            return $this->updateFamilyInfoById($family_info['FAMILY_INFO_ID'],$formArray,$admin_id);
         }else{
-            return $this->addFamilyInfo($formArray);
+            return $this->addFamilyInfo($formArray,$admin_id);
         }
 
     }
@@ -446,6 +784,162 @@ class User_model extends CI_model
 
        return $this->db->get('family_info')->row_array();
     }
+    function getUserByEmailAddress($email){
+        $this->db->where('EMAIL',$email);
+        $user = $this->db->get('users_reg')->result_array();
+        return $user;
+    }
+    function getInvgAppAuthByKey($key){
+         $this->legacy_db->where('AUTH_KEY',$key);
+           $this->legacy_db->where('ACTIVE','1');
+        $data = $this->legacy_db->get('invg_app_auth')->row_array();
+        return $data;
+    }
+    function updateInvgAppAuthByKey($key,$formArray){
+          
+            $this->legacy_db->where('AUTH_KEY',$key);
+            $this->legacy_db->update('invg_app_auth',$formArray);
+          if($this->legacy_db->affected_rows() ==1){
+                $this->legacy_db->trans_commit();
+                return  true;
+          }else{
+                $this->legacy_db->roll_back();
+                return  false;
+          }
+    
+    }
+     private function upload_image($index_name,$image_name,$user_id,$max_size = 100,$path = '../eportal_resource/images/applicants_profile_image/',$con_array=array())
+    {
+
+        $config['upload_path']          = $path;
+        $config['allowed_types']        = 'gif|jpg|png|jpeg';
+        $config['max_size']             = $max_size;
+        $config['max_width']            = 0;
+        $config['max_height']           = 0;
+        $config['file_name']			= $image_name;
+        $config['overwrite']			= true;
+
+        if(isset($this->upload)){
+            $this->upload =  null;
+        }
+        $this->load->library('upload', $config);
+
+        if ( ! $this->upload->do_upload($index_name))
+        {
+            return array("STATUS"=>false,"MESSAGE"=> $config['upload_path'].$this->upload->display_errors());
+        }
+        else
+        {
+            $image_data = $this->upload->data();
+
+            $image_path = $image_data['full_path'];
+
+            $config['image_library'] = 'gd2';
+            $config['source_image'] = $image_path;
+            $config['create_thumb'] = FALSE;
+            if(!count($con_array)){
+                $config['maintain_ratio'] = TRUE;
+                $config['width']         = 180;
+                $config['height']       = 260;
+            }
+            else{
+                if(isset($con_array['maintain_ratio'])){
+                    $config['maintain_ratio']=$con_array['maintain_ratio'];
+                }
+
+                if(isset($con_array['width'])){
+                    $config['width']=$con_array['width'];
+                }
+
+                if(isset($con_array['height'])){
+                    $config['height']=$con_array['height'];
+                }
+            }
+
+            if(isset($this->image_lib)){
+                $this->image_lib =  null;
+            }
+
+            if(isset($con_array['resize'])){
+                if($con_array['resize']===true){
+                    $this->load->library('image_lib',$config);
+
+                    $this->image_lib->resize();
+                }
+            }else{
+                $this->load->library('image_lib',$config);
+
+                $this->image_lib->resize();
+
+            }
 
 
+                
+            $this->load->library('ftp');
+            $this->CI_ftp($path,$image_data['file_name'],$user_id);
+            
+           // exit("YES");
+            return array("STATUS"=>true,"IMAGE_NAME"=>$image_data['file_name']);
+
+        }
+    }
+    private function CI_ftp($path,$name,$user_id){
+      
+      $date_time =date('Y F d l h:i A');
+      $msg = array(
+          "USER_ID"=>$user_id,
+          "FILE_NAME"=>$name,
+          "DATE_TIME"=>$date_time,
+          "MSG"=>""
+          );
+      
+     $this->load->library('ftp');
+       $config['hostname'] = FTP_URL;
+             $config['username'] = FTP_USER;
+            $config['password'] = FTP_PASSWORD;
+            $config['debug']        = false;
+            $connect = false;
+            for($i=1;$i<=3;$i++){
+                $connect = $this->ftp->connect($config);    
+                if($connect){
+                    break;
+                }
+            }
+            if(!$connect){
+                $msg['MSG'] = 'CONNECTION FAILED';
+                $msg = json_encode($msg);
+                writeQuery($msg);
+                $this->ftp->close();
+                return false;
+            }
+              
+             $ftp_path = str_replace("..","/public_html",$path);
+             $ftp_dir_path = rtrim($ftp_path,"/");
+           
+            // $ftp_path = '/public_html/eportal_resource/foo/';
+            // $ftp_dir_path = '/public_html/eportal_resource/foo';
+            
+            
+            
+            $already_exist = $this->ftp->list_files($ftp_path);
+            
+            if($already_exist){
+                
+            }else{
+            $dir  = $this->ftp->mkdir($ftp_dir_path, 0755);    
+            }
+
+            $up = $this->ftp->upload($path.$name,$ftp_path.$name, 'binary', 0775);
+            if(!$up){
+                $msg['MSG'] = 'UPLOADING FAILED';
+                $msg = json_encode($msg);
+                writeQuery($msg);
+               $this->ftp->close();
+             return false;
+            }
+            
+            $this->ftp->close();
+            return true;
+     
+ }
 }

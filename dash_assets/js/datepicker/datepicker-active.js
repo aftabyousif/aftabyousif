@@ -20,5 +20,12 @@
 				$('#start').datepicker('option', 'maxDate', selectedDate);
 			}
 		});
+		
+		$('#data_5 .input-daterange').datepicker({
+		keyboardNavigation: false,
+		forceParse: false,
+		autoclose: true,
+		format: "dd/mm/yyyy"
+	    });
  
 })(jQuery); 

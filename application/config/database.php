@@ -70,15 +70,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | The $query_builder variables lets you determine whether or not to load
 | the query builder class.
 */
-$active_group = 'default';
+$active_group = 'admission_db';
 $query_builder = TRUE;
 
-$db['default'] = array(
+$db['admission_db'] = array(
 	'dsn'	=> '',
 	'hostname' => 'localhost',
 	'username' => 'root',
 	'password' => '',
-	'database' => 'eprofile_itsc',
+	'database' => 'admissio_itsc',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',
 	'pconnect' => FALSE,
@@ -94,24 +94,39 @@ $db['default'] = array(
 	'failover' => array(),
 	'save_queries' => TRUE
 );
-$db['admission_db'] = array(
-    'dsn'	=> '',
-    'hostname' => 'localhost',
-    'username' => 'root',
-    'password' => '',
-    'database' => 'admission',
-    'dbdriver' => 'mysqli',
-    'dbprefix' => '',
-    'pconnect' => FALSE,
-    'db_debug' => (ENVIRONMENT !== 'production'),
-    'cache_on' => FALSE,
-    'cachedir' => '',
-    'char_set' => 'utf8',
-    'dbcollat' => 'utf8_general_ci',
-    'swap_pre' => '',
-    'encrypt' => FALSE,
-    'compress' => FALSE,
-    'stricton' => FALSE,
-    'failover' => array(),
-    'save_queries' => TRUE
+$db['admission_online'] = array(
+	'dsn'	=> '',
+	'hostname' => 'localhost',
+	'username' => 'root',
+	'password' => '',
+	'database' => 'admissio_admission_online',
+	'dbdriver' => 'mysqli',
+	'dbprefix' => '',
+	'pconnect' => FALSE,
+	'db_debug' => (ENVIRONMENT !== 'production'),
+	'cache_on' => FALSE,
+	'cachedir' => '',
+	'char_set' => 'utf8',
+	'dbcollat' => 'utf8_general_ci',
+	'swap_pre' => '',
+	'encrypt' => FALSE,
+	'compress' => FALSE,
+	'stricton' => FALSE,
+	'failover' => array(),
+	'save_queries' => TRUE
 );
+$db['admission_v2']['hostname'] = 'localhost';
+$db['admission_v2']['username'] = 'root';
+$db['admission_v2']['password'] = '';
+$db['admission_v2']['database'] = 'us_admission_v2';
+$db['admission_v2']['dbdriver'] = 'mysqli';
+$db['admission_v2']['dbprefix'] = '';
+$db['admission_v2']['pconnect'] = TRUE;
+$db['admission_v2']['db_debug'] = FALSE;
+$db['admission_v2']['cache_on'] = FALSE;
+$db['admission_v2']['cachedir'] = '';
+$db['admission_v2']['char_set'] = 'utf8';
+$db['admission_v2']['dbcollat'] = 'utf8_general_ci';
+$db['admission_v2']['swap_pre'] = '';
+$db['admission_v2']['autoinit'] = FALSE;
+$db['admission_v2']['stricton'] = FALSE;

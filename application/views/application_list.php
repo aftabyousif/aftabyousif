@@ -5,19 +5,7 @@
 			<div class="row">
 				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 					<div class="sparkline8-list">
-						<div class="sparkline8-hd">
-							<div class="main-sparkline8-hd">
-								<h1 class="text-center">Directorate of Admission Announced Admissions in the Following Campuses</h1>
-
-							<ul class="list-group dual-list-box-inner" style="margin-top: 2%; margin-bottom: 2%">
-								<li class="list-group-item text-center" style="font-weight: bold">Please Read Important Instructions</li>
-								<li class="list-group-item list-group-item-danger font-weight-bold" style="font-weight: bold">1. Dear Candidate,&nbsp;&nbsp;&nbsp;Please carefully select your desired <span style="color: black"> CAMPUS & DEGREE PROGRAM </span> from the following list in which do you want to take the admission and you are allowed to choose only one campus.</li>
-								<li class="list-group-item list-group-item-danger font-weight-bold" style="font-weight: bold">2. Must verify your form at the final stage after submission you will not be allowed to edit you application form.</li>
-								<li class="list-group-item" style="font-weight: bold">3. If you have any query feel free to contact @ director.admission@usindh.edu.pk. You will get reply within 24 to 48 hrs .</li>
-							</ul>
-
-							</div>
-						</div>
+						
 
 						<div class="sparkline8-graph">
 							<div class="static-table-list table-responsive">
@@ -104,7 +92,7 @@
                                             else {
 
                                                 $submit_link = "<a href='".base_url().$application_url.base64_encode(urlencode($submit_url))."' class='btn btn-danger widget-btn-1 btn-sm'>Submit Form</a>";
-                                                $challan_link = "<a href='".base_url().$application_url.urlencode(base64_encode($challan_url))."' class='btn btn-info widget-btn-1 btn-sm'>Download Challan</a>";
+                                                $challan_link = "<a target='_blank' href='".base_url().$application_url.urlencode(base64_encode($challan_url))."' class='btn btn-info widget-btn-1 btn-sm'>Download Challan</a>";
                                                 $upload_challan_link = "<a href='".base_url().$application_url.base64_encode(urlencode($upload_challan))."' class='btn btn-warning widget-btn-1 btn-sm'>Upload Challan</a>";
                                             }
 
@@ -137,6 +125,8 @@
 					</div>
 					</div>
 				</div>
+				<br>
+					<a href="<?=base_url().'form/dashboard'?>" class="btn btn-primary span-left"> <span><i class="fa fa-backward"></i></span> Back To Dashboard </a>
 			</div>
 		</div>
 

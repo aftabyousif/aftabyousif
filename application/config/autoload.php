@@ -58,7 +58,7 @@ $autoload['packages'] = array();
 |
 |	$autoload['libraries'] = array('user_agent' => 'ua');
 */
-$autoload['libraries'] = array('database','session','form_validation','Fpdf_master','QR_master');
+$autoload['libraries'] = array('database','session','form_validation','Fpdf_master','QR_master','SimpleXLSX','email','Phpmailer_lib');
 
 /*
 | -------------------------------------------------------------------
@@ -90,7 +90,7 @@ $autoload['drivers'] = array();
 |	$autoload['helper'] = array('url', 'file');
 */
 
-$autoload['helper'] = array('url','functions','form','date');
+$autoload['helper'] = array('url','functions','form','date','directory','validation_function');
 
 /*
 | -------------------------------------------------------------------
@@ -133,4 +133,4 @@ $autoload['language'] = array();
 |
 |	$autoload['model'] = array('first_model' => 'first');
 */
-$autoload['model'] = array();
+$autoload['model'] = array('RollNo_model','FeeChallan_model','EnrolmentCard_model');

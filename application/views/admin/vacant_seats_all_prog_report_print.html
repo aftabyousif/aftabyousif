@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Print Report</title>
+	<style type="text/css">
+		.table{
+
+			border: 1px solid black;
+			width: 100%;
+			border-collapse: collapse;
+		}
+		table, th, td {
+			border: 1px solid black;
+			padding: 6px;
+		}
+	</style>
+</head>
+<body>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<script type="text/javascript">
+	var app = angular.module('MyChildApp', [])
+	app.controller('MyChildController', function ($scope, $window) {
+		// console.log($window);
+		 ///console.log($scope);
+		let data = $window.Val;
+		// sessionStorage.setItem('data',data)
+		// data = sessionStorage.getItem('data');
+		$scope.PrintDate = new  Date();
+	 console.log(data);
+		$scope.DisplayPrograms = data.data;
+			
+		
+	});
+</script>
+
+<div ng-app="MyChildApp" ng-controller="MyChildController">
+	<div>
+		<span style="font-size: 12pt; font-weight: bold">Print Date: {{ PrintDate | date : "medium" }} </span>
+		<h3 ng-bind="CampusName"></h3>
+		<h3 ng-bind="ProgramTitle"></h3>
+
+
+		<div class="asset-inner">
+			<table class="table">
+					<thead>
+					<tr style="font-size: 10pt;text-align: center">
+						<th>Degree Program</th>
+						<th>Total Seats</th>
+						<th>Fill Seats</th>
+						<th>Vacant Seat</th>
+						</tr>
+					</thead>
+					<tbody >
+				
+					<tr ng-repeat="z in DisplayPrograms  track by $index" style="font-size: 10pt">
+						<td>{{z.PROGRAM_TITLE}}</td>
+						<td>{{z.TOTAL_SEATS}}</td>
+						<td>{{z.FILLED_SEATS}}</td>
+						<td>{{z.VACANT_SEATS}}</td>
+					</tr>
+					</tbody>
+			</table>
+		</div>
+	</div>
+<span ng-bind="Name"></span>
+</div>
+</body>
+</html>

@@ -51,7 +51,28 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 */
 
 $route['profile'] = 'Candidate/profile';
-$route['default_controller'] = 'login';
+$route['default_controller'] = 'Home';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
-//$route['(:any)'] = 'Mapping/';
+
+$route['application_status'] = 'web/application_status';
+$route['selection_list'] = 'web/candidate_objection_list';
+$route['slip/(:any)'] = 'Web/candidate_slip/$1';
+$route['app_auth'] = 'AdminLogin/invg_app_auth';
+
+$route['dept_wise_selection_list'] = 'web/objection_list';
+$route['merit_list_bachelor'] = 'web/merit_list_bachelor';
+$route['candidate_merit_list_bachelor'] = 'web/candidate_merit_list_bachelor';
+$route['view_candidate_profile'] = 'web/candidate_profile_search';
+$route['merit_list_master'] = 'web/merit_list_master';
+$route['candidate_merit_list_master'] = 'web/candidate_merit_list_master';
+$route['application_form_report'] = 'Statistics/application_form_report';
+$route['paidChallanReport/(:num)/(:num)'] = 'StudentIDCard/paidChallanReport/$1/$2';
+$route['admissionLetterReport/(:num)/(:num)'] = 'StudentIDCard/admissionLetterReport/$1/$2';
+$route['correctionLetterAndList/(:num)/(:num)'] = 'StudentIDCard/correctionLetterAndList/$1/$2';
+
+$route['enrollment_card_pdf/(:any)'] = 'EnrolmentCard/enrollment_card_pdf/$1';
+$route['eligibility_certificate_pdf/(:any)'] = 'EnrolmentCard/eligibility_certificate_pdf/$1';
+$route['general_branch_challan/(:any)'] = 'GeneralBranch/challan_print/$1';
+
+$route['api/get_candidate_roll_no'] = 'Api/get_candidate_by_roll_no';

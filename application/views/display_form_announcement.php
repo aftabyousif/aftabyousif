@@ -1,24 +1,40 @@
 <section>
 	<!-- Static Table Start -->
+	
 	<div class="static-table-area">
 		<div class="container-fluid">
+		      		 
 			<div class="row">
 				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 					<div class="sparkline8-list">
 						<div class="sparkline8-hd">
 							<div class="main-sparkline8-hd">
-								<h1 class="text-center">Directorate of Admission Announced Admissions in the Following Campuses</h1>
+								<h1 class="text-center">University of Sindh has announced Admissions in the following Campuses</h1>
 
 							<ul class="list-group dual-list-box-inner" style="margin-top: 2%; margin-bottom: 2%">
-								<li class="list-group-item text-center" style="font-weight: bold">Please Read Important Instructions</li>
-								<li class="list-group-item list-group-item-danger font-weight-bold" style="font-weight: bold">1. Dear Candidate,&nbsp;&nbsp;&nbsp;Please carefully select your desired <span style="color: black"> CAMPUS & DEGREE PROGRAM </span> from the following list in which do you want to take the admission and you are allowed to choose only one campus.</li>
-								<li class="list-group-item list-group-item-danger font-weight-bold" style="font-weight: bold">2. Must verify your form at the final stage after submission you will not be allowed to edit you application form.</li>
-								<li class="list-group-item" style="font-weight: bold">3. If you have any query feel free to contact @ director.admission@usindh.edu.pk. You will get reply within 24 to 48 hrs .</li>
-							</ul>
+								<li class="list-group-item text-center" style="font-weight: bold; font-size:14pt">Please Read Important Instructions</li>
+								<li class="list-group-item  font-weight-bold" style="font-weight: bold">1. Dear Candidate,&nbsp;please carefully select your desired <span style="color: black"> CAMPUS & DEGREE PROGRAM </span> from the following list in which you want to take the admission and you are allowed to choose only <b>ONE</b> campus.</li>
+								<li class="list-group-item  font-weight-bold" style="font-weight: bold">2. Must verify your form at the final stage before submitting. After submission, you will not be allowed to edit your application form.</li>
+									<li class="list-group-item list-group-item-info font-weight-bold" style="font-weight: bold">3. Applicants applying for admission to B.Ed (Secondary) 1.5 Year, B.Ed (Secondary) 2.5 Year or PGD (Early Childhood Education), are advised to select <strong><span style="color: black">Master Degree Programs</span></strong> from below option.</li>
+							
+            				</ul>
 
 							</div>
 						</div>
-
+						
+                        <div>
+                           
+                            	<form action="<?=base_url()?>form/announcement" method='post' >
+                            	    <label style='font-size:14pt'>Apply for</label>
+							            <select style="font-size: large;font-weight: 900;"  name="program_type_id" id="program_type" onchange="this.form.submit()" class="form-control">
+							                <option value="0">Choose Degree Program</option>
+							                <option value="1" <?=($program_type_id==1)?"selected":""?>>BACHELOR DEGREE PROGRAM</option>
+							                <option value="2" <?=($program_type_id==2)?"selected":""?>>MASTER DEGREE PROGRAM</option>
+							            </select>
+							        </form>
+						
+                        </div>
+                        <br/>
 						<div class="sparkline8-graph">
 							<div class="static-table-list table-responsive">
 								<table class="table table-hover">
@@ -26,11 +42,11 @@
 									<tr style="font-size: 11pt; font-family: 'Times New Roman'" class="text-center">
 										<th>#</th>
 										<th><i class="educate-icon educate-library"></i> Campus</th>
-										<th><i class="fa fa-location-arrow"></i> Campus City</th>
+										<!--<th><i class="fa fa-location-arrow"></i> Campus City</th>-->
 										<th>Degree Program</th>
 										<th>Admission Session</th>
 <!--										<th>Batch</th>-->
-										<th>Form Start Date</th>
+										<!--<th>Form Start Date</th>-->
 										<th>Form Last Date</th>
 										<th>Apply Now</th>
 									</tr>
@@ -42,11 +58,31 @@
 										foreach ($admission_announcement as $admission_announcement_key=>$admission_announcement_value)
 										{
 
+                                            if($program_type_id!=$admission_announcement_value['PROGRAM_TYPE_ID']){
+                                                continue;        
+                                            }       
 										    $is_already_applied = false;
 
+                                            $is_valid_campus = findObjectinList($valid_campus,'CAMPUS_ID',$admission_announcement_value['CAMPUS_ID']);
+                                            if(!$is_valid_campus){
+                                                continue;
+                                            }
                                             //this method is define in functions_helper in this mehtod we provide Array and key of arary and finding value method return obj if exists else return false;
+                                            
+                                            
+                                           $invisible = false;
+                                           //prePrint($user_application_list);
+                                            foreach($user_application_list as $user_application){
+                                             
+                                                
+                                                if($user_application['SESSION_ID']==$admission_announcement_value['SESSION_ID'] &&$user_application['PROGRAM_TYPE_ID'] ==$admission_announcement_value['PROGRAM_TYPE_ID']){
+                                                        $invisible = true;
+                                                        break;
+                                                }
+                                            }
+                                           // var_dump($invisible);
                                             $res = findObjectinList($user_application_list,'ADMISSION_SESSION_ID',$admission_announcement_value['ADMISSION_SESSION_ID']);
-
+                            
                                             // if res contain not false value or any o object it mean user already applied
                                             $APPLICATION_ID=0;
                                             if($res){
@@ -80,7 +116,7 @@
 											$end_date = date_format($end_date,'D, d-m-Y');
 
 											$link = "";
-                                            $url = "candidate/profile";
+                                            $url = "form/upload_application_challan";
                                             $APPLICATION_ID = urlencode(base64_encode($APPLICATION_ID));
                                             $challan_url = "form/admission_form_challan";
                                           //  set_application_id($APPLICATION_ID,$url);
@@ -93,34 +129,51 @@
                                             {
                                                 $link = 'Form over due date';
                                                 $challan_link = "";
+                                                if($is_already_applied){
+                                                    $dash_url = "form/dashboard";
+                                                     $challan_link = "<a href='".base_url().$application_url.urlencode(base64_encode($dash_url))."' class='btn btn-info widget-btn-1 btn-sm'>Go To Dashboard</a>";
+                                                }else{
+                                                   // continue;
+                                                }
                                             }
 											else {
-
+                                                
 											    if($is_already_applied){
-                                                    $url = "candidate/profile";
+                                                    $url = "form/upload_application_challan";
                                                     $challan_url = "form/admission_form_challan";
                                                     $link="<a href='".base_url().$application_url.urlencode(base64_encode($url))."' class='btn btn-warning widget-btn-1 btn-sm'>Already Applied click here to next</a>";
                                                     $challan_link = "<a href='".base_url().$application_url.urlencode(base64_encode($challan_url))."' class='btn btn-info widget-btn-1 btn-sm'>Download Challan</a>";
                                                 }else{
-
-                                                    $link="<button type='submit' class='btn btn-success widget-btn-1 btn-sm'>Apply Now</button>";
-                                                    $url = "form/addApplication";
-                                                    $challan_link="";
+                                                    
+                                                    if(!$invisible){
+                                                        $link="<button type='submit' class='btn btn-success widget-btn-1 btn-sm'>Apply Now</button>";
+                                                       
+                                                        $url = "form/addApplication";  
+                                                        
+                                                        
+                                                        $challan_link="";   
+                                                    }else{
+                                                       $challan_link="";     
+                                                    }
+                                                        
+                                                       
+                                                    
+                                                    
                                                 }
 
                                             }
 											$hidden = array('ADMISSION_SESSION_ID' => $ADMISSION_SESSION_ID, 'CAMPUS_ID' => $CAMPUS_ID);
 											?>
 
-											<?=$is_already_applied?'':form_open(base_url().$url,'',$hidden)?>
+											<?=($is_already_applied||$invisible)?'':form_open(base_url().$url,'',$hidden)?>
 									<tbody>
 									<tr style="font-size: 11pt;color: black">
 										<td><?=$sno?></td>
 										<td><?=ucwords(strtolower($NAME))?></td>
-										<td><?=ucwords(strtolower($LOCATION))?></td>
+										<!--<td><?=ucwords(strtolower($LOCATION))?></td>-->
 										<td><?=ucwords(strtolower($PROGRAM_TITLE))?></td>
 										<td><?=ucwords(strtolower($BATCH_REMARKS))?> <?=$YEAR?></td>
-										<td><?=$start_date?></td>
+										<!--<td><?=$start_date?></td>-->
 										<td><?=$end_date?></td>
 
 										<td><?=$link?></td>
@@ -133,6 +186,23 @@
 									}//if
 									?>
 								</table>
+							</div>
+						</div>
+						<br>
+						<br>
+							<div class="row">
+							    <div class="col-lg-4 col-md-4">
+							        </div>
+							<div class="col-lg-4 col-md-4 col-sm-12 col-xs-12 center">
+							    <iframe width="560" height="315" src="https://www.youtube.com/embed/s3cOrP0CqNQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+							    </div>
+							    </div>
+						<div class="row">
+							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 center">
+								<div class="login-social-inner">
+								
+									<a style="float: right;" href="<?=base_url().'logout'?>" class="button btn-social basic-ele-mg-b-10 twitter span-left"> <span><i class="fa fa-power-off"></i></span> Logout </a>
+								</div>
 							</div>
 						</div>
 					</div>

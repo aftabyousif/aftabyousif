@@ -67,7 +67,7 @@ class ChangePassword extends CI_Controller
                                     $result = $this->User_model->changePassword($id,$curr_password,$password);
                                    // $result = "";
                                     if($result){
-                                        $error =array('TYPE'=>'SUCCESS','MSG'=>'Password Change Successfully');
+                                        $error =array('TYPE'=>'SUCCESS','MSG'=>'Password has been change successfully');
                                         $this->session->set_flashdata('ALERT_MSG', $error);
                                         redirect(base_url().$this->SelfController);
                                         exit();

@@ -10,14 +10,15 @@
 					<div class="sparkline8-list">
 						<div class="sparkline8-hd">
 							<div class="main-sparkline8-hd">
-								<h1 class="text-center">APPLICATION FORM REVIEW</h1>
+								<h1 class="text-center">UNIVERSITY OF SINDH ADMISSION APPLICATION FORM REVIEW <span id="draft_msg"></span></h1>
+								<h5 class="text-center text-danger">PLEASE READ AND CHECK YOUR DETAILS CAREFULLY</h5>
 							</div>
 						</div>
 						<div class="sparkline8-graph">
 							<div class="static-table-list table-responsive">
                                 <table class="table table-bordered">
                                     <tr>
-                                        <th colspan="2"><h4>Applied For <?=ucwords(strtolower($application['PROGRAM_TITLE']))?></h4></th>
+                                        <th colspan="2"><h4>Applied For <?=ucwords(strtolower($application['PROGRAM_TITLE']))?> Degree Program </h4></th>
 
                                     </tr>
                                     <tr>
@@ -25,11 +26,11 @@
                                         <td><h4><?=$application['APPLICATION_ID']?></h4></td>
                                     </tr>
                                     <tr>
-                                        <th>Program</th>
+                                        <th>Degree Program</th>
                                         <td><?=$application['PROGRAM_TITLE']?></td>
                                     </tr>
                                     <tr>
-                                        <th>Campus</th>
+                                        <th>Applied Campus</th>
                                         <td><?=$application['NAME']?></td>
                                     </tr>
 
@@ -43,7 +44,7 @@
 
                                     <tr>
                                         <th>Profile Image</th>
-                                        <td><img style="height: 200px;width: 150px;" class="img-rounded" src="<?=base_url().PROFILE_IMAGE_CHECK_PATH.$user['PROFILE_IMAGE']?>" alt="Profile Image"></td>
+                                        <td><img style="height: 200px;width: 150px;" class="img-rounded" src="<?=itsc_url().PROFILE_IMAGE_PATH.$user['PROFILE_IMAGE']?>" alt="Profile Image"></td>
                                     </tr>
 
                                     <tr>
@@ -154,7 +155,7 @@
                                 <br>
                                 <table class="table table-bordered">
                                     <tr>
-                                        <th colspan="9"><h4>Qualification Information</h4></th>
+                                        <th colspan="10"><h4>Qualification Information</h4></th>
 
                                     </tr>
                                     <tr>
@@ -162,12 +163,13 @@
                                         <th>Discipline / Subject / Group</th>
                                         <th>Organization / University / Board</th>
                                         <th>Institute / Department / School / College</th>
+                                        <th>Roll No</th>
                                         <th>Total Marks</th>
                                         <th>Obtained Marks</th>
                                         <th>Percentage</th>
                                         <th>Marksheet</th>
                                         <th>Pass certificate</th>
-                                        <th>Passing Year</th>
+                                        <th>Exam Year</th>
 
 
                                     </tr>
@@ -184,11 +186,12 @@
                         <td>{$degree['DISCIPLINE_NAME']}</td>
                         <td>{$degree['ORGANIZATION']}</td>
                         <td>{$degree['INSTITUTE']}</td>
+                        <td>{$degree['ROLL_NO']}</td>
                         <td>{$degree['TOTAL_MARKS']}</td>
                         <td>{$degree['OBTAINED_MARKS']}</td>
                         <td>{$per}</td>
-                        <td><img class='img-table-certificate' src='".base_url().EXTRA_IMAGE_PATH.$degree['MARKSHEET_IMAGE']."' alt='MARKSHEET_IMAGE'></td>
-                        <td><img class='img-table-certificate' src='".base_url().EXTRA_IMAGE_PATH.$degree['PASSCERTIFICATE_IMAGE']."' alt='PASSCERTIFICATE_IMAGE'></td>
+                        <td><img class='img-table-certificate' src='".itsc_url().EXTRA_IMAGE_PATH.$degree['MARKSHEET_IMAGE']."' alt='MARKSHEET_IMAGE'></td>
+                        <td><img class='img-table-certificate' src='".itsc_url().EXTRA_IMAGE_PATH.$degree['PASSCERTIFICATE_IMAGE']."' alt='PASSCERTIFICATE_IMAGE'></td>
                         <td>{$degree['PASSING_YEAR']}</td>
                        
                     </tr>";
@@ -227,13 +230,13 @@
                                         <th><?=$title?> Front Image</th>
                                         <th><?=$title?> Back Image</th>
                                         <th>Domicile Image</th>
-                                        <th>Domicile From Image</th>
+                                        <th>Form-C Image</th>
                                     </tr>
                                     <tr>
-                                        <td><img class='img-table-certificate' src='<?=base_url().EXTRA_IMAGE_PATH.$user[$value.'_FRONT_IMAGE']?>' alt='CNIC_FRONT_IMAGE'></td>
-                                        <td><img class='img-table-certificate' src='<?=base_url().EXTRA_IMAGE_PATH.$user[$value.'_BACK_IMAGE']?>' alt='CNIC_BACK_IMAGE'></td>
-                                        <td><img class='img-table-certificate' src='<?=base_url().EXTRA_IMAGE_PATH.$user['DOMICILE_IMAGE']?>' alt='DOMICILE_IMAGE'></td>
-                                        <td><img class='img-table-certificate' src='<?=base_url().EXTRA_IMAGE_PATH.$user['DOMICILE_FORM_C_IMAGE']?>' alt='DOMICILE_FORM_C_IMAGE'></td>
+                                        <td><img class='img-table-certificate' src='<?=itsc_url().EXTRA_IMAGE_PATH.$user[$value.'_FRONT_IMAGE']?>' alt='CNIC_FRONT_IMAGE'></td>
+                                        <td><img class='img-table-certificate' src='<?=itsc_url().EXTRA_IMAGE_PATH.$user[$value.'_BACK_IMAGE']?>' alt='CNIC_BACK_IMAGE'></td>
+                                        <td><img class='img-table-certificate' src='<?=itsc_url().EXTRA_IMAGE_PATH.$user['DOMICILE_IMAGE']?>' alt='DOMICILE_IMAGE'></td>
+                                        <td><img class='img-table-certificate' src='<?=itsc_url().EXTRA_IMAGE_PATH.$user['DOMICILE_FORM_C_IMAGE']?>' alt='DOMICILE_FORM_C_IMAGE'></td>
                                     </tr>
                                 </table>
                                 <br>
@@ -250,7 +253,7 @@
                                         <td><?=$bank['BRANCH_NAME']?$bank['BRANCH_CODE']." ".$bank['BRANCH_NAME']:"N/A"?></td>
                                     </tr><tr>
                                         <th>Challan No</th>
-                                        <td><?=$application['FORM_CHALLAN_ID']?$application['FORM_CHALLAN_ID']:"N/A"?></td>
+                                        <td><?=$application['FORM_CHALLAN_ID']? str_pad($application['FORM_CHALLAN_ID'], 5, '0', STR_PAD_LEFT):"N/A"?></td>
                                     </tr>
                                     <tr>
                                         <th>Paid Amount</th>
@@ -262,7 +265,7 @@
                                     </tr>
                                     <tr>
                                         <th>Challan Image</th>
-                                        <td><img class='img-table-certificate' src='<?=base_url().EXTRA_IMAGE_PATH.$application['CHALLAN_IMAGE']?>' alt='CHALLAN_IMAGE'></td>
+                                        <td><img class='img-table-certificate' src='<?=itsc_url().EXTRA_IMAGE_PATH.$application['CHALLAN_IMAGE']?>' alt='CHALLAN_IMAGE'></td>
                                     </tr>
 
                                 </table>
@@ -286,7 +289,7 @@
 
                                         </tr>
                                         <tr>
-                                            <th class="text-danger"><input type="checkbox" id="undertaking_checkbox1"onchange="visible_submit()"> Once submitted, data can not be changed. Your admission form will be locked</th>
+                                            <th class="text-danger">Once submitted, data can not be changed. Your admission form will be locked</th>
 
                                         </tr>
 
@@ -295,21 +298,34 @@
                                 }
                                 ?>
                                 <hr>
+                                
                                 <div class="text-center">
                                     <?php
-                                    if($next_page=="upload_application_challan"){
+                                    if($next_page=="upload_application_challan" &&!($application['ADMISSION_END_DATE']<date('Y-m-d'))){
                                         ?>
                                         <a style="margin-right: 50px;"class="btn btn-warning btn-lg" href="<?=base_url()."candidate/profile"?>">Back</a>
                                         <a style="margin-left: 50px;"class="btn btn-success btn-lg" href="<?=base_url()."form/".$next_page?>">Next</a>
                                         <?php
-                                    }else if($next_page == "lock_form"){
+                                    }else if($next_page == "lock_form"&&!($application['ADMISSION_END_DATE']<date('Y-m-d'))){
+                                        ?>
+                                        
+                                        <?php
+                                        if($application['IS_SUBMITTED']=='N'&&!($application['ADMISSION_END_DATE']<date('Y-m-d'))){
                                         ?>
                                         <a style="margin-right: 50px;" class="btn btn-warning btn-lg" href="<?=base_url()."form/upload_application_challan"?>">Back</a>
                                         <a style="margin-left: 50px;"class="btn btn-success btn-lg" id="submit_button" href="<?=base_url()."form/".$next_page?>">Submit</a>
+                                        
+                                        <?php
+                                        }
+                                    }else if($next_page == "dashboard"){
+                                        ?>
+                                        <button style="margin-left: 50px;"class="btn btn-warning btn-lg" onclick="window.location='<?=base_url()."form/$next_page"?>'">Back to dashboard</button>
+                                         
+                                         <button style="margin-left: 50px;"class="btn btn-primary btn-lg" onclick="display()">Print Draft Copy</button>
                                         <?php
                                     }
                                     ?>
-
+                                    
 
                                 </div>
 
@@ -393,10 +409,14 @@
 </script>
 
 <script>
+function display() {
+    //$('#draft_msg').html("(Draft copy don't need to submit.)");
+            window.print();
+         }
     $('#submit_button').hide();
     function visible_submit(){
 
-        if($("#undertaking_checkbox").is(':checked')&&$("#undertaking_checkbox1").is(':checked')) {
+        if($("#undertaking_checkbox").is(':checked')) {
             $('#submit_button').show();
         }   else{
             $('#submit_button').hide();

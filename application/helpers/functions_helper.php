@@ -1,10 +1,622 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: Kashif Shaikh
+ * User: Kashif Shaikh & Yasir Mehboob
  * Date: 7/11/2020
  * Time: 12:17 PM
  */
+ 
+ function send_smtp_email_with_attachment($email_subject,$email_body,$email,$this_in,$attachments){
+
+	$mail_obj = $this_in->phpmailer_lib->mail_admission();
+	try {
+		$mail_obj->addAddress($email);     //Add a recipient
+		$mail_obj->addReplyTo("admission@usindh.edu.pk");
+		$mail_obj->Subject = $email_subject;
+		$mail_obj->Body    = $email_body;
+		foreach ($attachments as $attachment){
+			$mail_obj->AddAttachment($attachment);
+		}
+		$mail_obj->send();
+		return true;
+	} catch (Exception $e) {
+		return false;
+	}
+
+}
+
+ function sendPasswordTokenByEmail_smtp($email,$token,$user_id,$this_in){
+
+
+    $token= urlencode(EncryptThis($token));
+    $user_id= urlencode(EncryptThis($user_id));
+    $from = 'admission@usindh.edu.pk';
+    $from_name ='IT Services Support Team';
+    $subject ='We have received password reset request';
+    $body = "<img src='https://usindh.edu.pk/wp-content/uploads/2018/10/2logo-usindh.png'> <br> Assalam Alaikum, <br/> Dear Candidate<br>
+We have recieved password reset request for your account of E-Portal. Please visit the following link to reset your password:<br>".
+        "         
+                      <br><br><b><a href='".base_url()."forget/set_pwd/$user_id/$token'>Password Reset Link Click Here</a></b><br>
+                      Note that above link for password reset is valid for one time use only
+                      <br><br>
+                      
+                      Best Regards, <br>
+                      -------------------------------------<br>
+                      IT Services Support Team<br>
+                      University of Sindh, Jamshoro, Pakistan.<br>
+                      Email: admission@usindh.edu.pk<br>";
+
+        send_smtp_email($subject,$body,$email,$this_in);
+}
+
+function getShortForm($string){
+    $array = explode(' ',$string);
+    $str = "";
+    foreach($array as $word){
+        $str.=$word[0].".";
+    }
+    return $str;
+}
+function certificate_card_status($status){
+	if ($status == 0) return "<span class='pull-right badge bg-warning'>DE-ACTIVE</span>";
+	elseif ($status == 1) return '<span class="pull-left badge bg-green">ACTIVE</span>';
+	elseif ($status == 2) return '<span class="pull-left badge bg-red">CANCEL</span>';
+	else return $status;
+}
+
+function send_smtp_email_old($email_subject,$email_body,$email,$this_in){
+
+
+    $file = fopen("./dash_assets/email_count.txt","r");
+    $count =  fgets($file);
+    fclose($file);
+//array("smtp_user"=>"no-reply@usindh.edu.pk","smtp_pass"=>"itsc098**"),
+    $list= array(
+        array("smtp_user"=>"no-reply-sutc2@usindh.edu.pk","smtp_pass"=>"SUTCNOREPLY092022"),
+     //array("smtp_user"=>"no-reply@usindh.edu.pk","smtp_pass"=>"itsc098**"),
+      // array("smtp_user"=>"no-reply-sutc3@usindh.edu.pk","smtp_pass"=>"SUTCNOREPLY092022"),
+        array("smtp_user"=>"no-reply-sutc@usindh.edu.pk","smtp_pass"=>"SUTCNOREPLY092022")
+    );
+
+    $num = (floor($count/200)+1)%count($list);
+
+    $user = $list[$num];
+
+    $fp = fopen("./dash_assets/email_count.txt",'w');//opens file in append mode
+    fwrite($fp, $count+1);
+    //fwrite($fp, $num);
+    fclose($fp);
+
+    $config = array(
+        'protocol' => 'smtp',
+        'smtp_host' => 'ssl://smtp.googlemail.com',
+        'smtp_port' => 465,
+        'smtp_user' => $user['smtp_user'],
+        'smtp_pass' => $user['smtp_pass'],
+        'mailtype'  => 'html',
+        'wordwrap'   => TRUE,
+        'charset'   => 'utf-8',
+        'newline'   => "\r\n"
+    );
+
+    //'smtp_user' => 'no-reply@usindh.edu.pk',
+	//'smtp_pass' => 'itsc098**'
+    $this_in->load->library('email', $config);
+    $this_in->email->from('no-reply@usindh.edu.pk', 'Directorate Of Admission');
+    $this_in->email->to($email);
+    $this_in->email->subject($email_subject);
+    $this_in->email->message($email_body);
+    if($this_in->email->send()){
+        return true;
+    }else{
+        return false;
+    }
+} 
+
+function send_smtp_email($email_subject,$email_body,$email,$this_in){
+
+    $mail_obj = $this_in->phpmailer_lib->mail_admission();
+    try {
+    		$mail_obj->addAddress($email);     //Add a recipient
+    		$mail_obj->addReplyTo("admission@usindh.edu.pk"); 
+			$mail_obj->Subject = $email_subject;
+    		$mail_obj->Body    = $email_body;
+    		$mail_obj->send();
+    	return true;
+	} catch (Exception $e) {
+    	return false;
+	}
+  
+} 
+
+function startsWith($haystack, $needle) {
+	// search backwards starting from haystack length characters from the end
+	return $needle === "" || strrpos($haystack, $needle, -strlen($haystack)) !== false;
+}
+
+// function send_smtp_email($email_subject,$email_body,$email,$this_in){
+//       $this_in->email->from('no-reply@usindh.edu.pk', 'ADMISSIONS');
+//         $this_in->email->to($email);
+//         $this_in->email->subject($email_subject);
+//         $this_in->email->message($email_body);
+//         if($this_in->email->send()){
+//             return true;
+//         }else{
+//             return false;
+//         }
+// }
+function email_notification($email_subject,$email_body,$subject,$faculty_member_name,$email,$this_in){
+    /*
+    $subject['COURSE_NO'] = "";
+    $subject['COURSE_TITLE'] = "";
+    $subject['PART_REMARKS'] = "";
+    $subject['SHIFT'] = "";
+    $subject['GROUP_DESC'] = "";
+    $subject['SEMESTER'] = "";
+    $subject['EXAM_YEAR'] = "";
+    $subject['EXAM_TYPE'] = "";
+    $subject['CURRENT_STATUS']="";
+    */
+    $from = 'itsc@usindh.edu.pk';
+    $from_name ='IT Services Support Team';
+    $body = "<h3>أسلم عليكم</h3>";
+    $body.= "<p style='font-size: 12pt'>".$faculty_member_name."</p>";
+    $body.=$email_body;
+    /*
+    $body.="    <table border='1' style='border: 1px solid black; border-collapse: collapse;'>
+                <tr style='text-align: center;font-size: 14pt;'><th colspan='2' style='padding: 5px;background-color: black;color: white'>Award List Information/Status</th></tr>
+                <tr style='text-align: left;font-size: 12pt;'><th style='padding: 5px'>Course No</th> <td>".$subject['COURSE_NO']."</td></tr>
+                <tr style='text-align: left;font-size: 12pt;'><th style='padding: 5px'>Course Title</th> <td>".$subject['COURSE_TITLE']."</td></tr>
+                <tr style='text-align: left;font-size: 12pt;'><th style='padding: 5px'>Program</th> <td>".$subject['PART_REMARKS']." (".get_shift_encode($subject['SHIFT']).") ".$subject['GROUP_DESC']."</td></tr>
+                <tr style='text-align: left;font-size: 12pt;'><th style='padding: 5px'>Semester</th> <td>".semester_decode($subject['SEMESTER'])."</td></tr>
+                <tr style='text-align: left;font-size: 12pt;'><th style='padding: 5px'>Exam Year</th> <td>".$subject['EXAM_YEAR']."</td></tr>
+                <tr style='text-align: left;font-size: 12pt;'><th style='padding: 5px'>Exam Type</th> <td>".$subject['EXAM_TYPE']."</td></tr>
+                <tr style='text-align: left;font-size: 12pt;'><th style='padding: 5px'>Current Status</th> <td><span style='font-size:12pt; font-weight: bold;background-color: darkseagreen ;color: white;padding: 4px;border-radius: 10px'>".$subject['CURRENT_STATUS']."</span></td></tr>
+                </table> 
+                ";
+
+    $body.= "</b><br>
+                      
+                      Best Regards, <br>
+                      -------------------------------------<br>
+                      IT Services Support Team<br>
+                      University of Sindh, Jamshoro, Pakistan.<br>
+                      Email: admission@usindh.edu.pk<br>
+                      E-portal url: <a href='http://eportal.usindh.edu.pk/'>http://eportal.usindh.edu.pk</a>";
+    */
+    
+        $this_in->email->from('no-reply@usindh.edu.pk', 'E-Result');
+        $this_in->email->to($email);
+        $this_in->email->subject($email_subject);
+        $this_in->email->message($email_body);
+        if($this_in->email->send()){
+            return true;
+        }else{
+            return false;
+        }
+}//method
+
+function category_decode($category_title){
+	if ($category_title == "QUOTA / GENERAL MERIT (JURISDICTION)") return "MERIT";
+	elseif ($category_title == "SPORTS QUOTA") return "MERIT";
+	elseif ($category_title == "QUOTA / GENERAL MERIT (OUT OF JURISDICTION)") return "MERIT";
+	elseif ($category_title == "FEMALE QUOTA (JURISDICTION)") return "MERIT";
+	elseif ($category_title == "FEMALE QUOTA (OUT OF JURISDICTION)") return "MERIT";
+	elseif ($category_title == "DISABLE PERSONS QUOTA") return "MERIT";
+	elseif ($category_title == "SUE SON DAUGHTER QUOTA") return "MERIT";
+	elseif ($category_title == "SPECIAL SELF FINANCE") return "SPECIAL SELF FINANCE";
+	elseif ($category_title == "SUE AFFILIATED COLLEGE SD QUOTA") return "MERIT";
+	elseif ($category_title == "SUE SD NCEAC QUOTA") return "MERIT";
+	elseif ($category_title == "NORTHERN AREAS NOMINATION") return "MERIT";
+	elseif ($category_title == "SELF FINANCE") return "SELF FINANCE";
+	elseif ($category_title == "PUNJAB PROVINCE NOMINATION") return "MERIT";
+	elseif ($category_title == "AJK GOVERNMENT NOMINATION") return "MERIT";
+	elseif ($category_title == "PHARMACEUTICAL INDUSTRY") return "MERIT";
+	elseif ($category_title == "ARMY PERSONNEL NOMINATION") return "MERIT";
+	elseif ($category_title == "FOREIGN PKTAP") return "MERIT";
+	elseif ($category_title == "OTHER PROVINCES SELF FINANCE") return "SELF FINANCE";
+	elseif ($category_title == "KPK PROVINCE NOMINATION") return "MERIT";
+	elseif ($category_title == "BALOCHISTAN PROVINCE NOMINATION") return "MERIT";
+	elseif ($category_title == "COMMERCE QUOTA") return "MERIT";
+	elseif ($category_title == "FATA NOMINATION") return "MERIT";
+	elseif ($category_title == "KARACHI RESERVED QUOTA") return "MERIT";
+	elseif ($category_title == "SHUHDA WARDS NOMINATION QUOTA") return "MERIT";
+	elseif ($category_title == "EVENING SELF FINANCE") return "EVENING";
+	else return $category_title;
+
+}
+
+function part_decode ($part_id){
+	if ($part_id == 1) return "FIRST YEAR";
+	elseif ($part_id == 2) return "SECOND YEAR";
+	elseif ($part_id == 3) return "THIRD YEAR";
+	elseif ($part_id == 4) return "FOURTH YEAR";
+	elseif ($part_id == 5) return "FIFTH YEAR";
+	elseif ($part_id == 6) return "PREVIOUS";
+	elseif ($part_id == 7) return "FINAL";
+	elseif ($part_id == 8) return "FIRST YEAR (MBA 4 YEAR)";
+	elseif ($part_id == 9) return "SECOND YEAR (MBA 4 YEAR)";
+	elseif ($part_id == 10) return "THIRD YEAR (MBA 4 YEAR)";
+	elseif ($part_id == 11) return "FOURTH YEAR (MBA 4 YEAR)";
+}
+
+function web_list_no_dropDown(){
+    for($i=1; $i<=5; $i++){
+        echo "<option value='$i'>$i</option>";
+    }
+}
+
+function getIndexOfObjectInList_with_multi_check($list,$key_1,$value_1,$key_2,$value_2){
+    //This method use to find the index of obejct in a list if not find return -1
+    foreach ($list as $k=>$object){
+        if($object[$key_1]==$value_1 && $object[$key_2]==$value_2){
+            return $k;
+        }
+    }
+    return -1;
+}
+
+function merge_list_with_key($list,$key){
+	$new_list = array();
+	foreach ($list as $value){
+		if(!isset($new_list[$value[$key]])){
+			$new_list[$value[$key]] = array();
+		}
+		array_push($new_list[$value[$key]],$value);
+	}
+	return $new_list;
+}
+
+function get_campus_by_id($campus_id){
+	if ($campus_id == 1) return "UNIVERSITY OF SINDH, JAMSHORO";
+	elseif ($campus_id == 2) return "SINDH UNIVERSITY CAMPUS, LARKANA";
+	elseif ($campus_id == 3) return "SYED ALLAHNDO SHAH SINDH UNIVERSITY CAMPUS, NAUSHEHRO FEROZE";
+	elseif ($campus_id == 4) return "SINDH UNIVERSITY CAMPUS, THATTA";
+	elseif ($campus_id == 5) return "MOHTARMA BENAZIR BHUTTO SHAHEED SINDH UNIVERSITY CAMPUS, DADU";
+	elseif ($campus_id == 6) return "SINDH UNIVERSITY CAMPUS, MIRPURKHAS";
+	elseif ($campus_id == 7) return "SINDH UNIVERSITY LAAR CAMPUS @ BADIN";
+	else $campus_id;
+
+}
+
+function shift_decode ($shift_id){
+	if ($shift_id == 1) return "MORNING";
+	elseif ($shift_id == 2) return "EVENING";
+	elseif ($shift_id == 3) return "AFTERNOON";
+}
+function merit_list_decode ($list_no){
+	if ($list_no == 1) return "FIRST";
+	elseif ($list_no == 2) return "SECOND";
+	elseif ($list_no == 3) return "THIRD";
+	elseif ($list_no == 4) return "THIRD UPDATED";
+	elseif ($list_no == 5) return "FIFTH";
+	elseif ($list_no == 6) return "SIXTH";
+	elseif ($list_no == 7) return "SEVENTH";
+	elseif ($list_no == 8) return "EIGHTH";
+	elseif ($list_no == 11) return "SPECIAL SELF FINANCE LIST 1";
+	elseif ($list_no == 12) return "SPECIAL SELF FINANCE LIST 2";
+	elseif ($list_no == 21) return "EVENING PROGRAMS LIST 1";
+	
+	else $list_no;
+
+}
+function getListValueArray($list,$key){
+	//This method use to find the index of obejct in a list if not find return -1
+	$new_array = array();
+	foreach ($list as $k=>$object){
+		if(isset($object[$key])){
+//			return $k;
+			array_push($new_array,$object[$key]);
+		}
+	}
+	return $new_array;
+}
+
+function area_decode ($area){
+	if ($area == "R") return "Rural";
+	elseif ($area == "U") return "Urban";
+	else return $area;
+}
+
+ 
+ function getIndexOfObjectInList($list,$key,$value){
+    //This method use to find the index of obejct in a list if not find return -1
+  
+    foreach ($list as $k=>$object){
+        
+        if($object[$key]==$value){
+            return $k;
+        }
+        
+    }
+   // prePrint($list);
+    return -1;
+}
+
+function quicksort_form_verification($array,$key,$order="ASC"){
+//	$form_data = json_decode($applicant['FORM_DATA'],true);
+//	$applicant['form_data'] = $form_data;
+
+	if (count($array) == 0)
+		return array();
+
+	$pivot_element = $array[0];
+	$left_element = $right_element = array();
+
+	for ($i = 1; $i < count($array); $i++) {
+		$array_data = json_decode($array[$i]['FORM_DATA'],true);
+		$pivot_data = json_decode($pivot_element['FORM_DATA'],true);
+
+		$array_data_qual=$array_data['qualifications'];
+
+		$pivot_data_qual=$pivot_data['qualifications'];
+		$search_value = 0;
+		$pivot_value = 0;
+		if($array_data_qual[0]['DEGREE_ID']==10){
+			$search_value = $array_data_qual[1]['OBTAINED_MARKS'];
+		}else{
+			$search_value = $array_data_qual[0]['OBTAINED_MARKS'];
+		}
+
+		if($pivot_data_qual[0]['DEGREE_ID']==10){
+			$pivot_value = $pivot_data_qual[1]['OBTAINED_MARKS'];
+		}else{
+			$pivot_value = $pivot_data_qual[0]['OBTAINED_MARKS'];
+		}
+		if($order=="DESC"){
+			//$array[$i]['FORM_DATA']
+
+
+			if ($search_value > $pivot_value)
+				$left_element[] = $array[$i];
+			else
+				$right_element[] = $array[$i];
+		}else {
+			if ($search_value < $pivot_value)
+
+				$left_element[] = $array[$i];
+			else
+				$right_element[] = $array[$i];
+		}
+	}
+
+	return array_merge(quicksort_form_verification($left_element,$key,$order), array($pivot_element), quicksort_form_verification($right_element,$key,$order));
+}
+
+function quicksort($array,$key,$order="ASC"){
+    // ini_set('memory_limit', '-1');
+    if (count($array) == 0)
+        return array();
+
+    $pivot_element = $array[0];
+    $left_element = $right_element = array();
+
+    for ($i = 1; $i < count($array); $i++) {
+        if($order=="DESC"){
+            if ($array[$i][$key] > $pivot_element[$key])
+                $left_element[] = $array[$i];
+            else
+                $right_element[] = $array[$i];
+        }else {
+            if ($array[$i][$key] < $pivot_element[$key])
+                $left_element[] = $array[$i];
+            else
+                $right_element[] = $array[$i];
+        }
+    }
+
+    return array_merge(quicksort($left_element,$key,$order), array($pivot_element), quicksort($right_element,$key,$order));
+}
+
+function find_qualification($qualifications,$degree_id){
+    //  prePrint($qualifications);
+     
+     foreach($qualifications as $qualification){
+         if($qualification['DEGREE_ID'] == $degree_id)
+         {
+             return $qualification;
+         }
+     }
+     return null;
+ }
+ 
+ function send_form_status_email($form_data){
+
+    $APPLICATION_ID = $form_data['APPLICATION_ID'];
+    $MESSAGE        = $form_data['MESSAGE'];
+    $FORM_DATA_JSON = $form_data['FORM_DATA'];
+    $FORM_STATUS_JSON= $form_data['FORM_STATUS'];
+    $CAMPUS_NAME    = $form_data['NAME'];
+    $PROGRAM_TITLE  = $form_data['PROGRAM_TITLE'];
+    $STATUS_NAME    = $form_data['STATUS_NAME'];
+    $YEAR           = $form_data['YEAR'];
+    
+    $FORM_DATA_JSON = json_decode($FORM_DATA_JSON,true);
+    $users_reg      = $FORM_DATA_JSON['users_reg'];
+    $email          = $users_reg['EMAIL'];
+    $name           = $users_reg['FIRST_NAME'];
+    $fname          = $users_reg['FNAME'];
+    $cnic_no        = $users_reg['CNIC_NO'];
+    
+    // $email = "vk.rajani@usindh.edu.pk";
+    
+    $from = 'admission@usindh.edu.pk';
+    $from_name ='UoS Admission';
+
+    $subject ='Application Form Status Updated';
+    $body = "
+        <style>
+            table, td, th {
+                style='border: 1px solid black;'
+                }
+            table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    padding:7px;
+            }
+            th {
+                width:15%;
+                text-align:left;
+            }
+</style>
+
+    <img src='https://usindh.edu.pk/wp-content/uploads/2018/10/2logo-usindh.png'> <br>  <h3>Assalam  Alaikum,</h3>"
+        ."<p>Your application status has been updated. Kindly <a href='admission.usindh.edu.pk' target='_new'> login into your eportal account </a> & visit dashboard for more information.</p>".
+        "<br>
+        <table border='1' style='border: 1px solid black; width: 100%; border-collapse: collapse; padding:7px;'>
+        
+        <tr style='padding:7px;'><th style='width:15%; text-align:left; padding:7px;'>Application No</th> <td> $APPLICATION_ID </td> </tr>
+         <tr style='padding:7px;'> <th style='width:15%; text-align:left; padding:7px;'>Name</th> <td> $name </td> </tr>
+         <tr style='padding:7px;'> <th style='width:15%; text-align:left; padding:7px;'>Father Name</th> <td> $fname </td> </tr>
+ <tr style='padding:7px;'> <th style='width:15%; text-align:left; padding:7px;'>Cnic No</th> <td> $cnic_no </td> </tr>
+ <tr style='padding:7px;'> <th style='width:15%; text-align:left; padding:7px;'>Applied Campus</th> <td> $CAMPUS_NAME </td> </tr>
+ <tr style='padding:7px;'> <th style='width:15%; text-align:left; padding:7px;'>Applied Program</th> <td> $PROGRAM_TITLE $YEAR </td> </tr>
+ <tr style='padding:7px;'> <th style='width:15%; text-align:left; padding:7px;'>Application Status</th> <td> $STATUS_NAME </td> </tr>
+ <tr style='padding:7px;'> <th style='width:15%; text-align:left; padding:7px;'>Message</th> <td style='color:red'> $MESSAGE </td> </tr>
+       
+        </table>
+                     
+                      <br><br>
+                      Best Regards, <br>
+                      -------------------------------------<br>
+                      Director Admission<br>
+                      University of Sindh, Jamshoro, Pakistan.<br>
+                      Email: admission@usindh.edu.pk<br>";
+
+    // Always set content-type when sending HTML email
+    $headers = "MIME-Version: 1.0" . "\r\n";
+    $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+
+// More headers
+    $headers .= 'From: admission@usindh.edu.pk' . "\r\n";
+    $headers .= "X-Priority: 3\r\n";
+// $headers .= 'Reply-To: director.itsc@usindh.edu.pk' . "\r\n";
+    $headers .= "Return-Path: The Sender <admission@usindh.edu.pk>\r\n";
+
+    if(mail($email,$subject,$body,$headers)){
+        $m= 'An email has been sent.';
+
+    }else{
+        $m= 'Some unknown system error occurd - Sorry! your password reset request can not be processed this time - Please try again later...';
+    }
+    
+    return $m;
+ }
+ 
+ function binary_search($list_of_array,$key,$search_value){
+    $beg = 0;
+    $end = count($list_of_array);
+    $mid = round(($beg+$end)/2);
+    $end--;
+    $index= -1;
+    while($beg<=$end){
+        if($list_of_array[$mid][$key]==$search_value){
+            $index = $mid;
+            $check = false;
+            break;
+        }else if($list_of_array[$mid][$key]<$search_value){
+            $beg = $mid+1;
+        }else if(($list_of_array[$mid][$key]>$search_value)){
+            $end = $mid-1;
+        }
+        $mid = round(($beg+$end)/2);
+    }
+    return $index;
+}
+ 
+ function isValidEmail($email)
+ {
+     
+    if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+      return true;
+    } else {
+      return false;
+    }
+ }
+ function itsc_url(){
+     return "https://itsc.usindh.edu.pk/eportal/public/";
+ }
+ function send_unlock_mail($email){
+
+    $from = 'admission@usindh.edu.pk';
+    $from_name ='IT Services Support Team';
+    $subject ='UNLOCK APPLICATION FORM';
+    $body = "<img src='https://usindh.edu.pk/wp-content/uploads/2018/10/2logo-usindh.png'> <br>  <h3>Assalam  Alaikum,</h3><br>"
+        ."<h3>Your application has been unlocked. Kindly edit and submit your application form before due date</h3>".
+        "<br><br><b><a href='".base_url()."'>Click Here To Login Admission Portal</a></b><br>
+                     
+                      <br><br>
+                      
+                      Best Regards, <br>
+                      -------------------------------------<br>
+                      IT Services Support Team<br>
+                      University of Sindh, Jamshoro, Pakistan.<br>
+                      Email: admission@usindh.edu.pk<br>";
+
+    // Always set content-type when sending HTML email
+    $headers = "MIME-Version: 1.0" . "\r\n";
+    $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+
+// More headers
+    $headers .= 'From: admission@usindh.edu.pk' . "\r\n";
+    $headers .= "X-Priority: 3\r\n";
+// $headers .= 'Reply-To: director.itsc@usindh.edu.pk' . "\r\n";
+    $headers .= "Return-Path: The Sender <admission@usindh.edu.pk>\r\n";
+
+    if(mail($email,$subject,$body,$headers)){
+        $m= 'An email has been sent with password.';
+
+    }else{
+        $m= 'Some unknown system error occurd - Sorry! your password reset request can not be processed this time - Please try again later...';
+    }
+ }
+function send_confirmation_email($email,$password){
+
+    $from = 'admission@usindh.edu.pk';
+    $from_name ='ADMISSIONS';
+    $subject ='WELLCOME TO UNIVERSITY OF SINDH';
+    $body = "<img src='https://usindh.edu.pk/wp-content/uploads/2018/10/2logo-usindh.png'> <br> <p style='font-size:14pt'>السلام عليكم</p><br>
+You have been successfully registered on admission portal, you can Login using CNIC /B-Form No and Password for further process.  <a href='".base_url()."assets/advertisement_2022.pdf'>Advertisement - Admissions 2022</a> <br><br>Your password is: <b>$password</b><br>
+<p>You will have to add your qualifications later on for that you will be notified through Email. Keep visiting your email account and E-portal account dashboard for further process regarding Admissions 2022.</p>".
+" 
+<p> <a href='https://youtu.be/F7S-NMvJTNw'>Click here to watch tutorial how to fill online admission form?</a></p>
+Prepare the following documents in softcopy before filling the online admission form.<br> <br>  
+1.	 “Admission copy” of paid up challan of Admission application processing fee. (Rs. 2500/=) (Original)<br>
+2.	Matriculation (S.S.C-Part II) - Marks and Pass Certificates (Original)<br>
+3.	Intermediate (HSC-Part II) - Marks and Pass Certificates (Original)<br>
+4.	Bachelor’s degree (14 years OR 16 years ) - Marks and Pass Certificates  for admission in Master’s degree program (Original)<br>
+5.	HEC LAT score card for admission in L.L.B Program <br>
+6.	Computerized National Identity Card (CNIC) / B-Form from NADRA. (Original)<br>
+7.	Domicile Certificate and Permanent Residence Certificate (Form- C) (Original)<br>
+".
+        "<br><b><a href='".base_url()."'>Click Here for login and fill your online admission form </a></b><br> 
+                     
+                      <br>
+                      
+                      Best Regards, <br>
+                      -------------------------------------<br>
+                      DIRECTOR ADMISSIONS<br>
+                      University of Sindh, Jamshoro, Pakistan.<br>
+                      Email: admission@usindh.edu.pk<br>";
+
+    // Always set content-type when sending HTML email
+    $headers = "MIME-Version: 1.0" . "\r\n";
+    $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+
+// More headers
+    $headers .= 'From: admission@usindh.edu.pk' . "\r\n";
+    $headers .= "X-Priority: 3\r\n";
+// $headers .= 'Reply-To: director.itsc@usindh.edu.pk' . "\r\n";
+    $headers .= "Return-Path: The Sender <admission@usindh.edu.pk>\r\n";
+
+    if(mail($email,$subject,$body,$headers)){
+        $m= 'An email has been sent with password.';
+
+    }else{
+        $m= 'Some unknown system error occurd - Sorry! your password reset request can not be processed this time - Please try again later...';
+    }
+ }
+
 function findObjectinList($list,$key,$value){
     foreach($list as $obj){
         if($obj[$key]==$value){
@@ -14,6 +626,7 @@ function findObjectinList($list,$key,$value){
     }
     return false;
 }
+
 function getcsrf($obj){
     $reponse = array(
         'csrfName' => $obj->security->get_csrf_token_name(),
@@ -21,16 +634,19 @@ function getcsrf($obj){
     );
     return $reponse;
 }
+
 function passwordRule($password){
-    $pattern = "/(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,50}/";
+    $pattern = "/(?=.*[a-z]).{8,50}/";
+// (?=.*[0-9])
+// (?=.*[A-Z])
 
     if(preg_match($pattern, $password)){
-        $special_char = "!@#$%^&*()+=-[]';,./{}|:<>?~";
-        if (false === strpbrk($password, $special_char))
-            return false;
-        else
-            return true;
-
+        // $special_char = "!@#$%^&*()+=-[]';,./{}|:<>?~";
+        // if (false === strpbrk($password, $special_char))
+        //     return false;
+        // else
+        //     return true;
+        return true;
     }else{
         return false;
     }
@@ -126,17 +742,17 @@ function printDateTime($date)
 function writeQuery($text){
     // prePrint("method call");
 
-    $path = "../log/ITSC_QUERY";
+    $path = "../log/ftp_log";
     if(!file_exists($path)){
         $result = mkdir ($path);
         chmod("$path", 0755);
     }
-    $path.="/ITSC_QUERY.txt";
+    $path.="/ftp_log.txt";
     $date_time =date('Y F d l h:i A');
     //printDateTime($date)
 
 
-    $data ="[$date_time] $text\n";
+    $data ="$text\n";
     //file_put_contents($path, $data, FILE_APPEND | LOCK_EX);
     $fp = fopen($path,'a+');//opens file in append mode
 
@@ -461,7 +1077,7 @@ function getUserAgent(){
 //    return "PC/Laptop";
 }
 function sendTokenByEmail($email,$token){
-    $from = 'itsc@usindh.edu.pk';
+    $from = 'admission@usindh.edu.pk';
     $from_name ='IT Services Support Team';
     $subject ='Your Verification Code';
     $body = "<img src='https://usindh.edu.pk/wp-content/uploads/2018/10/2logo-usindh.png'> <br> Assalam Alaikum,<br>".
@@ -472,7 +1088,7 @@ function sendTokenByEmail($email,$token){
                       -------------------------------------<br>
                       IT Services Support Team<br>
                       University of Sindh, Jamshoro, Pakistan.<br>
-                      Email: itsc@usindh.edu.pk<br>
+                      Email: admission@usindh.edu.pk<br>
                       E-portal url: <a href='http://eportal.usindh.edu.pk/'>http://eportal.usindh.edu.pk</a>";
 
     // Always set content-type when sending HTML email
@@ -480,10 +1096,10 @@ function sendTokenByEmail($email,$token){
     $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
 
 // More headers
-    $headers .= 'From: itsc@usindh.edu.pk' . "\r\n";
+    $headers .= 'From: admission@usindh.edu.pk' . "\r\n";
     $headers .= "X-Priority: 3\r\n";
 // $headers .= 'Reply-To: director.itsc@usindh.edu.pk' . "\r\n";
-    $headers .= "Return-Path: The Sender <itsc@usindh.edu.pk>\r\n";
+    $headers .= "Return-Path: The Sender <admission@usindh.edu.pk>\r\n";
 
     if(mail($email,$subject,$body,$headers)){
         $m= 'An email has been sent with password.';
@@ -493,7 +1109,7 @@ function sendTokenByEmail($email,$token){
     }
 }
 function sendPasswordByEmail($email,$token){
-    $from = 'itsc@usindh.edu.pk';
+    $from = 'admission@usindh.edu.pk';
     $from_name ='IT Services Support Team';
     $subject ='Your New Password';
     $body = "<img src='https://usindh.edu.pk/wp-content/uploads/2018/10/2logo-usindh.png'> <br> Assalam Alaikum,<br>".
@@ -504,7 +1120,7 @@ function sendPasswordByEmail($email,$token){
                       -------------------------------------<br>
                       IT Services Support Team<br>
                       University of Sindh, Jamshoro, Pakistan.<br>
-                      Email: itsc@usindh.edu.pk<br>
+                      Email: admission@usindh.edu.pk<br>
                       E-portal url: <a href='http://eportal.usindh.edu.pk/'>http://eportal.usindh.edu.pk</a>";
 
     // Always set content-type when sending HTML email
@@ -512,10 +1128,10 @@ function sendPasswordByEmail($email,$token){
     $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
 
 // More headers
-    $headers .= 'From: itsc@usindh.edu.pk' . "\r\n";
+    $headers .= 'From: admission@usindh.edu.pk' . "\r\n";
     $headers .= "X-Priority: 3\r\n";
 // $headers .= 'Reply-To: director.itsc@usindh.edu.pk' . "\r\n";
-    $headers .= "Return-Path: The Sender <itsc@usindh.edu.pk>\r\n";
+    $headers .= "Return-Path: The Sender <admission@usindh.edu.pk>\r\n";
 
     if(mail($email,$subject,$body,$headers)){
         $m= 'An email has been sent with password.';
@@ -529,13 +1145,13 @@ function sendPasswordTokenByEmail($email,$token,$user_id){
 
     $token= urlencode(EncryptThis($token));
     $user_id= urlencode(EncryptThis($user_id));
-    $from = 'itsc@usindh.edu.pk';
+    $from = 'admission@usindh.edu.pk';
     $from_name ='IT Services Support Team';
-    $subject ='PASSWORD RESET LINK';
-    $body = "<img src='https://usindh.edu.pk/wp-content/uploads/2018/10/2logo-usindh.png'> <br>  Dear Sir/Madam,<br>
-We have recieved password reset request for your account of LMS/E-Portal. Please visit the following link to reset your password:<br>".
+    $subject ='We have received password reset request';
+    $body = "<img src='https://usindh.edu.pk/wp-content/uploads/2018/10/2logo-usindh.png'> <br> Assalam Alaikum, <br/> Dear Candidate<br>
+We have recieved password reset request for your account of E-Portal. Please visit the following link to reset your password:<br>".
         "         
-                      <br><br><b><a href='https://itsc.usindh.edu.pk/eportal/public/reset_password.php?i=$user_id&t=$token'>Password Reset Link Click Here</a></b><br>
+                      <br><br><b><a href='".base_url()."forget/set_pwd/$user_id/$token'>Password Reset Link Click Here</a></b><br>
                       Note that above link for password reset is valid for one time use only
                       <br><br>
                       
@@ -543,17 +1159,17 @@ We have recieved password reset request for your account of LMS/E-Portal. Please
                       -------------------------------------<br>
                       IT Services Support Team<br>
                       University of Sindh, Jamshoro, Pakistan.<br>
-                      Email: itsc@usindh.edu.pk<br>";
+                      Email: admission@usindh.edu.pk<br>";
 
     // Always set content-type when sending HTML email
     $headers = "MIME-Version: 1.0" . "\r\n";
     $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
 
 // More headers
-    $headers .= 'From: itsc@usindh.edu.pk' . "\r\n";
+    $headers .= 'From: admission@usindh.edu.pk' . "\r\n";
     $headers .= "X-Priority: 3\r\n";
 // $headers .= 'Reply-To: director.itsc@usindh.edu.pk' . "\r\n";
-    $headers .= "Return-Path: The Sender <itsc@usindh.edu.pk>\r\n";
+    $headers .= "Return-Path: The Sender <admission@usindh.edu.pk>\r\n";
 
     if(mail($email,$subject,$body,$headers)){
         $m= 'An email has been sent with password.';
@@ -643,7 +1259,7 @@ function getUserInListById($user_list,$user_id){
     }
     return null;
 }
-function sendMultipleEmail($email_list,$msg,$sender='itsc@usindh.edu.pk'){
+function sendMultipleEmail($email_list,$msg,$sender='admission@usindh.edu.pk'){
     $msg = nl2br($msg);
     $from = $sender;
     $from_name ='IT Services Support Team';
@@ -788,3 +1404,150 @@ function convert_number_to_words($number) {
 
     return $string;
 }//method
+function sendVerificationEmail($email,$token){
+
+
+   
+    $from = 'admission@usindh.edu.pk';
+    $from_name ='IT Services Support Team';
+    $subject ='Email Verification Code';
+    $body = "<img src='https://usindh.edu.pk/wp-content/uploads/2018/10/2logo-usindh.png'> <br> Assalam Alaikum, <br/> Dear Candidate,<br>
+We have recieved your registration request for University of Sindh admissions portal.<br>".
+        "      
+                      <br><br><b style='font-size:30px;'>Email verification code is:  <span style='color:red'>$token</span></b><br><br>
+                      <br><b>Do not share this code with anyone.</b><br>
+                      <a href='https://www.youtube.com/c/ZainNetworks?sub_confirmation=1'>CLICK HERE</a> to watch tutorial how to fill online admission form without giving qualifications & admission process.
+                      <br><br>
+                      Best Regards, <br>
+                      -------------------------------------<br>
+                      IT Services Support Team<br>
+                      University of Sindh, Jamshoro, Pakistan.<br>
+                      Email: admission@usindh.edu.pk<br>";
+
+    // Always set content-type when sending HTML email
+    $headers = "MIME-Version: 1.0" . "\r\n";
+    $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+
+// More headers
+    $headers .= 'From: admission@usindh.edu.pk' . "\r\n";
+    $headers .= "X-Priority: 3\r\n";
+// $headers .= 'Reply-To: director.itsc@usindh.edu.pk' . "\r\n";
+    $headers .= "Return-Path: The Sender <admission@usindh.edu.pk>\r\n";
+
+    if(mail($email,$subject,$body,$headers)){
+        $m= 'An email has been sent with password.';
+
+    }else{
+        $m= 'Some unknown system error occurd - Sorry! your password reset request can not be processed this time - Please try again later...';
+    }
+}
+function sendVerificationMobile($mobile,$token){
+    // sendVerificationEmail("kscsm32@gmail.com",$token);
+     $message = "Dear Applicant,
+University of Sindh admissions portal Mobile No verification code is: $token
+Do not share this code with anyone.";
+     $mobile = "92".$mobile;
+     smsSender($mobile,$message);
+}
+function smsSender($to,$message){
+    
+    // $return = api_sms_lifetime($to,$message);
+    $return = api_sms_zong($to,$message);
+    prePrint($return);
+}
+
+function api_sms_lifetime($to,$message){
+    
+    $url = "https://lifetimesms.com/plain";
+
+    $parameters = [
+        "api_token" => "fb2224b9cae75a2e659c152271b8d06d6337c24547",
+        "api_secret" => "@@usindh_itsc##",
+        "to" => "$to",
+        "from" => "USINDH",
+        "message" => "$message",
+    ];
+
+    $ch = curl_init();
+    $timeout  =  30;
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_HEADER, 0);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $parameters);
+    curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+    $response = curl_exec($ch);
+    curl_close($ch);
+
+return $response;
+}
+
+function api_sms_zong($to,$message){
+    
+    ini_set("soap.wsdl_cache_enabled", 0);
+    $url        = 'http://cbs.zong.com.pk/ReachCWSv2/CorporateSMS.svc?wsdl';
+    $client     = new SoapClient($url, array("trace" => 1, "exception" => 0));
+    $loginId = "923128851833";
+    $loginPassword = "@Usindh123@";
+    $Mask = "USINDH";
+    echo "<pre>";
+    
+                $resultBulkSMS = $client->QuickSMS(  
+                    array('obj_QuickSMS' => 
+                                array(	'loginId'=>  $loginId, //here type your account name
+                                        'loginPassword'=>$loginPassword, //here type your password
+                                        'Mask'=>$Mask, //here set allowed mask against your account or you will get invalid mask
+										'Message'=>$message,//Your Messge Text
+										'UniCode'=>'0', //If sms is unicode place 1 otherwise 0
+										'ShortCodePrefered'=>'n',
+										'Destination'=>$to //Destination Mobile No
+									))
+              );
+
+// echo "<br>REQUEST:\n" . htmlentities($client->__getLastRequest()) . "\n";
+
+return $resultBulkSMS->QuickSMSResult;
+// print_r($resultBulkSMS);
+}
+
+function postCURL($_url, $_param){
+
+	    $data_string = json_encode($_param);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL,$_url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_HEADER, false); 
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);    
+	    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+					'Content-Type: application/json')
+			);
+        $output=curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        return array("response"=>$output,"response_code"=>$httpcode);
+    }
+function emailDeveloperLog($subject,$msg,$email='developer@usindh.edu.pk'){
+    $from = 'admission@usindh.edu.pk';
+    $from_name ='IT Services Support Team';
+    
+    $body = "$msg";
+
+    // Always set content-type when sending HTML email
+    $headers = "MIME-Version: 1.0" . "\r\n";
+    $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+
+// More headers
+    $headers .= 'From: admission@usindh.edu.pk' . "\r\n";
+    $headers .= "X-Priority: 3\r\n";
+// $headers .= 'Reply-To: director.itsc@usindh.edu.pk' . "\r\n";
+    $headers .= "Return-Path: The Sender <admission@usindh.edu.pk>\r\n";
+
+    if(mail($email,$subject,$body,$headers)){
+        $m= 'An email has been sent with password.';
+
+    }else{
+        $m= 'Some unknown system error occurd - Sorry! your password reset request can not be processed this time - Please try again later...';
+    }
+}

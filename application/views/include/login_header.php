@@ -3,7 +3,7 @@
 
 <head>
     
-    
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
    <script src="<?=base_url()?>assets/js/core/jquery.min.js" type="text/javascript"></script>
     <link href="<?=base_url()?>assets/select2.min.css" rel="stylesheet" />
     <script src="<?=base_url()?>assets/select2.full.min.js"></script>
@@ -18,7 +18,7 @@
   <!--     Fonts and icons     -->
   <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons" />
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
- <link rel="stylesheet" href="<?=base_url()?>assets/bootstrap.min.css">
+ <link rel="stylesheet" href="<?=base_url()?>dash_assets/css/bootstrap.min.css">
 <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">-->
   <!-- CSS Files -->
   <link href="<?=base_url()?>assets/css/material-kit.css?v=2.0.5" rel="stylesheet" />
@@ -27,6 +27,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
 
+ 
     <!-- Latest compiled and minified JavaScript -->
 
 </head>

@@ -98,6 +98,13 @@ $project_name ="Admission";
        <!-- Button
 		============================================ -->
     <link rel="stylesheet" href="<?=base_url()?>dash_assets/css/buttons.css">
+    
+    <!--image rotate css yasir added custom-->
+    <link rel="stylesheet" href="<?=base_url()?>assets/image_rotate.css">
+    
+    <script src="<?=base_url()?>assets/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-sanitize.js"></script>
+    
     <script>
 
         $(document).ready(function() {
@@ -257,6 +264,122 @@ background: #337ab7;
          color: #f90000;
      }
 
+.stepper-wrapper {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.stepper-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+@media (max-width: 768px) {
+    font-size: 12px;
+}
+}
+.stepper-item:hover{
+    cursor: pointer;
+}
+
+
+.stepper-item::before {
+    position: absolute;
+    content: "";
+    border-bottom: 2px solid red;
+    width: 100%;
+    top: 20px;
+    left: -50%;
+    z-index: 2;
+}
+
+.stepper-item::after {
+    position: absolute;
+    content: "";
+    border-bottom: 2px solid red;
+    width: 100%;
+    top: 20px;
+    left: 50%;
+    z-index: 2;
+}
+
+.stepper-item .step-counter {
+    position: relative;
+    z-index: 5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgb(255, 253, 253);
+    border: 2px solid red;
+    margin-bottom: 6px;
+}
+
+.stepper-item.active {
+    font-weight: bold;
+}
+
+.stepper-item.completed .step-counter {
+    color:#FFF;
+    background-color: #7cd43b;
+        border: 0px solid #7cd43b;
+}
+
+.stepper-item.completed::after {
+    position: absolute;
+    content: "";
+    border-bottom: 2px solid #7cd43b;
+    width: 100%;
+    top: 20px;
+    left: 50%;
+    z-index: 3;
+}
+.stepper-item.disabled .step-counter {
+    color:#FFF;
+    background-color: #b5b3b3;
+        border: 0px solid #b5b3b3;
+}
+
+.stepper-item.disabled::after {
+    position: absolute;
+    content: "";
+    border-bottom: 2px solid #b5b3b3;
+    width: 100%;
+    top: 20px;
+    left: 50%;
+    z-index: 3;
+}
+.stepper-item.pennding .step-counter {
+    color:#FFF;
+    background-color: #adaeaf;
+        border: 0px solid #adaeaf;
+}
+
+.stepper-item.pennding::after {
+    position: absolute;
+    content: "";
+    border-bottom: 2px solid #adaeaf;
+    width: 100%;
+    top: 20px;
+    left: 50%;
+    z-index: 3;
+}
+
+.stepper-item:first-child::before {
+    content: none;
+}
+
+.stepper-item:last-child::after {
+    content: none;
+}
+.step-name{
+    text-align: center;
+}
 </style>
 
 </head>

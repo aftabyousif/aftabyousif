@@ -6,15 +6,18 @@
                     <div class="review-content-section">
                         <div id="dropzone1" class="pro-ad">
                             <div class="card">
+                                 <div class="card-header">
+                                     <center><h3>Choose your Graduation Elective / Minor Subjects</h3></center>
+                                     </div>
                                 <div class="card-body">
                                     <?php
                                     $hidden = array("APPLICATION_ID"=>$APPLICATION_ID,"DISCIPLINE_ID"=>$DISCIPLINE_ID);
 
                                     ?>
                                     <div class="row">
-                                        <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
+                                          <div class="col-lg-5 col-md-5 ">
                                             <div class="form-group">
-                                                <label for="exampleInput1" class="bmd-label-floating"> CHOOSE SUBJECT
+                                                <label for="exampleInput1" class="bmd-label-floating"> Choose Three Elective / Minor Subjects From The Following Menu
                                                     <span class="text-danger">*</span></label>
                                                 <select  class="js-example-basic-single form-control mb-3" name="MINOR_MAPPING_ID" id="MINOR_MAPPING_ID">
                                                     <option value="0">--Choose--</option>
@@ -41,11 +44,14 @@
                                                 <button  class="btn btn-success " id="add_minor">ADD</button>
 
                                         </div>
+
                                     </div>
 
                                     <!--                                        <form action="/upload" class="dropzone dropzone-custom needsclick add-professors dz-clickable" id="demo1-upload" novalidate="novalidate">-->
-                                    <?=form_open(base_url('form/upload_minor_subjects'), ' enctype="multipart/form-data" class="dropzone dropzone-custom needsclick add-professors dz-clickable" id="minor_select_form " onsubmit="return validateMinorSelection()"',$hidden);?>
 
+                                    <form action="<?=base_url('form/upload_minor_subjects')?>" method="post" id="minor_select_form " onsubmit="return validateMinorSelection()">
+                                        <input type="hidden" name="APPLICATION_ID" value="<?=$APPLICATION_ID?>">
+                                        <input type="hidden" name="DISCIPLINE_ID" value="<?=$DISCIPLINE_ID?>">
 
 <!--                                    <div class="row">-->
 <!--                                        <div class="col-lg-4">-->
@@ -57,6 +63,7 @@
 <!--                                            </div>-->
 <!--                                        </div>-->
 <!--                                    </div>-->
+                                    <input type="hidden" name="IS_NEXT" value="0" id="IS_NEXT">
                                     <table class='table'>
                                         <thead>
                                         <th>S.No</th>
@@ -78,16 +85,23 @@
                                         ?>
                                         </tbody>
 
-                                <tr><td colspan="3">
+                                <tr><td >
                                          <span class="input-group-btn">
-        <button  class="btn btn-primary waves-effect waves-light"><i class="fa fa-save"></i> Save </button>>
+        <button  class="btn btn-primary waves-effect waves-light" id="SAVE_BTN"><i class="fa fa-save"></i> Save </button>>
                                                                   </span>
+
+                                    </td>
+                                    <td >
+                                         <span class="input-group-btn">
+                                            <button type="button" class="btn btn-primary btn-lg" onclick="set_next()" >Next</button>
+                                         </span>
 
                                     </td></tr>
 
                                 </table>
 
                                     </form>
+
                                 </div>
                             </div>
                         </div>
@@ -99,6 +113,10 @@
     </div>
 </div>
 <script>
+    function set_next(){
+        $('#IS_NEXT').val(1);
+        $('#SAVE_BTN').click();
+    }
     <?php
     if($PROGRAM_TYPE_ID==1){
         $value = MINOR_SELECT_FOR_BACHELOR;

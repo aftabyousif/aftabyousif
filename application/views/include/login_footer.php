@@ -2,6 +2,7 @@
   
   <!--   Core JS Files   -->
 
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
   <script src="<?=base_url()?>assets/js/core/popper.min.js" type="text/javascript"></script>
   <script src="<?=base_url()?>assets/js/core/bootstrap-material-design.min.js" type="text/javascript"></script>
@@ -11,16 +12,16 @@
   <!--  Plugin for the Sliders, full documentation here: http://refreshless.com/nouislider/ -->
   <script src="<?=base_url()?>assets/js/plugins/nouislider.min.js" type="text/javascript"></script>
   <!--  Google Maps Plugin    -->
-  <script src="<?=base_url()?>assets/google.js">
-  </script>
+  <!--<script src="<?=base_url()?>assets/google.js"></script>-->
   <!-- Control Center for Material Kit: parallax effects, scripts for the example pages etc -->
   <script src="<?=base_url()?>assets/js/material-kit.js?v=2.0.5" type="text/javascript"></script>
+  <script src="<?=base_url()?>assets/js/input-validation.js"></script>
   <footer class="footer" data-background-color="black">
     <div class="container">
       <nav class="float-left">
         <ul>
           <li>
-            <a href="../public/developer_team.php">
+            <a href="<?=base_url()?>developer"">
               Developer Team
             </a>
           </li>
@@ -28,8 +29,8 @@
         </ul>
       </nav>
       <div class="copyright float-right">
-        &copy;2020, 
-        <a href="http://usindh.edu.pk/itsc/" target="_blank">IT Services Centre, University of Sindh, Jamshoro</a>
+        &copy; 2020, 
+        <a href="https://www.usindh.edu.pk/itsc/" target="_blank">IT Services Centre, University of Sindh, Jamshoro</a>
       </div>
     </div>
   </footer>
@@ -102,9 +103,9 @@
               alert("File not supported");
               return false;
           }
-          var  fileSize = 1024*300*1;
+          var  fileSize = 1024*100*1;
           if(target.files[0].size >fileSize ) {
-              alert("Image size too big (max 200KB)");
+              alert("Image size too big (max 100KB)");
 
               return false;
           }

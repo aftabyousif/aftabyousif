@@ -93,14 +93,97 @@
     ============================================ -->
 <script src="<?=base_url()?>dash_assets/js/main.js"></script>
 
+<?php
+if($_SERVER['PHP_SELF'] !="/admission/index.php/notification/mailbox"){
+?>
 <script src="<?=base_url()?>assets/js/input-validation.js"></script>
+
+<?php
+}
+?>
     <script>
-document.getElementById('min-height').style="padding:30px;min-height:"+(window.innerHeight-120)+"px;";
+var min_h = document.getElementById('min-height');
+if(min_h){
+min_h.style="padding:30px;min-height:"+(window.innerHeight-120)+"px;";    
+}
+
 	</script>
     
     <!-- tawk chat JS
 		============================================ -->
 <!--    <script src="assets/js/tawk-chat.js"></script>-->
+<!--    <script src="assets/js/tawk-chat.js"></script>-->
+<a id="priamry_modal_btn" class="Primary mg-b-10" href="#" data-toggle="modal" data-target="#PrimaryModalalert" hidden>Primary</a>
+<div id="PrimaryModalalert" class="modal modal-edu-general default-popup-PrimaryModal fade " role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-close-area modal-close-df">
+                <a class="close" data-dismiss="modal" href="#"><i class="fa fa-close"></i></a>
+            </div>
+            <div class="modal-body">
+                <i class="educate-icon educate-checked modal-check-pro"></i>
+                <h4 id="priamry_modal_title">Awesome!</h4>
+                <div id="priamry_modal_msg" class="text-left">The Modal plugin is a dialog box/popup window that is displayed on top of the current page</div>
+            </div>
+            <div class="modal-footer" id="add_btn">
+                <a data-dismiss="modal" href="#">OK</a>
+
+                <!--                                        <a href="#">Process</a>-->
+            </div>
+        </div>
+    </div>
+</div>
+<a id="image_modal_btn" class="Primary mg-b-10" href="#" data-toggle="modal" data-target="#ImageModalalert" hidden>Primary</a>
+<div id="ImageModalalert" class="modal modal-edu-general default-popup-PrimaryModal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-close-area modal-close-df">
+                <a class="close" data-dismiss="modal" href="#"><i class="fa fa-close"></i></a>
+            </div>
+        
+            <div class="modal-body">
+                <i class="educate-icon educate-checked modal-check-pro"></i>
+                <h2 id="image_modal_title">Awesome!</h2>
+              
+                <p id="image_modal_msg">
+                    <img src="<?=$image_path_default =base_url()."dash_assets/img/avatar/default-avatar.png";?>" alt="">
+                </p>
+            </div>
+            <div class="modal-footer" id="add_btn">
+                <a data-dismiss="modal" href="#">OKAY</a>
+
+                <!--                                        <a href="#">Process</a>-->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function alertMsg(title,msg){
+        document.getElementById("priamry_modal_title").innerHTML= title;
+        document.getElementById("priamry_modal_msg").innerHTML= msg;
+        document.getElementById("priamry_modal_btn").click();
+    }
+    function alertImage(title,path){
+        
+        document.getElementById("image_modal_title").innerHTML= title;
+        document.getElementById("image_modal_msg").innerHTML= "<img src='"+path+"' alt='' id='image_display' class='img img-thumbnail'>";
+        document.getElementById("image_modal_btn").click();
+    }
+    function alertConfirm(title,msg,id){
+        document.getElementById("priamry_modal_msg").innerHTML= msg;
+        document.getElementById("priamry_modal_title").innerHTML= title;
+        id = "'"+id+"'";
+        document.getElementById("add_btn").innerHTML = "<a data-dismiss=\"modal\" href=\"#\">Cancel</a><a href='#' data-dismiss='modal' onclick=\"submitConfirm("+id+")\" id='confirm_btn'>Process</a>";
+        document.getElementById("priamry_modal_btn").click();
+
+
+    }
+    function submitConfirm(id){
+        document.getElementById(id).click();
+    }
+
+</script>
 </body>
 
 </html>
@@ -207,7 +290,7 @@ document.getElementById('min-height').style="padding:30px;min-height:"+(window.i
        ?>
         <script>
             //console.log('ASD');
-            window.open('<?=$url?>', '_blank');
+            window.open('<?=$url?>');
         </script>
         <?php
     }

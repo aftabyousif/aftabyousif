@@ -34,8 +34,8 @@
                             $image_path_default =base_url()."dash_assets/img/avatar/docavtar.png";
 
                             if($user['PASSPORT_FRONT_IMAGE'] != ""){
-                                $image_path_default = EXTRA_IMAGE_PATH.$user['PASSPORT_FRONT_IMAGE'];
-                                $image_path = EXTRA_IMAGE_PATH.$user['PASSPORT_FRONT_IMAGE'];
+                                $image_path_default = itsc_url().EXTRA_IMAGE_PATH.$user['PASSPORT_FRONT_IMAGE'];
+                                $image_path = itsc_url().EXTRA_IMAGE_PATH.$user['PASSPORT_FRONT_IMAGE'];
 
                             }
                             ?>
@@ -49,7 +49,7 @@
                                        accept=".jpg,.png,.jpeg">
                                 <input type="text" name="passport_front_image1" id="passport_front_image1"
                                        value="<?php echo $image_path; ?>" hidden>
-                                <span class="text-danger">Make Sure Image must be clear Image size should be less than 500kb</span>
+                                <span class="text-danger">Make Sure Image must be clear and Image size should be less than 500KB</span>
                                 <?php
                             }
                             ?>
@@ -67,8 +67,8 @@
 
                             $image_path_default =base_url()."dash_assets/img/avatar/docavtar.png";
                             if($user['PASSPORT_BACK_IMAGE'] != ""){
-                                $image_path_default = EXTRA_IMAGE_PATH.$user['PASSPORT_BACK_IMAGE'];
-                                $image_path = EXTRA_IMAGE_PATH.$user['PASSPORT_BACK_IMAGE'];
+                                $image_path_default =itsc_url(). EXTRA_IMAGE_PATH.$user['PASSPORT_BACK_IMAGE'];
+                                $image_path =itsc_url(). EXTRA_IMAGE_PATH.$user['PASSPORT_BACK_IMAGE'];
 
                             }
                             ?>
@@ -79,7 +79,7 @@
                             ?>
                             <input type="file" name="passport_back_image" id="passport_back_image"                       onchange="changeImage(this,'passport_back_image','passport-back-image-view',500)" accept=".jpg,.png,.jpeg">
                             <input type="text" name="passport_back_image1" id="passport_back_image1" value="<?php echo $image_path; ?>" hidden>
-                            <span class="text-danger">Make Sure Image must be clear Image size should be less than 500kb</span>
+                            <span class="text-danger">Make Sure Image must be clear and Image size should be less than 500KB</span>
                                 <?php
                             }
                             ?>
@@ -102,8 +102,8 @@
                             $image_path_default =base_url()."dash_assets/img/avatar/docavtar.png";
 
                             if($user['CNIC_FRONT_IMAGE'] != ""){
-                                $image_path_default = EXTRA_IMAGE_PATH.$user['CNIC_FRONT_IMAGE'];
-                                $image_path = EXTRA_IMAGE_PATH.$user['CNIC_FRONT_IMAGE'];
+                                $image_path_default = itsc_url().EXTRA_IMAGE_PATH.$user['CNIC_FRONT_IMAGE'];
+                                $image_path =itsc_url(). EXTRA_IMAGE_PATH.$user['CNIC_FRONT_IMAGE'];
 
                             }
                             ?>
@@ -114,7 +114,7 @@
                             ?>
                             <input type="file" name="cnic_front_image" id="cnic_front_image"                       onchange="changeImage(this,'cnic_front_image','cnic-front-image-view',500)" accept=".jpg,.png,.jpeg">
                             <input type="text" name="cnic_front_image1" id="cnic_front_image1" value="<?php echo $image_path; ?>" hidden>
-                            <span class="text-danger">Make Sure Image must be clear Image size should be less than 500kb</span>
+                            <span class="text-danger">Make Sure Image must be clear and Image size should be less than 500KB</span>
                                 <?php
                             }
                             ?>
@@ -132,8 +132,8 @@
 
                             $image_path_default =base_url()."dash_assets/img/avatar/docavtar.png";
                             if($user['CNIC_BACK_IMAGE'] != ""){
-                                $image_path_default = EXTRA_IMAGE_PATH.$user['CNIC_BACK_IMAGE'];
-                                $image_path = EXTRA_IMAGE_PATH.$user['CNIC_BACK_IMAGE'];
+                                $image_path_default =itsc_url(). EXTRA_IMAGE_PATH.$user['CNIC_BACK_IMAGE'];
+                                $image_path = itsc_url().EXTRA_IMAGE_PATH.$user['CNIC_BACK_IMAGE'];
 
                             }
                             ?>
@@ -143,7 +143,7 @@
                             ?>
                             <input type="file" name="cnic_back_image" id="cnic_back_image"                       onchange="changeImage(this,'cnic_back_image','cnic-back-image-view',500)" accept=".jpg,.png,.jpeg">
                             <input type="text" name="cnic_back_image1" id="cnic_back_image1" value="<?php echo $image_path; ?>" hidden>
-                            <span class="text-danger">Make Sure Image must be clear Image size should be less than 500kb</span>
+                            <span class="text-danger">Make Sure Image must be clear and Image size should be less than 500KB</span>
                                 <?php
                             }
                             ?>
@@ -166,8 +166,8 @@
                         $image_path_default =base_url()."dash_assets/img/avatar/docavtar.png";
 
                         if($user['DOMICILE_IMAGE'] != ""){
-                            $image_path_default = EXTRA_IMAGE_PATH.$user['DOMICILE_IMAGE'];
-                            $image_path = EXTRA_IMAGE_PATH.$user['DOMICILE_IMAGE'];
+                            $image_path_default = itsc_url().EXTRA_IMAGE_PATH.$user['DOMICILE_IMAGE'];
+                            $image_path = itsc_url().EXTRA_IMAGE_PATH.$user['DOMICILE_IMAGE'];
 
                         }
                         ?>
@@ -178,7 +178,7 @@
                         ?>
                         <input type="file" name="domicile_image" id="domicile_image"                       onchange="changeImage(this,'domicile_image','domicile-image-view',500)" accept=".jpg,.png,.jpeg">
                         <input type="text" name="domicile_image1" id="domicile_image1" value="<?php echo $image_path; ?>" hidden>
-                        <span class="text-danger">Make Sure Image must be clear Image size should be less than 500kb</span>
+                        <span class="text-danger">Make Sure Image must be clear and Image size should be less than 500KB</span>
                             <?php
                         }
                         ?>
@@ -195,8 +195,8 @@
 
                         $image_path_default =base_url()."dash_assets/img/avatar/docavtar.png";
                         if($user['DOMICILE_FORM_C_IMAGE'] != ""){
-                            $image_path_default = EXTRA_IMAGE_PATH.$user['DOMICILE_FORM_C_IMAGE'];
-                            $image_path = EXTRA_IMAGE_PATH.$user['DOMICILE_FORM_C_IMAGE'];
+                            $image_path_default = itsc_url().EXTRA_IMAGE_PATH.$user['DOMICILE_FORM_C_IMAGE'];
+                            $image_path = itsc_url().EXTRA_IMAGE_PATH.$user['DOMICILE_FORM_C_IMAGE'];
 
                         }
                         ?>
@@ -209,7 +209,7 @@
                                    accept=".jpg,.png,.jpeg">
                             <input type="text" name="domicile_formc_image1" id="domicile_formc_image1"
                                    value="<?php echo $image_path; ?>" hidden>
-                            <span class="text-danger">Make Sure Image must be clear Image size should be less than 500kb</span>
+                            <span class="text-danger">Make Sure Image must be clear and Image size should be less than 500KB</span>
                             <?php
                         }
                         ?>
@@ -228,7 +228,7 @@
                     ?>
                     <div class=" col-lg-2">
                         <div class="payment-adress">
-                            <button onclick="updateDocument()" type="submit"
+                            <button onclick="updateDocument('N')" type="submit"
                                     class="btn btn-primary waves-effect waves-light">Upload Documents
                             </button>
                         </div>
@@ -239,7 +239,7 @@
                 ?>
                 <div class="col-lg-2">
                     <div class="payment-adress">
-                        <button type="button"   onclick = "check_validtion_of_data()" class="btn btn-primary  waves-effect waves-light">Next</button>
+                        <button type="button"   onclick = "updateDocument('Y')" class="btn btn-primary  waves-effect waves-light">Upload Documents & Next</button>
                     </div>
                 </div>
 
@@ -249,8 +249,8 @@
     </div>
 </div>
 <script>
-
-    function updateDocument(){
+    let prog_id = <?=$application['PROGRAM_TYPE_ID']?>;
+    function updateDocument(is_next){
 
         var form = $('#document_upload')[0];
         // Create an FormData object
@@ -284,7 +284,16 @@
                 $('input[name="csrf_form_token"]').val(data.csrfHash);
                 csrfHash =data.csrfHash;
                 $('#doc_form_msg').html("");
-                alertMsg("Success",data.MESSAGE);
+                //alertMsg("Success",data.MESSAGE);
+                if(is_next=='Y'){
+                   // next_tab('education_tab');
+                  // if(prog_id==2){
+                   window.location.href="<?=base_url()?>Candidate/add_inter_qualification";    
+                  // }else{
+                       
+                  // }
+                   
+                }
 
             },
             beforeSend:function (data, status) {

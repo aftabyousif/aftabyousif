@@ -1,4 +1,24 @@
-
+<?php
+// $read_only="";
+// prePrint($user );
+if($user['REMARKS']=="NEW_ADMISSION"){
+$read_only = "readonly";    
+}else{
+    $read_only = "readonly";
+}
+$FORM_STATUS = $application['FORM_STATUS'];
+$upload_button = "";
+if($FORM_STATUS){
+    $FORM_STATUS = json_decode($FORM_STATUS,true);
+    
+    if(is_array($FORM_STATUS) && isset($FORM_STATUS['PROFILE_PHOTO'])&& isset($FORM_STATUS['PROFILE_PHOTO']['STATUS'])&&($FORM_STATUS['PROFILE_PHOTO']['STATUS']==RE_UPLOAD)){
+        $APPLICATION_ID = urlencode(base64_encode($application['APPLICATION_ID']));
+        $application_url = "form/set_application_id/{$APPLICATION_ID}/";
+        $profile_uplaod_url = base_url().$application_url.urlencode(base64_encode("Candidate/upload_profile_image"));
+        $upload_button = "<a class='btn btn-danger' href='$profile_uplaod_url'>Upload Profile</a>";
+    }
+}
+?>
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="review-content-section">
@@ -31,7 +51,7 @@
                         <div class="form-group">
                             <label for="exampleInput1" class="bmd-label-floating">Full Name
                                 <span class="text-danger">*<small>As Per Matriculation</small></span></label>
-                            <input <?=$readonly?> type="text" id="FIRST_NAME" class="form-control allow-string" placeholder="Full Name" name="FIRST_NAME" value="<?=$user['FIRST_NAME']?>">
+                            <input <?=$read_only?> type="text" id="FIRST_NAME" class="form-control allow-string" placeholder="Full Name" name="FIRST_NAME" value="<?=$user['FIRST_NAME']?>">
                             <input type="text" id="USER_ID" class="" name="USER_ID" value="<?=$user['USER_ID']?>" hidden>
 
                         </div>
@@ -40,14 +60,14 @@
                         <div class="form-group">
                             <label for="exampleInput1" class="bmd-label-floating">Father's Name
                                 <span class="text-danger">*</span></label>
-                            <input <?=$readonly?> type="text" id="FNAME" class="form-control allow-string" name="FNAME" value="<?=$user['FNAME']?>"  >
+                            <input <?=$read_only?> type="text" id="FNAME" class="form-control allow-string" name="FNAME" value="<?=$user['FNAME']?>"  >
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group">
                             <label for="exampleInput1" class="bmd-label-floating">Surname
                                 <span class="text-danger">*</span></label>
-                            <input <?=$readonly?> type="text" id="LAST_NAME" class="form-control allow-string" name="LAST_NAME" value="<?=$user['LAST_NAME']?>"  >
+                            <input <?=$read_only?> type="text" id="LAST_NAME" class="form-control allow-cast" name="LAST_NAME" value="<?=$user['LAST_NAME']?>"  >
 
                         </div>
                     </div>
@@ -132,7 +152,7 @@
                             <div class="form-group data-custon-pick" id="data_2">
                                 <div class="input-group date">
                                     <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                    <input <?=$readonly?> type="text" id="DATE_OF_BIRTH"  name="DATE_OF_BIRTH" class="form-control" value="<?=getDateForView($user['DATE_OF_BIRTH'])?>" readonly>
+                                    <input <?=$readonly?> type="text" id="DATE_OF_BIRTH"  name="DATE_OF_BIRTH" class="form-control" value="<?=$user['DATE_OF_BIRTH']?getDateForView($user['DATE_OF_BIRTH']):""?>" readonly>
                                 </div>
                             </div>
                         </div>
@@ -282,7 +302,7 @@
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                         <div class="form-group">
                             <label for="exampleInput1" class="bmd-label-floating">City
-                                <span class="text-danger">*</span></label>
+                                <span class="text-danger"></span></label>
                             <br>
                             <select  id="CITY_ID" class="js-example-basic-single form-control"  name="CITY_ID">
                                 <option value="0">--Choose--</option>
@@ -361,7 +381,7 @@
                         </div>
 
                 <hr>
-                <h4>Gaurdian's / Sponser Information</h4>
+                <h4>Guardian's / Sponsor Information</h4>
                 <hr>
                 <div class="row">
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
@@ -466,7 +486,7 @@
 
                             <img src="<?php echo base_url()."dash_assets/img/cp3.jpg"; ?>"   width="150px" height="150px">
 
-                            <img src="<?php echo base_url()."dash_assets/img/correct-photo.jpg"; ?>"   width="150px" height="150px">
+                            <img src="<?php echo base_url()."dash_assets/img/correct-photo.jpeg"; ?>"   width="150px" height="150px">
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
@@ -479,22 +499,25 @@
                             $image_path_default =base_url()."dash_assets/img/avatar/default-avatar.png";
                             $image_path = "";
                             if($user['PROFILE_IMAGE'] != ""){
-                                $image_path_default = PROFILE_IMAGE_PATH.$user['PROFILE_IMAGE'];
-                                $image_path = PROFILE_IMAGE_PATH.$user['PROFILE_IMAGE'];
+                                $image_path_default = itsc_url().PROFILE_IMAGE_PATH.$user['PROFILE_IMAGE'];
+                                $image_path = itsc_url().PROFILE_IMAGE_PATH.$user['PROFILE_IMAGE'];
 
                             }
                             ?>
                             <img src="<?php echo $image_path_default; ?>" alt="Profile" class="" id="profile-image-view"  width="150px" height="150px" name="profile-image-view" >
                             <?php
-                            if($user['STATUS']=='N') {
+                            
+                            if($user['STATUS']=='N'&&$user['REMARKS']=="NEW_ADMISSION"&&!$user['PROFILE_IMAGE']) {
                                 ?>
                                 <input <?= $readonly ?> type="file" name="profile_image" id="profile_image"
-                                                        onchange="changeImage(this,'profile_image','profile-image-view',50)"
+                                                        onchange="changeImage(this,'profile_image','profile-image-view',100)"
                                                         accept=".jpg,.png,.jpeg" value="<?php echo $image_path; ?>">
                                 <input type="text" name="profile_image1" id="profile_image1"
                                        value="<?php echo $image_path; ?>" hidden>
-                                <span class="text-danger">Image must be passport size with white background and image size should be less than 50KB</span>
+                                <span class="text-danger">Image must be passport size with white background and image size should be less than 100KB</span>
                                 <?php
+                            }else{
+                             echo    $upload_button;
                             }
                             ?>
                         </div>
@@ -517,7 +540,7 @@
                     ?>
                     <div class="col-lg-2">
                         <div class="payment-adress">
-                            <button type="button"onclick = "next_tab('education_tab')" class="btn btn-primary btn-lg waves-effect waves-light">Save & Next</button>
+                            <button type="button"onclick = "save_and_next()" class="btn btn-primary btn-lg waves-effect waves-light">Save & Next</button>
                         </div>
                     </div>
                 </div>
@@ -533,7 +556,7 @@
 
                         <div class="col-lg-2">
                             <div class="">
-                                <button type="button"onclick = "next_tab('education_tab')" class="btn btn-success btn-lg waves-effect waves-light">Next</button>
+                                <button type="button"onclick = "next_tab('documents_tab')" class="btn btn-success btn-lg waves-effect waves-light">Next</button>
                             </div>
                         </div>
                     </div>
@@ -655,6 +678,11 @@
     echo "getCity('{$user['DISTRICT_ID']}');";
     ?>
    //var is_profile = fasle;
+   var is_next=false;
+   function save_and_next(){
+        is_next=true;
+       $('#base_profile_form').submit();
+   }
     $('#base_profile_form').submit(function (event) {
         event.preventDefault();
         var form = $('#base_profile_form')[0];
@@ -687,7 +715,7 @@
                 //console.log(is_next);
                 if(is_next==true){
                     is_next = false;
-                    $('#education_tab').click();
+                    $('#documents_tab').click();
                 }
 
             },

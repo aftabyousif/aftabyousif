@@ -1,20 +1,43 @@
 <?php
-
+	if(!isset($side_bar_values) || !is_array($side_bar_values))
+						{
 $side_bar_values = array();
-array_push($side_bar_values,array('is_submenu' => 0,
-    'is_tab_base'=>'N',
-    'value' => 'Profile',
-    'link' => $profile_url,
-    'class' =>'educate-icon educate-professor icon-wrap'));
-array_push($side_bar_values,array('is_submenu' => 0,
-    'is_tab_base'=>'N',
-    'value' => 'Download Challan',
-    'link' => base_url()."form/application_list",
-    'class' =>'educate-icon educate-professor icon-wrap'));
+
+							  array_push($side_bar_values,array('is_submenu' => 0,
+                            'is_tab_base'=>'N',
+                            'value' => 'Dashboard',
+                            'link' => "form/dashboard",
+                            'class' =>'educate-icon educate-home icon-wrap'));
+                        array_push($side_bar_values,array('is_submenu' => 0,
+                            'is_tab_base'=>'N',
+                            'value' => 'Application Form',
+                            'link' => 'form/upload_application_challan',
+                            'class' =>'educate-icon educate-professor icon-wrap'));
+                    array_push($side_bar_values,array('is_submenu' => 0,
+                            'is_tab_base'=>'N',
+                            'value' => 'Download Admissoin Challan',
+                            'link' => "CandidateSelection",
+                            'class' =>'educate-icon educate-data-table icon-wrap'));
+                        array_push($side_bar_values,array('is_submenu' => 0,
+                            'is_tab_base'=>'N',
+                            'value' => 'Admission Announcements',
+                            'link' => "form/announcement",
+                            'class' =>'educate-icon educate-data-table icon-wrap'));
+                            array_push($side_bar_values,array('is_submenu' => 0,
+                            'is_tab_base'=>'N',
+                            'value' => 'Download Application Challan',
+                            'link' => "form/application_list",
+                            'class' =>'educate-icon educate-data-table icon-wrap'));
+                             array_push($side_bar_values,array('is_submenu' => 0,
+                            'is_tab_base'=>'N',
+                            'value' => 'Download Hostel Form',
+                            'link' => "assets/hostel_form.pdf",
+                            'class' =>'educate-icon educate-data-table icon-wrap'));
+						}
 array_push($side_bar_values,array('is_submenu' => 0,
     'is_tab_base'=>'N',
     'value' => 'Logout',
-    'link' => base_url()."logout",
+    'link' => "logout",
     'class' =>'educate-icon educate-pages icon-wrap'));
 ?>
 
@@ -63,7 +86,7 @@ array_push($side_bar_values,array('is_submenu' => 0,
                                                             <?php
                                                             foreach($side_bar_value['sub_menu'] as $sub_menu){
                                                                 ?>
-                                                                <a href="<?=$sub_menu['link'];?>" class="dropdown-item"><?=$sub_menu['value'];?></a>
+                                                                <a href="<?=base_url().$sub_menu['link'];?>" class="dropdown-item"><?=$sub_menu['value'];?></a>
 
 
                                                                 <?php
@@ -104,7 +127,7 @@ array_push($side_bar_values,array('is_submenu' => 0,
                                                 <a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="nav-link dropdown-toggle">
                                                     <?php
                                                     if(isset($user['PROFILE_IMAGE'])){
-                                                        $v =base_url().PROFILE_IMAGE_PATH;
+                                                        $v =itsc_url().PROFILE_IMAGE_PATH;
                                                         echo " <img src='$v{$user['PROFILE_IMAGE']}' alt=''  >";
                                                     }else {
                                                         $image_path_default = base_url() . "dash_assets/img/avatar/default-avatar.png";
@@ -117,7 +140,7 @@ array_push($side_bar_values,array('is_submenu' => 0,
                                                 </a>
                                                 <ul role="menu" class="dropdown-header-top author-log dropdown-menu animated zoomIn">
 
-                                                    <li><a href="<?=$profile_url?>"><span class="edu-icon edu-user-rounded author-log-ic"></span>My Profile</a>
+                                                    <li><a href="<?=base_url().$profile_url?>"><span class="edu-icon edu-user-rounded author-log-ic"></span>Application Form</a>
                                                     </li>
                                                     <li><a href="<?=base_url()?>changePassword"><span class="edu-icon edu-user-rounded author-log-ic"></span>Change Password</a>
                                                     </li>
@@ -154,7 +177,7 @@ array_push($side_bar_values,array('is_submenu' => 0,
                                     foreach($side_bar_values as $side_bar_value){
                                         if($side_bar_value['is_submenu']==0){
                                             ?>
-                                            <li><a href="<?=$side_bar_value['link'];?>"><?=$side_bar_value['value'];?></a></li>
+                                            <li><a href="<?=base_url().$side_bar_value['link'];?>"><?=$side_bar_value['value'];?></a></li>
                                             <?php
                                         }else if($side_bar_value['is_submenu']==1){
                                             ?>
@@ -217,71 +240,3 @@ array_push($side_bar_values,array('is_submenu' => 0,
         -->
 
     </div>
-    <a id="priamry_modal_btn" class="Primary mg-b-10" href="#" data-toggle="modal" data-target="#PrimaryModalalert" hidden>Primary</a>
-    <div id="PrimaryModalalert" class="modal modal-edu-general default-popup-PrimaryModal fade " role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-close-area modal-close-df">
-                    <a class="close" data-dismiss="modal" href="#"><i class="fa fa-close"></i></a>
-                </div>
-                <div class="modal-body">
-                    <i class="educate-icon educate-checked modal-check-pro"></i>
-                    <h4 id="priamry_modal_title">Awesome!</h4>
-                    <div id="priamry_modal_msg" class="text-left">The Modal plugin is a dialog box/popup window that is displayed on top of the current page</div>
-                </div>
-                <div class="modal-footer" id="add_btn">
-                    <a data-dismiss="modal" href="#">OK</a>
-
-                    <!--                                        <a href="#">Process</a>-->
-                </div>
-            </div>
-        </div>
-    </div>
-    <a id="image_modal_btn" class="Primary mg-b-10" href="#" data-toggle="modal" data-target="#ImageModalalert" hidden>Primary</a>
-    <div id="ImageModalalert" class="modal modal-edu-general default-popup-PrimaryModal fade" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-close-area modal-close-df">
-                    <a class="close" data-dismiss="modal" href="#"><i class="fa fa-close"></i></a>
-                </div>
-                <div class="modal-body">
-                    <i class="educate-icon educate-checked modal-check-pro"></i>
-                    <h2 id="image_modal_title">Awesome!</h2>
-                    <p id="image_modal_msg">
-                        <img src="<?=$image_path_default =base_url()."dash_assets/img/avatar/default-avatar.png";?>" alt="">
-                    </p>
-                </div>
-                <div class="modal-footer" id="add_btn">
-                    <a data-dismiss="modal" href="#">OK</a>
-
-                    <!--                                        <a href="#">Process</a>-->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        function alertMsg(title,msg){
-            document.getElementById("priamry_modal_title").innerHTML= title;
-            document.getElementById("priamry_modal_msg").innerHTML= msg;
-            document.getElementById("priamry_modal_btn").click();
-        }
-        function alertImage(title,path){
-            document.getElementById("image_modal_title").innerHTML= title;
-            document.getElementById("image_modal_msg").innerHTML= "<img src='"+path+"' alt=''>";
-            document.getElementById("image_modal_btn").click();
-        }
-        function alertConfirm(title,msg,id){
-            document.getElementById("priamry_modal_msg").innerHTML= msg;
-            document.getElementById("priamry_modal_title").innerHTML= title;
-            id = "'"+id+"'";
-            document.getElementById("add_btn").innerHTML = "<a data-dismiss=\"modal\" href=\"#\">Cancel</a><a href='#' data-dismiss='modal' onclick=\"submitConfirm("+id+")\" id='confirm_btn'>Process</a>";
-            document.getElementById("priamry_modal_btn").click();
-
-
-        }
-        function submitConfirm(id){
-            document.getElementById(id).click();
-        }
-
-    </script>

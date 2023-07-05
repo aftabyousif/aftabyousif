@@ -19,23 +19,44 @@
 						if(!isset($side_bar_values) || !is_array($side_bar_values))
 						{
 							$side_bar_values = array();
-						}
-
+							  array_push($side_bar_values,array('is_submenu' => 0,
+                            'is_tab_base'=>'N',
+                            'value' => 'Dashboard',
+                            'link' => "form/dashboard",
+                            'class' =>'educate-icon educate-home icon-wrap'));
                         array_push($side_bar_values,array('is_submenu' => 0,
                             'is_tab_base'=>'N',
-                            'value' => 'Profile',
-                            'link' => $profile_url,
+                            'value' => 'Application Form',
+                            'link' => 'form/upload_application_challan',
                             'class' =>'educate-icon educate-professor icon-wrap'));
+                    array_push($side_bar_values,array('is_submenu' => 0,
+                            'is_tab_base'=>'N',
+                            'value' => 'Download Admissoin Challan',
+                            'link' => "CandidateSelection",
+                            'class' =>'educate-icon educate-data-table icon-wrap'));
                         array_push($side_bar_values,array('is_submenu' => 0,
                             'is_tab_base'=>'N',
-                            'value' => 'Download Challan',
-                            'link' => base_url()."form/application_list",
+                            'value' => 'Admission Announcements',
+                            'link' => "form/announcement",
+                            'class' =>'educate-icon educate-data-table icon-wrap'));
+                            array_push($side_bar_values,array('is_submenu' => 0,
+                            'is_tab_base'=>'N',
+                            'value' => 'Download Application Challan',
+                            'link' => "form/application_list",
+                            'class' =>'educate-icon educate-data-table icon-wrap'));
+                             array_push($side_bar_values,array('is_submenu' => 0,
+                            'is_tab_base'=>'N',
+                            'value' => 'Download Hostel Form',
+                            'link' => "assets/hostel_form.pdf",
                             'class' =>'educate-icon educate-data-table icon-wrap'));
 
+						}
+
+                      
                         array_push($side_bar_values,array('is_submenu' => 0,
                             'is_tab_base'=>'N',
                             'value' => 'Logout',
-                            'link' => base_url()."logout",
+                            'link' => "logout",
                             'class' =>'educate-icon educate-pages icon-wrap'));
 
 

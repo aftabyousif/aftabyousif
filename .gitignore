@@ -8,6 +8,16 @@ application/logs/*
 
 !application/*/.htaccess
 
+assets/
+cmd_log/
+dash_assets/
+fee_import_log/
+merit_list/
+system/
+test_result_import_log/
+user_guide/
+verification_log/
+
 composer.lock
 
 user_guide_src/build/*

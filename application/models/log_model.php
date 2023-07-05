@@ -1,6 +1,6 @@
 <?php
 
-class log_model extends CI_Model
+class Log_model extends CI_Model
 {
 	protected $SessionName = 'ADMIN_LOGIN_FOR_ADMISSION';
 
@@ -20,6 +20,8 @@ class log_model extends CI_Model
 	 * 24 FOR PASSWORD CHANGE INSIDE PORTAL
 	 * 25 FOR USER RIGHT CHANGED
 	 * 26 FOR LOGOUT
+	 * 27 FOR VERIFICATION LOG ENTRY
+	 * 28 FOR ADMISSION BOOKLET ENTRY
 	 * */
 
 	function create_log($PREV_ID,$NEW_ID,$PREV_RECORD,$NEW_RECORD,$DETAIL,$TABLE_NAME,$OPERATION_CODE,$USER_ID)
@@ -45,10 +47,10 @@ class log_model extends CI_Model
 
 		$ip_addr = $ipaddress;
 
-		$MAC = exec('getmac');
+//		$MAC = exec('getmac');
 		// Storing 'getmac' value in $MAC
-		$MAC = strtok($MAC, ' ');
-
+//		$MAC = strtok($MAC, ' ');
+$MAC="";
 		$iphone = strpos($_SERVER['HTTP_USER_AGENT'],"iPhone");
 		$android = strpos($_SERVER['HTTP_USER_AGENT'],"Android");
 		$palmpre = strpos($_SERVER['HTTP_USER_AGENT'],"webOS");
@@ -135,9 +137,10 @@ class log_model extends CI_Model
         $win = strpos($_SERVER['HTTP_USER_AGENT'],'Windows');
         $Macintosh = strpos($_SERVER['HTTP_USER_AGENT'],'Macintosh');
         $Linux = strpos($_SERVER['HTTP_USER_AGENT'],'Linux');
-        $MAC = exec('getmac');
+        //$MAC = exec('getmac');
         // Storing 'getmac' value in $MAC
-        $MAC = strtok($MAC, ' ');
+        //$MAC = strtok($MAC, ' ');
+        $MAC="";
         if($iphone == true)
             $user_agent = "iPhone";
         elseif ($android == true)
