@@ -262,13 +262,19 @@ class StudentReports_model extends CI_Model
     $query = $this->legacy_db->get_where($table, $where);
     if($query->num_rows() > 0){
       $this->legacy_db->where($where);
-      $this->legacy_db->update($table,$record);
-      $message = 'Record updated successfuly.';
+      if($this->legacy_db->update($table,$record)){
+        $addUpdate = array_merge($record, array('MESSAGE' => 'Record updated successfully.'));
+      } else {
+        $addUpdate = array_merge($record, array('MESSAGE' => 'Record not updated successfully.'));
+      };
     } else {
-      $this->legacy_db->insert($table,$record);
-      $message = 'Record inserted successfuly.';
+      if($this->legacy_db->insert($table,$record)){
+        $addUpdate = array_merge($record, array('MESSAGE' => 'Record inserted successfully.'));
+      } else {
+        $addUpdate = array_merge($record, array('MESSAGE' => 'Record not inserted successfully.'));
+      };
     }
-    return $message;
+    return $addUpdate;
   }
 
 }

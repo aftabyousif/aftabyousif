@@ -197,17 +197,29 @@
 			// });
 		}
 		$scope.candidateImport = function () {
-			$http({
-				method: 'GET',
-				url: '<?=base_url()?>StudentIDCard/candidateImport'
-			}).then(function successCallback(response) {
-				console.log(response);
-			// this callback will be called asynchronously
-			// when the response is available
-			}, function errorCallback(response) {
-				console.log(response);
-			// called asynchronously if an error occurs
-			// or server returns response with an error status.
+			// $http({
+			// 	method: 'GET',
+			// 	url: '<?=base_url()?>StudentIDCard/candidateImport'
+			// }).then(function successCallback(response) {
+			// 	console.log(response);
+
+			// }, function errorCallback(response) {
+			// 	console.log(response);
+			// });
+			$scope.errorMSG=null;			
+			let candidate = {
+				session_id: 3,
+				shift_id: 2,
+			}
+			$http.post('<?=base_url()?>StudentIDCard/candidateImport',candidate).then(function success(response){
+				//$scope.CANDIDATE_RECOED = response.data;
+				if (response.status === 200 ){
+					$scope.GenerateMSG = response.data;
+				}
+				
+				$scope.download(response.data,'CANDIDATE_RECOED');
+			},function error(response){
+				// console.log(response);
 			});
 		}
 		$scope.challanImport = function () {
@@ -299,11 +311,71 @@
 		$scope.getSemester = function (demerit_id) {
 			let data = {flag:"proper_channel",FEE_DEMERIT_ID:demerit_id};
 			$http.post("<?php echo base_url(); ?>AdminApi/getSemester", data).then(function (response) {
-			$scope.semesters = response.data;
+				$scope.semesters = response.data;
 			},function (response) { 
-			alert("error"); 
-		});
+				alert("error"); 
+			});
 		}
+		$scope.download	= function (records,file_name){
+				let date = new Date();
+				let csvString = '';
+				angular.forEach(records,function(value,value_key) {
+					angular.forEach(value,function (column,column_key){
+						csvString = csvString+""+column_key+",";
+					});
+					csvString = csvString+"\n";
+					// angular.forEach(column,function(data,data_key){
+					// 	csvString = csvString+data_key+",";
+					// });
+					// csvString = csvString+",";
+					// angular.forEach(column,function(data,data_key){
+					// 	csvString = csvString+data+",";
+					// });
+					// 	csvString = csvString+"\n";
+
+					// let ADMIT_CARD = $value['ADMIT_CARD'];
+					// let TEST_RESULT = $value['TEST_RESULT'];
+					// let APPLICATION_CATEGORY = $value['APPLICATION_CATEGORY'];
+					// let APPLICATION_CHOICES = $value['APPLICATION_CHOICES'];
+					// let APPLIED_SHIFT = $value['APPLIED_SHIFT'];
+					// let SELECTION_LIST = $value['SELECTION_LIST'];
+					// let CANDIDATE_ACCOUNT = $value['CANDIDATE_ACCOUNT'];
+
+					// csvString = csvString +value['STATUS']+",";
+					// csvString = csvString +value['CHALLAN_NO']+",";
+					// csvString = csvString +value['APPLICATION_ID']+",";
+					// csvString = csvString +value['CHALLAN_TYPE_ID']+",";
+					// csvString = csvString +value['BANK_ACCOUNT_ID']+",";
+					// csvString = csvString +value['SELECTION_LIST_ID']+",";
+					// csvString = csvString +value['FIRST_NAME']+",";
+					// csvString = csvString +value['FNAME']+",";
+					// csvString = csvString +value['LAST_NAME']+",";
+					// csvString = csvString +value['PROGRAM_TITLE']+",";
+					// csvString = csvString +value['CATEGORY_NAME']+",";
+					// csvString = csvString +FEE_PROG_LIST_ID+",";
+					// csvString = csvString +value['FEE_DEMERIT_ID']+",";
+					// csvString = csvString +value['PART_ID']+",";
+					// csvString = csvString +value['SEMESTER_ID']+",";
+					// csvString = csvString +value['CHALLAN_AMOUNT']+",";
+					// csvString = csvString +value['INSTALLMENT_AMOUNT']+",";
+					// csvString = csvString +value['DUES']+",";
+					// csvString = csvString +value['LATE_FEE']+",";
+					// csvString = csvString +value['PAID_AMOUNT']+",";
+					// csvString = csvString +value['PAYABLE_AMOUNT']+",";
+					// csvString = csvString +value['VALID_UPTO']+",";
+					// csvString = csvString +value['DATETIME']+",";
+					// csvString = csvString +value['ADMIN_USER_ID']+",";
+					// csvString = csvString +value['REMARKS']+"\n";
+				
+				});
+				var a = $('<a/>', {
+					style:'display:none',
+					href:'data:application/octet-stream;base64,'+btoa(csvString),
+					download:'candidate_'+date+'.csv'
+				}).appendTo('body')
+				a[0].click()
+				a.remove();
+			}
 		$scope.getSemester();
 		$scope.getSessions();
 		$scope.getCampus();

@@ -26,6 +26,7 @@ class StudentIDCard extends AdminLogin {
         $this->load->model('Prerequisite_model');
         $this->load->model('StudentReports_model');
         $this->load->library('Tcpdf_master');
+		$this->load->helper('url');
         $this->legacy_db = $this->load->database('admission_db',true);
         $this->online_db = $this->load->database('admission_online',true);
 		$this->db = $this->load->database('admission_v2',true);
@@ -1772,6 +1773,8 @@ class StudentIDCard extends AdminLogin {
 		exit;
 	}
 	public function candidateImport(){
+		$session_id = $this->input->post('session_id');
+		$shift_id = $this->input->post('shift_id');
 		$user = $this->session->userdata($this->SessionName);
         $user_role = $this->session->userdata($this->user_role);
         $ADMIN_USER_ID = $user['USER_ID'];
@@ -1855,27 +1858,27 @@ class StudentIDCard extends AdminLogin {
 			
 			// Add/Update record in admit_card table
 			$ADMIT_CARD_WHERE = array('CARD_ID' => $SEAT_NO, 'SESSION_ID' => $SESSION_ID,'APPLICATION_ID' => $APPLICATION_ID);
-			$ADMIT_CARD = array('CARD_ID' => $SEAT_NO, 'SESSION_ID' => $SESSION_ID, 'APPLICATION_ID' => $APPLICATION_ID, 'IS_DISPATCHED' => "N", 'REMARKS' => "OLD STUDENT", 'ADMISSION_SESSION_ID' => $ADMISSION_SESSION_ID, 'TEST_DATETIME' => NULL, 'PROGRAM_TYPE_ID' => $PROGRAM_TYPE_ID);
+			$ADMIT_CARD = array('CARD_ID' => $SEAT_NO, 'SESSION_ID' => $SESSION_ID, 'APPLICATION_ID' => $APPLICATION_ID, 'IS_DISPATCHED' => "N", 'REMARKS' => "OLD STUDENT", 'ADMISSION_SESSION_ID' => $ADMISSION_SESSION_ID, 'TEST_DATETIME' => '2023-07-07', 'PROGRAM_TYPE_ID' => $PROGRAM_TYPE_ID);
 			$ADMIT_CARD = $this->StudentReports_model->addUpdateTable('admit_card',$ADMIT_CARD_WHERE,$ADMIT_CARD);
 			
 			// Add/Update record in test_result table
 			$TEST_RESULT_WHERE = array('CARD_ID' => $SEAT_NO, 'USER_ID' => $USER_ID,'APPLICATION_ID' => $APPLICATION_ID);
-			$TEST_RESULT = array('CARD_ID' => $SEAT_NO, 'TEST_ID' => 7, 'TEST_SCORE' => $TEST_SCORE, 'USER_ID' => $USER_ID, 'APPLICATION_ID' => $APPLICATION_ID, 'ACTIVE' => 1, 'REMARKS' => "OLD STUDENT", 'DETAIL_CPN' => NULL, 'CPN' => $CPN);
+			$TEST_RESULT = array('CARD_ID' => $SEAT_NO, 'TEST_ID' => 7, 'TEST_SCORE' => $TEST_SCORE, 'USER_ID' => $USER_ID, 'APPLICATION_ID' => $APPLICATION_ID, 'ACTIVE' => 1, 'REMARKS' => "OLD STUDENT", 'DETAIL_CPN' => $CPN, 'CPN' => $CPN);
 			$TEST_RESULT = $this->StudentReports_model->addUpdateTable('test_result',$TEST_RESULT_WHERE,$TEST_RESULT);
 			
 			// Add/Update record in application_category table
 			$APPLICATION_CATEGORY_WHERE = array('USER_ID' => $USER_ID,'APPLICATION_ID' => $APPLICATION_ID);
-			$APPLICATION_CATEGORY = array('USER_ID' => $USER_ID, 'APPLICATION_ID' => $APPLICATION_ID, 'FORM_CATEGORY_ID' => $FORM_CATEGORY_ID, 'CATEGORY_INFO' => NULL, 'REMARKS' => "OLD STUDENT", 'IS_ENABLE' => "Y");
+			$APPLICATION_CATEGORY = array('USER_ID' => $USER_ID, 'APPLICATION_ID' => $APPLICATION_ID, 'FORM_CATEGORY_ID' => $FORM_CATEGORY_ID, 'CATEGORY_INFO' => "OLD STUDENT", 'REMARKS' => "OLD STUDENT", 'IS_ENABLE' => "Y");
 			$APPLICATION_CATEGORY = $this->StudentReports_model->addUpdateTable('application_category',$APPLICATION_CATEGORY_WHERE,$APPLICATION_CATEGORY);
 
 			// Add/Update record in application_choices table
 			$APPLICATION_CHOICES_WHERE = array('USER_ID' => $USER_ID,'APPLICATION_ID' => $APPLICATION_ID);
-			$APPLICATION_CHOICES = array('USER_ID' => $USER_ID, 'APPLICATION_ID' => $APPLICATION_ID, 'PROG_LIST_ID' => $PROG_LIST_ID, 'SHIFT_ID' => $SHIFT_ID, 'CHOICE_NO' => $CHOICE_NO, 'IS_RECOMMENDED' => NULL, 'REMARKS' => "OLD STUDENT", 'IS_SPECIAL_CHOICE' => "N");
+			$APPLICATION_CHOICES = array('USER_ID' => $USER_ID, 'APPLICATION_ID' => $APPLICATION_ID, 'PROG_LIST_ID' => $PROG_LIST_ID, 'SHIFT_ID' => $SHIFT_ID, 'CHOICE_NO' => $CHOICE_NO, 'IS_RECOMMENDED' => "Y", 'REMARKS' => "OLD STUDENT", 'IS_SPECIAL_CHOICE' => "N");
 			$APPLICATION_CHOICES = $this->StudentReports_model->addUpdateTable('application_choices',$APPLICATION_CHOICES_WHERE,$APPLICATION_CHOICES);
 
 			// Add/Update record in applied_shift table
 			$APPLIED_SHIFT_WHERE = array('USER_ID' => $USER_ID,'APPLICATION_ID' => $APPLICATION_ID);
-			$APPLIED_SHIFT = array('APPLICATION_ID' => $APPLICATION_ID, 'SHIFT_ID' => $SHIFT_ID, 'USER_ID' => $USER_ID, 'DATETIME' => NULL, 'REMARKS' => "OLD STUDENT");
+			$APPLIED_SHIFT = array('APPLICATION_ID' => $APPLICATION_ID, 'SHIFT_ID' => $SHIFT_ID, 'USER_ID' => $USER_ID, 'DATETIME' => '2023-07-07', 'REMARKS' => "OLD STUDENT");
 			$APPLIED_SHIFT = $this->StudentReports_model->addUpdateTable('applied_shift',$APPLIED_SHIFT_WHERE,$APPLIED_SHIFT);
 
 			// Add/Update record in selection_list table
@@ -1885,7 +1888,7 @@ class StudentIDCard extends AdminLogin {
 			
 			// Add/Update record in candidate_account table
 			$CANDIDATE_ACCOUNT_WHERE = array('APPLICATION_ID' => $APPLICATION_ID);
-			$CANDIDATE_ACCOUNT = array('APPLICATION_ID' => $APPLICATION_ID, 'FIRST_NAME' => NULL, 'FNAME' => NULL, 'LAST_NAME' => NULL, 'DATE' => NOW(), 'ACTIVE' => 1, 'REMARKS' => "OLD STUDENT", 'CANDIDATE_ID' => $CANDIDATE_ID, 'USER_ID' => $USER_ID); 
+			$CANDIDATE_ACCOUNT = array('APPLICATION_ID' => $APPLICATION_ID, 'FIRST_NAME' => "OLD STUDENT", 'FNAME' => "OLD STUDENT", 'LAST_NAME' => "OLD STUDENT", 'DATE' => NOW(), 'ACTIVE' => 1, 'REMARKS' => "OLD STUDENT", 'CANDIDATE_ID' => $CANDIDATE_ID, 'USER_ID' => $USER_ID); 
 			$CANDIDATE_ACCOUNT = $this->StudentReports_model->addUpdateTable('candidate_account',$CANDIDATE_ACCOUNT_WHERE,$CANDIDATE_ACCOUNT);
 			
 			$records = array();
@@ -1899,11 +1902,14 @@ class StudentIDCard extends AdminLogin {
 
 			$candidate_record[] = $records;
 			$limit++;
-			if($limit >= 1000) break;
+			if($limit >= 100) break;
 		}
-		unset($candidate);
+		
+		http_response_code(200);
 		echo (json_encode($candidate_record));
-		exit();
+		$this->output->set_content_type('application/json')->set_output(json_encode($candidate_record));
+		unset($candidate);
+		exit;
 	}
 
 	public function challanImport(){
